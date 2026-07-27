@@ -1,0 +1,89 @@
+/* CSS Module for TopicSidebar styling */
+
+.sidebar {
+  width: 100%;
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .sidebar {
+    width: 16rem; /* w-64 */
+  }
+}
+
+.stickyContainer {
+  position: sticky;
+  top: 6rem; /* space below navbar */
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-card-border);
+  background-color: var(--color-card-bg);
+  padding: 1.25rem;
+}
+
+.sidebarTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #233807;
+  letter-spacing: -0.025em;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.titleIcon {
+  height: 1rem;
+  width: 1rem;
+  color: #568203;
+}
+
+.listGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  max-height: 50vh;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.optionButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  color: rgba(35, 56, 7, 0.7);
+}
+
+.optionButton:hover {
+  color: #233807;
+  background-color: var(--color-background);
+}
+
+.optionButtonActive {
+  background-color: rgba(86, 130, 3, 0.1);
+  border-color: rgba(86, 130, 3, 0.2);
+  color: #568203;
+  font-weight: 600;
+}
+
+.badge {
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 10px;
+  background-color: var(--color-background);
+  color: rgba(35, 56, 7, 0.5);
+  transition: all 0.2s ease;
+}
+
+.optionButtonActive .badge {
+  background-color: rgba(86, 130, 3, 0.2);
+  color: #3e5e02;
+}

@@ -1,0 +1,196 @@
+/* CSS Module for ProblemRow styling */
+
+.row {
+  border-bottom: 1px solid var(--color-card-border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.row:hover {
+  background-color: rgba(28, 35, 64, 0.03);
+}
+
+.toggleCell {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  padding-left: 1rem;
+  padding-right: 0.5rem;
+  text-align: center;
+}
+
+.checkbox {
+  display: flex;
+  height: 1.5rem; /* h-6 */
+  width: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  border: 1px solid var(--color-card-border);
+  background-color: var(--color-background);
+  color: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.checkbox:hover {
+  border-color: rgba(86, 130, 3, 0.4);
+}
+
+.checkboxChecked {
+  background-color: #568203;
+  border-color: #568203;
+  color: #FFF8B9;
+  box-shadow: 0 4px 6px -1px rgba(86, 130, 3, 0.15);
+}
+
+.checkIcon {
+  height: 0.875rem;
+  width: 0.875rem;
+  stroke-width: 3;
+}
+
+.titleCell {
+  padding: 1rem 0.75rem;
+  text-align: left;
+}
+
+.titleGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.number {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(35, 56, 7, 0.4);
+  transition: color 0.2s ease;
+}
+
+.row:hover .number {
+  color: rgba(35, 56, 7, 0.6);
+}
+
+.title {
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: color 0.2s ease;
+  color: rgba(35, 56, 7, 0.85);
+}
+
+.row:hover .title {
+  color: #233807;
+}
+
+.titleChecked {
+  color: rgba(35, 56, 7, 0.45);
+  text-decoration: line-through;
+  text-decoration-color: rgba(35, 56, 7, 0.3);
+}
+
+.difficultyCell {
+  padding: 1rem 0.75rem;
+  text-align: left;
+}
+
+.difficultyBadge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 0.25rem;
+  border: 1px solid transparent;
+  padding-left: 0.625rem;
+  padding-right: 0.625rem;
+  padding-top: 0.125rem;
+  padding-bottom: 0.125rem;
+  font-size: 10px;
+  font-weight: 700;
+  tracking-wide: 0.05em;
+  text-transform: uppercase;
+}
+
+.topicsCell {
+  padding: 1rem 0.75rem;
+  text-align: left;
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .topicsCell {
+    display: table-cell;
+  }
+}
+
+.topicList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  max-width: 20rem;
+}
+
+.topicBadge {
+  border-radius: 0.25rem;
+  background-color: var(--color-background);
+  border: 1px solid var(--color-card-border);
+  padding: 0.125rem 0.5rem;
+  font-size: 9px;
+  font-weight: 500;
+  color: rgba(35, 56, 7, 0.5);
+}
+
+.moreBadge {
+  font-size: 9px;
+  color: rgba(35, 56, 7, 0.4);
+  font-weight: 600;
+  padding-left: 0.25rem;
+  align-self: center;
+}
+
+.noTags {
+  font-size: 9px;
+  color: rgba(35, 56, 7, 0.3);
+  font-style: italic;
+}
+
+.languageCell {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  padding-left: 0.75rem;
+  padding-right: 1rem;
+  text-align: right;
+}
+
+.langGroup {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.langList {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.langBadge {
+  font-size: 9px;
+  font-weight: 600;
+  color: #568203;
+  background-color: rgba(86, 130, 3, 0.08);
+  border: 1px solid rgba(86, 130, 3, 0.18);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+}
+
+.arrowIcon {
+  height: 1rem;
+  width: 1rem;
+  color: rgba(35, 56, 7, 0.3);
+  transition: all 0.2s ease;
+}
+
+.row:hover .arrowIcon {
+  color: #568203;
+  transform: translate(2px, -2px);
+}

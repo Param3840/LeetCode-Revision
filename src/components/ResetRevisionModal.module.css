@@ -1,0 +1,133 @@
+/* CSS Module for ResetRevisionModal styling */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.modalBody {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 28rem; /* max-w-md */
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-card-border);
+  background-color: var(--color-card-bg);
+  padding: 1.5rem;
+  box-shadow: 0 25px 50px -12px rgba(35, 56, 7, 0.15);
+}
+
+.closeButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  color: rgba(35, 56, 7, 0.4);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: color 0.2s ease;
+}
+
+.closeButton:hover {
+  color: #233807;
+}
+
+.flexColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.iconWrapper {
+  display: flex;
+  height: 3rem; /* h-12 */
+  width: 3rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  background-color: rgba(185, 28, 28, 0.08);
+  border: 1px solid rgba(185, 28, 28, 0.18);
+}
+
+.icon {
+  height: 1.5rem;
+  width: 1.5rem;
+  color: #b91c1c;
+}
+
+.modalTitle {
+  font-size: 1.125rem; /* text-lg */
+  font-weight: 700;
+  color: #233807;
+  letter-spacing: -0.01em;
+}
+
+.modalDescription {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: rgba(35, 56, 7, 0.7);
+  line-height: 1.625;
+}
+
+.actionsGroup {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.cancelButton {
+  border-radius: 0.375rem;
+  border: 1px solid #e1daab;
+  background-color: #ffffff;
+  padding: 0.625rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #233807;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover {
+  border-color: #568203;
+  color: #568203;
+}
+
+.cancelButton:active {
+  transform: scale(0.98);
+}
+
+.confirmButton {
+  border-radius: 0.375rem;
+  background-color: #b91c1c;
+  padding: 0.625rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 0;
+}
+
+.confirmButton:hover {
+  background-color: #991b1b;
+}
+
+.confirmButton:active {
+  transform: scale(0.98);
+}

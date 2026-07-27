@@ -1,0 +1,136 @@
+
+.stepsSection {
+  background-color: #233807; /* Dark Green */
+  padding: 6rem 1.5rem;
+  color: #fdfdfd; /* Light text */
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  width: 100%;
+}
+
+.stepsContainer {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 80rem; /* 7xl */
+}
+
+.stepsHeader {
+  text-align: center;
+  max-width: 42rem;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 4rem;
+}
+
+.stepsLabel {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #FFF8B9; /* yellow accent */
+  letter-spacing: 0.25em;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.stepsTitle {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.stepsSubtitle {
+  font-size: 0.875rem;
+  color: rgba(253, 253, 253, 0.75);
+  margin-top: 1.25rem;
+  line-height: 1.625;
+}
+
+.grid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.stepCard {
+  flex: 1 1 calc(25% - 1.5rem);
+  min-width: 240px;
+  background-color: #FFF8B9;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1.25rem;
+  padding: 2rem;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.stepCard:hover {
+  transform: translateY(-4px);
+}
+
+.numberBadge {
+  display: inline-flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background-color: #FFF8B9; /* yellow background */
+  color: #233807; /* dark text */
+  font-weight: 800;
+  font-size: 1rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.cardTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #233807;
+  margin-bottom: 0.625rem;
+  letter-spacing: -0.01em;
+}
+
+.cardText {
+  font-size: 0.875rem;
+  color: #233807;
+  line-height: 1.625;
+}
+
+.textLink {
+  color: #233807;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+
+
+@media (min-width: 640px) {
+  .stepsSection {
+    padding: 8rem 2rem;
+  }
+  
+  .stepsTitle {
+    font-size: 2.75rem;
+  }
+  
+  .stepsSubtitle {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .stepCard {
+    flex: 1 1 calc(50% - 1rem);
+  }
+}
+
+@media (max-width: 540px) {
+  .stepCard {
+    flex: 1 1 100%;
+  }
+}

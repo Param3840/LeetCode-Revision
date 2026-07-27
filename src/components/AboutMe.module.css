@@ -1,0 +1,174 @@
+/* CSS Module for AboutMe section styling */
+
+.aboutMeSection {
+  background-color: #FFF8B9;
+  padding: 6rem 1.5rem;
+  color: #233807;
+  border-top: 1px solid #e1daab;
+  width: 100%;
+}
+
+.aboutMeContainer {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 80rem; /* 7xl */
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.leftCol {
+  flex: 1;
+}
+
+.rightCol {
+  flex: 1.2;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  justify-content: center;
+}
+
+.label {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #568203;
+  letter-spacing: 0.25em;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.title {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #233807;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+}
+
+.quote {
+  font-size: 1.25rem;
+  line-height: 1.5;
+  color: #568203;
+  font-weight: 600;
+  border-left: 3px solid #568203;
+  padding-left: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+}
+
+.contactList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.contactItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(35, 56, 7, 0.75);
+  font-size: 0.875rem;
+}
+
+.contactLink {
+  color: #233807;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.contactLink:hover {
+  color: #568203;
+  text-decoration: underline;
+}
+
+.contactText {
+  font-weight: 600;
+  color: #233807;
+}
+
+.storyText {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: rgba(35, 56, 7, 0.8);
+}
+
+.highlightsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.highlightCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(86, 130, 3, 0.1);
+  padding: 1rem;
+  border-radius: 0.75rem;
+}
+
+.highlightTitle {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #233807;
+}
+
+.highlightDesc {
+  font-size: 0.75rem;
+  color: rgba(35, 56, 7, 0.7);
+  margin-top: 0.125rem;
+  line-height: 1.4;
+}
+
+.buttonContainer {
+  margin-top: 1rem;
+}
+
+.githubButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #233807;
+  color: #FFF8B9;
+  font-size: 0.825rem;
+  font-weight: 700;
+  padding: 0.875rem 1.5rem;
+  border-radius: 0.75rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(35, 56, 7, 0.15);
+}
+
+.githubButton:hover {
+  background-color: #568203;
+  transform: translateY(-2px);
+}
+
+@media (min-width: 640px) {
+  .highlightsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .aboutMeSection {
+    padding: 8rem 2rem;
+  }
+
+  .aboutMeContainer {
+    flex-direction: row;
+    gap: 5rem;
+  }
+  
+  .title {
+    font-size: 3rem;
+  }
+}

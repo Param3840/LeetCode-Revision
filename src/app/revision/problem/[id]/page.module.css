@@ -1,0 +1,554 @@
+/* CSS Module for ProblemDetail layout styling */
+
+.main {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0%;
+  min-height: calc(100vh - 8rem);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  padding-top: 2.5rem;
+  padding-bottom: 5rem;
+}
+
+.container {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 80rem; /* 7xl */
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+.topBar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-card-border);
+}
+
+@media (min-width: 640px) {
+  .topBar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  align-self: flex-start;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(35, 56, 7, 0.6);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.backButton:hover {
+  color: #233807;
+}
+
+.actionGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e1daab;
+  background-color: #ffffff;
+  padding: 0.625rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #233807;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.actionButton:hover {
+  border-color: #568203;
+  color: #568203;
+}
+
+.actionButton:active {
+  transform: scale(0.98);
+}
+
+.revisionToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e1daab;
+  background-color: #ffffff;
+  padding: 0.625rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(35, 56, 7, 0.6);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.revisionToggle:hover {
+  border-color: #568203;
+  color: #568203;
+}
+
+.revisionToggleActive {
+  background-color: #568203;
+  border-color: #568203;
+  color: #FFF8B9;
+  box-shadow: 0 4px 6px -1px rgba(86, 130, 3, 0.15);
+}
+
+.problemHeader {
+  margin-bottom: 2.5rem;
+}
+
+.headerTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.problemNumber {
+  font-family: var(--font-mono), monospace;
+  color: rgba(35, 56, 7, 0.4);
+  font-weight: 700;
+  font-size: 1.125rem; /* text-lg */
+  user-select: none;
+}
+
+.problemTitle {
+  font-size: 1.5rem; /* text-2xl */
+  font-weight: 700;
+  color: #233807;
+  letter-spacing: -0.025em;
+}
+
+@media (min-width: 640px) {
+  .problemTitle {
+    font-size: 1.875rem; /* text-3xl */
+  }
+}
+
+.tagsRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.875rem;
+}
+
+.difficultyBadge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 0.25rem;
+  border: 1px solid transparent;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  padding-top: 0.125rem;
+  padding-bottom: 0.125rem;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.topicBadge {
+  border-radius: 0.25rem;
+  background-color: #ffffff;
+  border: 1px solid #e1daab;
+  padding: 0.125rem 0.625rem;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(35, 56, 7, 0.6);
+}
+
+.splitLayout {
+  display: grid;
+  grid-template-cols: repeat(1, minmax(0, 1fr));
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .splitLayout {
+    grid-template-cols: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .leftColumn {
+    grid-column: span 2 / span 2;
+  }
+}
+
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .rightColumn {
+    grid-column: span 3 / span 3;
+  }
+}
+
+.card {
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-card-border);
+  background-color: var(--color-card-bg);
+  padding: 1.5rem;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-card-border);
+  margin-bottom: 1.25rem;
+}
+
+.headerIcon {
+  height: 1.125rem;
+  width: 1.125rem;
+  color: #568203;
+}
+
+.cardTitle {
+  font-weight: 700;
+  color: #233807;
+  font-size: 1rem;
+}
+
+.contentList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #568203;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.375rem;
+}
+
+.bodyText {
+  color: rgba(35, 56, 7, 0.8);
+  font-size: 0.75rem;
+  line-height: 1.625;
+}
+
+.exampleBox {
+  border-radius: 0.5rem;
+  background-color: rgba(255, 248, 185, 0.4);
+  border: 1px solid #e1daab;
+  padding: 0.75rem;
+}
+
+.exampleLabel {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: rgba(35, 56, 7, 0.5);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.exampleCode {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  color: #233807;
+  display: block;
+  user-select: all;
+  white-space: pre-wrap;
+}
+
+.observationBox {
+  border-left: 2px solid #568203;
+  padding-left: 0.75rem;
+}
+
+.observationLabel {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #568203;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.observationText {
+  color: rgba(35, 56, 7, 0.7);
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
+.approachList {
+  list-style-type: disc;
+  list-style-position: inside;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: rgba(35, 56, 7, 0.7);
+  padding-left: 0.25rem;
+}
+
+.approachItem::marker {
+  color: #568203;
+}
+
+.approachItem {
+  padding-left: 0.25rem;
+}
+
+.complexityGrid {
+  display: grid;
+  grid-template-cols: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  border-top: 1px solid var(--color-card-border);
+  padding-top: 1rem;
+}
+
+.complexityLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: rgba(35, 56, 7, 0.5);
+  letter-spacing: 0.05em;
+}
+
+.complexityText {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #233807;
+  display: block;
+  margin-top: 0.25rem;
+}
+
+.fallbackWrapper {
+  text-align: center;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+.fallbackIconWrapper {
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  background-color: var(--color-background);
+  border: 1px solid var(--color-card-border);
+  margin-bottom: 0.875rem;
+}
+
+.fallbackIcon {
+  height: 1.25rem;
+  width: 1.25rem;
+  color: rgba(35, 56, 7, 0.4);
+}
+
+.fallbackTitle {
+  font-weight: 700;
+  color: #233807;
+  font-size: 0.875rem;
+}
+
+.fallbackText {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: rgba(35, 56, 7, 0.5);
+  max-width: 15rem;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.5;
+}
+
+.tabBar {
+  display: flex;
+  border-bottom: 1px solid var(--color-card-border);
+  margin-bottom: 1rem;
+  overflow-x: auto;
+  gap: 0.25rem;
+}
+
+.tabButton {
+  padding: 0.5rem 1rem;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(35, 56, 7, 0.6);
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tabButton:hover {
+  color: #233807;
+}
+
+.tabButtonActive {
+  color: #568203;
+  border-bottom-color: #568203;
+}
+
+.codeAreaWrapper {
+  position: relative;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-card-border);
+  background-color: var(--color-background);
+  overflow: hidden;
+}
+
+.codeAreaLoader {
+  display: flex;
+  height: 15rem;
+  align-items: center;
+  justify-content: center;
+  color: rgba(35, 56, 7, 0.5);
+  font-size: 0.75rem;
+}
+
+.codeAreaLoaderContent {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.codePre {
+  margin: 0;
+  overflow: auto;
+  padding: 1.25rem;
+  max-height: 32rem; /* max-h-[500px] */
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+.codeText {
+  color: #233807;
+}
+
+.copyCodeButton {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  border: 1px solid #e1daab;
+  background-color: #ffffff;
+  padding: 0.375rem;
+  color: rgba(35, 56, 7, 0.5);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.copyCodeButton:hover {
+  border-color: #568203;
+  color: #568203;
+}
+
+.copyCodeButtonActive {
+  background-color: rgba(86, 130, 3, 0.1);
+  border-color: #568203;
+  color: #568203;
+}
+
+.copyTooltip {
+  position: absolute;
+  top: 1rem;
+  right: 2.75rem;
+  border-radius: 0.25rem;
+  background-color: #233807;
+  padding: 0.25rem 0.5rem;
+  font-size: 10px;
+  font-weight: 600;
+  color: #FFF8B9;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.dangerAlertCard {
+  border-radius: 0.75rem;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  background-color: rgba(239, 68, 68, 0.05);
+  padding: 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.dangerAlertIcon {
+  height: 1.25rem;
+  width: 1.25rem;
+  color: #b91c1c;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.dangerAlertTitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #b91c1c;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dangerAlertText {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: rgba(185, 28, 28, 0.8);
+  line-height: 1.5;
+}

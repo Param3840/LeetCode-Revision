@@ -1,0 +1,148 @@
+/* CSS Module for RevisionProgress styling */
+
+.progressCard {
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-card-border);
+  background-color: var(--color-card-bg);
+  padding: 1.5rem;
+}
+
+.infoRow {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .infoRow {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.infoContent {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.iconWrapper {
+  display: flex;
+  height: 2.5rem; /* h-10 */
+  width: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  background-color: rgba(86, 130, 3, 0.1);
+  border: 1px solid rgba(86, 130, 3, 0.2);
+}
+
+.checkIcon {
+  height: 1.25rem;
+  width: 1.25rem;
+  color: #568203;
+}
+
+.progressTitle {
+  font-weight: 600;
+  color: #233807;
+  font-size: 0.875rem;
+}
+
+.progressSubtitle {
+  font-size: 0.75rem;
+  color: rgba(35, 56, 7, 0.6);
+  margin-top: 0.125rem;
+}
+
+.countsRow {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.countItem {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+}
+
+.countNumber {
+  font-size: 1.5rem; /* text-2xl */
+  font-weight: 700;
+  color: #233807;
+  letter-spacing: -0.025em;
+}
+
+.countDivider {
+  color: rgba(35, 56, 7, 0.3);
+  font-size: 0.75rem;
+}
+
+.countLabel {
+  color: rgba(35, 56, 7, 0.6);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.verticalDivider {
+  height: 2rem;
+  width: 1px;
+  background-color: var(--color-card-border);
+}
+
+.remainingGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.remainingLabel {
+  font-size: 0.75rem;
+  color: rgba(35, 56, 7, 0.5);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.remainingCount {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(35, 56, 7, 0.8);
+  margin-top: 0.125rem;
+}
+
+.progressTrack {
+  margin-top: 1.25rem;
+  position: relative;
+  height: 0.625rem; /* h-2.5 */
+  width: 100%;
+  border-radius: 9999px;
+  background-color: var(--color-background);
+  overflow: hidden;
+  border: 1px solid var(--color-card-border);
+}
+
+.progressBar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 9999px;
+  background: linear-gradient(to right, #568203, #7cae0b);
+}
+
+.progressLabels {
+  margin-top: 0.625rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: rgba(35, 56, 7, 0.5);
+  font-weight: 500;
+}
+
+.completionText {
+  color: #568203;
+  font-weight: 600;
+}

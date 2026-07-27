@@ -1,0 +1,8 @@
+/* CSS Module for Home page assembler */
+
+.pageWrapper {
+  background-color: #233807;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}

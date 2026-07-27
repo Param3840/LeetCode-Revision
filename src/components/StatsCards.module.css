@@ -1,0 +1,123 @@
+/* CSS Module for StatsCards styling */
+
+.gridContainer {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1rem;
+  width: 100%;
+}
+
+.statCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 248, 185, 0.15);
+  background-color: #233807; /* dark green theme color */
+  padding: 1.25rem;
+  flex: 1 1 calc(25% - 1rem);
+  min-width: 180px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cardTitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 248, 185, 0.7); /* light yellow */
+}
+
+.iconWrapper {
+  display: flex;
+  height: 2rem; /* h-8 */
+  width: 2rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  border: 1px solid transparent;
+}
+
+.icon {
+  height: 1.125rem; /* h-4.5 */
+  width: 1.125rem;
+}
+
+.valueWrapper {
+  margin-top: 1rem;
+  display: flex;
+  align-items: baseline;
+}
+
+.value {
+  font-size: 1.875rem; /* text-3xl */
+  font-weight: 700;
+  color: #FFF8B9; /* solid yellow */
+  letter-spacing: -0.025em;
+}
+
+.cardDescription {
+  margin-top: 0.625rem;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.6); /* light description */
+}
+
+/* Color Variant Styles */
+.bgTotal {
+  background-color: rgba(255, 248, 185, 0.1);
+  border-color: rgba(255, 248, 185, 0.2);
+}
+.iconTotal {
+  color: #FFF8B9;
+}
+
+.bgEasy {
+  background-color: rgba(74, 222, 128, 0.1);
+  border-color: rgba(74, 222, 128, 0.2);
+}
+.iconEasy {
+  color: #4ade80;
+}
+
+.bgMedium {
+  background-color: rgba(251, 146, 60, 0.1);
+  border-color: rgba(251, 146, 60, 0.2);
+}
+.iconMedium {
+  color: #fb923c;
+}
+
+.bgHard {
+  background-color: rgba(248, 113, 113, 0.1);
+  border-color: rgba(248, 113, 113, 0.2);
+}
+.iconHard {
+  color: #f87171;
+}
+
+@media (max-width: 768px) {
+  .statCard {
+    flex: 1 1 calc(50% - 1rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .statCard {
+    flex: 1 1 100%;
+  }
+}

@@ -1,0 +1,339 @@
+/* CSS Module for Dashboard layout styling */
+
+.main {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0%;
+  min-height: calc(100vh - 8rem); /* offset navbar & footer */
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  padding-bottom: 5rem;
+}
+
+.container {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 80rem; /* 7xl */
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+.loaderWrapper {
+  display: flex;
+  flex: 1 1 0%;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-background);
+  color: rgba(35, 56, 7, 0.5);
+  font-size: 0.875rem;
+  height: 20rem;
+}
+
+.loaderContent {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.headerSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-card-border);
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .headerSection {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.headerMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  color: #568203;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.headerTitle {
+  font-size: 1.5rem; /* text-2xl */
+  font-weight: 700;
+  color: #233807;
+  letter-spacing: -0.025em;
+}
+
+@media (min-width: 640px) {
+  .headerTitle {
+    font-size: 1.875rem; /* text-3xl */
+  }
+}
+
+.headerSubtitle {
+  font-size: 0.75rem;
+  color: rgba(35, 56, 7, 0.5);
+  margin-top: 0.25rem;
+}
+
+.metaLink {
+  color: rgba(35, 56, 7, 0.7);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.metaLink:hover {
+  color: #568203;
+}
+
+.actionsGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.outlineButton {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e1daab;
+  background-color: #ffffff;
+  padding: 0.625rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #233807;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.outlineButton:hover {
+  border-color: #568203;
+  color: #568203;
+}
+
+.outlineButton:active {
+  transform: scale(0.98);
+}
+
+.dangerButton {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(185, 28, 28, 0.2);
+  background-color: rgba(185, 28, 28, 0.05);
+  padding: 0.625rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #b91c1c;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dangerButton:hover {
+  border-color: rgba(185, 28, 28, 0.4);
+  background-color: rgba(185, 28, 28, 0.1);
+}
+
+.dangerButton:active {
+  transform: scale(0.98);
+}
+
+.mobileFilterBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+@media (min-width: 768px) {
+  .mobileFilterBar {
+    display: none;
+  }
+}
+
+.mobileFilterButton {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e1daab;
+  background-color: #ffffff;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #233807;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobileFilterButton:hover {
+  border-color: #568203;
+  color: #568203;
+}
+
+.badgeDot {
+  height: 0.5rem;
+  width: 0.5rem;
+  border-radius: 9999px;
+  background-color: #568203;
+}
+
+.layoutGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: flex-start;
+  margin-top: 2rem;
+}
+
+@media (min-width: 768px) {
+  .layoutGroup {
+    flex-direction: row;
+  }
+}
+
+.tableContainer {
+  flex: 1 1 0%;
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-card-border);
+  background-color: var(--color-card-bg);
+  overflow: hidden;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+  min-width: 500px;
+}
+
+.tableHeaderRow {
+  border-bottom: 1px solid var(--color-card-border);
+  background-color: rgba(255, 248, 185, 0.2);
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: rgba(35, 56, 7, 0.5);
+  user-select: none;
+}
+
+.thStatus {
+  padding-top: 0.875rem;
+  padding-bottom: 0.875rem;
+  padding-left: 1rem;
+  padding-right: 0.5rem;
+  text-align: center;
+  width: 3rem;
+}
+
+.thName {
+  padding: 0.875rem 0.75rem;
+  text-align: left;
+}
+
+.thDiff {
+  padding: 0.875rem 0.75rem;
+  text-align: left;
+  width: 7rem;
+}
+
+.thTopics {
+  padding: 0.875rem 0.75rem;
+  text-align: left;
+  width: 16rem;
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .thTopics {
+    display: table-cell;
+  }
+}
+
+.thLangs {
+  padding-top: 0.875rem;
+  padding-bottom: 0.875rem;
+  padding-left: 0.75rem;
+  padding-right: 1rem;
+  text-align: right;
+  width: 9rem;
+}
+
+.emptyRow {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+  text-align: center;
+}
+
+.emptyIconWrapper {
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  height: 3rem;
+  width: 3rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  background-color: var(--color-background);
+  border: 1px solid var(--color-card-border);
+  margin-bottom: 1rem;
+}
+
+.emptyIcon {
+  height: 1.25rem;
+  width: 1.25rem;
+  color: rgba(35, 56, 7, 0.4);
+}
+
+.emptyTitle {
+  font-weight: 700;
+  color: #233807;
+  font-size: 0.875rem;
+}
+
+.emptyText {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: rgba(35, 56, 7, 0.5);
+  max-width: 20rem;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.625;
+}
