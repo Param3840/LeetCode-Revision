@@ -21,12 +21,26 @@
 
     <!-- Content Card -->
     <main class="main-content">
-      <div class="problem-card">
+      <div id="problem-card" class="problem-card hidden">
         <h2 class="card-label">Current Problem</h2>
-        <div id="problem-info" class="problem-info">
-          <p id="problem-title" class="problem-title">Loading...</p>
-          <p id="problem-url" class="problem-url">Connecting to LeetCode page...</p>
+        <div class="problem-meta">
+          <span id="problem-id" class="problem-id"></span>
+          <span id="problem-difficulty" class="difficulty-badge"></span>
         </div>
+        <h1 id="problem-title" class="problem-title"></h1>
+        
+        <!-- Topics Container -->
+        <div id="topics-container" class="topics-container">
+          <!-- chips will be added dynamically -->
+        </div>
+
+        <div class="divider"></div>
+        <p id="problem-url" class="problem-url"></p>
+      </div>
+
+      <!-- Loading / Empty State Message Container -->
+      <div id="state-card" class="state-card">
+        <p id="state-text" class="state-text">Open a LeetCode problem to get started.</p>
       </div>
 
       <!-- Action Button -->
