@@ -6,6 +6,7 @@ import { motion, AnimatePresence, Variants } from "framer-motion";
 import { ArrowRight, AlertCircle, RefreshCw, CheckCircle } from "lucide-react";
 import { analyzeRepository, GitHubError } from "@/lib/github";
 import { saveCurrentRepoUrl, saveRepoCache } from "@/lib/storage";
+import { useAuth } from "@/context/AuthContext";
 import styles from "./Hero.module.css";
 
 type LoadingPhase = 
@@ -54,14 +55,12 @@ const textGroupVariants: Variants = {
 
 export default function Hero() {
   const router = useRouter();
+  const { user, openLoginModal } = useAuth();
   const [repoUrl, setRepoUrl] = useState("");
   const [loadingPhase, setLoadingPhase] = useState<LoadingPhase>("idle");
   const [error, setError] = useState<string | null>(null);
 
-  const handleAnalyze = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!repoUrl.trim()) return;
-
+  const startAnalysis = async (url: string) => {
     setError(null);
     setLoadingPhase("reading");
 
@@ -75,14 +74,14 @@ export default function Hero() {
       setLoadingPhase("matching");
 
       // Phase 3: Matching metadata
-      const problems = await analyzeRepository(repoUrl);
+      const problems = await analyzeRepository(url);
       setLoadingPhase("preparing");
 
       // Phase 4: Preparing revision library
       await new Promise((resolve) => setTimeout(resolve, 900));
 
       // Save cache and redirect
-      saveCurrentRepoUrl(repoUrl);
+      saveCurrentRepoUrl(url);
       saveRepoCache(problems.owner, problems.repo, problems);
 
       router.push("/revision/dashboard");
@@ -96,35 +95,32 @@ export default function Hero() {
     }
   };
 
+  const handleAnalyze = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!repoUrl.trim()) return;
+
+    if (!user) {
+      openLoginModal("Sign in with Google to start your revision workspace.", () => {
+        startAnalysis(repoUrl.trim());
+      });
+      return;
+    }
+
+    await startAnalysis(repoUrl.trim());
+  };
+
   const loadTestRepo = async () => {
     const demoUrl = "https://github.com/Param3840/LeetCode";
     setRepoUrl(demoUrl);
     
-    setError(null);
-    setLoadingPhase("reading");
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      setLoadingPhase("finding");
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setLoadingPhase("matching");
-
-      const problems = await analyzeRepository(demoUrl);
-      setLoadingPhase("preparing");
-      await new Promise((resolve) => setTimeout(resolve, 900));
-
-      saveCurrentRepoUrl(demoUrl);
-      saveRepoCache(problems.owner, problems.repo, problems);
-
-      router.push("/revision/dashboard");
-    } catch (err) {
-      setLoadingPhase("idle");
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("An unexpected error occurred while loading the test repository.");
-      }
+    if (!user) {
+      openLoginModal("Sign in with Google to start your revision workspace.", () => {
+        startAnalysis(demoUrl);
+      });
+      return;
     }
+
+    await startAnalysis(demoUrl);
   };
 
   return (

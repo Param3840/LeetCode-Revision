@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeRevise</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <span class="logo-main">Code</span><span class="logo-accent">Revise</span>
+      </div>
+      <div class="status-badge">
+        <span class="status-dot"></span>
+        <span class="status-text">Extension Active</span>
+      </div>
+    </header>
+
+    <!-- Content Card -->
+    <main class="main-content">
+      <div class="problem-card">
+        <h2 class="card-label">Current Problem</h2>
+        <div id="problem-info" class="problem-info">
+          <p id="problem-title" class="problem-title">Loading...</p>
+          <p id="problem-url" class="problem-url">Connecting to LeetCode page...</p>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <button id="open-btn" class="action-btn">
+        Open CodeRevise
+      </button>
+    </main>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
