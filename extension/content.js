@@ -1,5 +1,6 @@
-// CodeRevise Content Script - Phase 2 (Bug Fixes)
+// CodeRevise Content Script - Phase 3 (Bug Fixes & Tracing Logs)
 // Extracts structured LeetCode problem details and handles client-side SPA navigation safely
+// Monitors LeetCode coding area to detect accepted code submissions in real-time
 
 let lastUrl = window.location.href;
 let extractionInterval = null;
@@ -9,6 +10,21 @@ const RETRY_INTERVAL_MS = 1000;
 
 // Token-based generation mechanism to prevent asynchronous race conditions
 let currentGeneration = 0;
+let currentSlug = null;
+
+// Submission observation state
+let submissionPending = false;
+let resultObserver = null;
+
+const TERMINAL_STATUSES = [
+  "Accepted",
+  "Wrong Answer",
+  "Time Limit Exceeded",
+  "Memory Limit Exceeded",
+  "Runtime Error",
+  "Compile Error",
+  "Output Limit Exceeded"
+];
 
 function getProblemSlug(urlStr) {
   try {
@@ -324,6 +340,15 @@ function startMetadataExtraction() {
   currentGeneration++;
   const thisGeneration = currentGeneration;
 
+  // Invalidate pending submissions ONLY if navigating to a DIFFERENT slug
+  if (slug !== currentSlug) {
+    console.log(`[CodeRevise][Phase3] Navigation: ${currentSlug || "none"} -> ${slug}. Invalidating pending submission.`);
+    currentSlug = slug;
+    cancelPendingSubmission();
+  } else {
+    console.log(`[CodeRevise][Phase3] Same slug transition: ${slug}. Keeping pending submission observer active.`);
+  }
+
   chrome.storage.local.get(["currentProblem"], (result) => {
     const existing = result ? result.currentProblem : null;
     
@@ -334,7 +359,6 @@ function startMetadataExtraction() {
     }
     
     console.log(`[CodeRevise] Active slug: ${slug}`);
-    console.log(`[CodeRevise] Navigation: ${existing ? existing.slug : "none"} -> ${slug}`);
     console.log(`[CodeRevise] Clearing stale current problem`);
     console.log(`[CodeRevise] Extraction started: ${slug} generation: ${thisGeneration}`);
     
@@ -353,6 +377,211 @@ function startMetadataExtraction() {
     runExtractionLoop(slug, thisGeneration);
   });
 }
+
+// ==========================================
+// Phase 3: Accepted Submission Detection
+// ==========================================
+
+function isTerminalStatus(status) {
+  if (!status) return false;
+  return TERMINAL_STATUSES.some(term => status.toLowerCase().includes(term.toLowerCase()));
+}
+
+function findSubmissionStatus() {
+  // 1. Search for data-e2e-locator first
+  const e2eEl = document.querySelector('[data-e2e-locator="submission-result"]');
+  if (e2eEl && e2eEl.textContent) {
+    return e2eEl.textContent.trim();
+  }
+
+  // 2. Search for common LeetCode result status classes/attributes
+  const statusSelectors = [
+    'span[data-cy="question-submission-result"]',
+    'div[class*="submission-result"]',
+    'div[class*="result-title"]',
+    'span[class*="result-title"]',
+    'div[class*="status-"]',
+    'span[class*="status-"]'
+  ];
+
+  for (const selector of statusSelectors) {
+    const el = document.querySelector(selector);
+    if (el && el.textContent) {
+      const text = el.textContent.trim();
+      if (text) return text;
+    }
+  }
+
+  // 3. Fallback: check elements containing text content "Accepted"
+  const successEl = document.querySelector('.text-success, .text-sd-green, [class*="text-difficulty-easy"], [class*="success"]');
+  if (successEl && successEl.textContent) {
+    const text = successEl.textContent.trim();
+    if (text.includes("Accepted")) return "Accepted";
+  }
+
+  return null;
+}
+
+function handleSubmissionResult(statusText) {
+  submissionPending = false;
+  
+  if (resultObserver) {
+    resultObserver.disconnect();
+    resultObserver = null;
+  }
+
+  const cleanStatus = statusText.includes("Accepted") ? "Accepted" : statusText;
+  console.log(`[CodeRevise][Phase3] Expected: Accepted, Actual: ${cleanStatus}`);
+
+  if (cleanStatus === "Accepted") {
+    console.log("[CodeRevise][Phase3] Accepted condition matched.");
+    console.log("[CodeRevise][Phase3] Creating latestAcceptedSubmission object.");
+    
+    // Retrieve the current problem metadata from local storage
+    chrome.storage.local.get(["currentProblem"], (result) => {
+      const currentProblem = result ? result.currentProblem : null;
+      const slug = getProblemSlug(window.location.href);
+      
+      const problemInfo = currentProblem && currentProblem.slug === slug ? currentProblem : {
+        slug: slug,
+        url: `https://leetcode.com/problems/${slug}/`,
+        loading: false
+      };
+
+      const { problemId, title } = extractTitleAndId();
+      const difficulty = extractDifficulty();
+      const topics = extractTopics();
+
+      const acceptedSubmission = {
+        id: Date.now(),
+        status: "Accepted",
+        acceptedAt: new Date().toISOString(),
+        problem: {
+          problemId: problemInfo.problemId || problemId || null,
+          title: (problemInfo.title && problemInfo.title !== "Detecting problem...") ? problemInfo.title : (title || slug),
+          slug: slug,
+          difficulty: problemInfo.difficulty || difficulty || null,
+          topics: (problemInfo.topics && problemInfo.topics.length > 0) ? problemInfo.topics : (topics || []),
+          canonicalUrl: `https://leetcode.com/problems/${slug}/`
+        }
+      };
+
+      console.log("[CodeRevise][Phase3] Saving into chrome.storage.local");
+      console.log("[CodeRevise][Phase3] Before storage.");
+
+      chrome.storage.local.set({ latestAcceptedSubmission: acceptedSubmission }, () => {
+        console.log("[CodeRevise][Phase3] After storage.");
+        if (chrome.runtime.lastError) {
+          console.error("[CodeRevise][Phase3] Storage failed with error:", chrome.runtime.lastError);
+        } else {
+          console.log("[CodeRevise][Phase3] Storage completed successfully.");
+          console.log("[CodeRevise][Phase3] Popup should now update.");
+          
+          // Immediately read back to verify
+          chrome.storage.local.get(["latestAcceptedSubmission"], (readResult) => {
+            console.log("[CodeRevise][Phase3] Verified stored object from storage:", readResult.latestAcceptedSubmission);
+          });
+        }
+      });
+    });
+  } else {
+    console.log(`[CodeRevise][Phase3] Duplicate/Failure protection: result is "${cleanStatus}". Ignoring.`);
+  }
+}
+
+function setupSubmissionObserver() {
+  if (resultObserver) {
+    resultObserver.disconnect();
+    resultObserver = null;
+  }
+
+  resultObserver = new MutationObserver((mutations) => {
+    if (!submissionPending) return;
+
+    console.log(`[CodeRevise][Phase3] Mutation received. Changes count: ${mutations.length}`);
+
+    const status = findSubmissionStatus();
+    if (status) {
+      const cleanStatus = status.trim();
+      console.log(`[CodeRevise][Phase3] Current status text: "${cleanStatus}"`);
+      
+      if (isTerminalStatus(cleanStatus)) {
+        handleSubmissionResult(cleanStatus);
+      }
+    }
+  });
+
+  resultObserver.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+  console.log("[CodeRevise][Phase3] MutationObserver started.");
+}
+
+function handleSubmissionStart() {
+  if (submissionPending) {
+    console.log("[CodeRevise][Phase3] Submission already pending. Ignoring.");
+    return;
+  }
+
+  const slug = getProblemSlug(window.location.href);
+  if (!slug) {
+    console.warn("[CodeRevise][Phase3] Submit clicked but no problem slug detected.");
+    return;
+  }
+
+  console.log("[CodeRevise][Phase3] Submit button detected.");
+  submissionPending = true;
+  console.log("[CodeRevise][Phase3] Submission session created.");
+
+  setupSubmissionObserver();
+}
+
+function cancelPendingSubmission() {
+  if (submissionPending) {
+    submissionPending = false;
+    console.log("[CodeRevise][Phase3] SPA transition detected. Cancelling pending submission observer.");
+  }
+  if (resultObserver) {
+    resultObserver.disconnect();
+    resultObserver = null;
+  }
+}
+
+function initializeSubmissionTracker() {
+  console.log("[CodeRevise][Phase3] Initialization started");
+
+  // Register click listener to detect user clicking the Submit button
+  document.addEventListener("click", (e) => {
+    if (!e.target || typeof e.target.closest !== "function") return;
+    
+    const btn = e.target.closest('button[data-e2e-locator="console-submit-button"], button[data-cy="submit-code-btn"], button.submit-btn');
+    const isSubmitBtn = btn || (e.target.tagName === "BUTTON" && e.target.textContent.trim() === "Submit");
+    
+    if (isSubmitBtn) {
+      handleSubmissionStart();
+    }
+  });
+  console.log("[CodeRevise][Phase3] Registered submit click listener.");
+
+  // Register keydown listener for Monaco code editor submission shortcut (Ctrl/Cmd + Enter)
+  document.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.closest('.monaco-editor') || activeEl.closest('[class*="editor"]'))) {
+        handleSubmissionStart();
+      }
+    }
+  });
+  console.log("[CodeRevise][Phase3] Registered keyboard shortcut listener.");
+}
+
+// Call initialization immediately on content script load
+initializeSubmissionTracker();
+
+// ==========================================
+// Initialization & Polling
+// ==========================================
 
 // Initial execution
 const initialSlug = getProblemSlug(window.location.href);
@@ -376,6 +605,8 @@ setInterval(() => {
       startMetadataExtraction();
     } else {
       currentGeneration++; // Cancel any active extraction runs
+      currentSlug = null; // Clear active slug
+      cancelPendingSubmission();
       if (extractionInterval) {
         clearInterval(extractionInterval);
         extractionInterval = null;

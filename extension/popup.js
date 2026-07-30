@@ -1,4 +1,4 @@
-// CodeRevise Extension Popup Script - Phase 2 (Bug Fixes)
+// CodeRevise Extension Popup Script - Phase 3 (Bug Fixes & Submission Rendering)
 
 const CODEREVISE_URL = "http://localhost:3000";
 
@@ -16,6 +16,26 @@ function getProblemSlug(urlStr) {
   return null;
 }
 
+function formatSubmissionTime(dateStr) {
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  
+  const day = date.getDate();
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+  
+  let hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const ampm = hours >= 12 ? "PM" : "AM";
+  
+  hours = hours % 12;
+  hours = hours ? hours : 12; // 12 instead of 0
+  
+  return `${day} ${month} ${year} ${hours}:${minutes} ${ampm}`;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const problemCard = document.getElementById("problem-card");
   const stateCard = document.getElementById("state-card");
@@ -26,6 +46,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const titleEl = document.getElementById("problem-title");
   const topicsContainer = document.getElementById("topics-container");
   const urlEl = document.getElementById("problem-url");
+  
+  const submissionCard = document.getElementById("submission-card");
+  const noSubmissionCard = document.getElementById("no-submission-card");
+  const submissionMetaEl = document.getElementById("submission-meta");
+  const submissionTimeEl = document.getElementById("submission-time");
   
   const openBtn = document.getElementById("open-btn");
 
@@ -109,13 +134,39 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
 
-  // Run initial render
+  const renderLatestSubmission = () => {
+    chrome.storage.local.get(["latestAcceptedSubmission"], (result) => {
+      if (result && result.latestAcceptedSubmission) {
+        const sub = result.latestAcceptedSubmission;
+        
+        noSubmissionCard.classList.add("hidden");
+        submissionCard.classList.remove("hidden");
+        
+        const prob = sub.problem || {};
+        submissionMetaEl.textContent = `Problem: #${prob.problemId || ""} ${prob.title || ""}`;
+        submissionTimeEl.textContent = formatSubmissionTime(sub.acceptedAt);
+      } else {
+        submissionCard.classList.add("hidden");
+        noSubmissionCard.classList.remove("hidden");
+      }
+    });
+  };
+
+  // Run initial renders
   renderPopup();
+  renderLatestSubmission();
 
   // Handle dynamic changes to local storage while popup is open
   chrome.storage.onChanged.addListener((changes, areaName) => {
-    if (areaName === "local" && changes.currentProblem) {
-      renderPopup();
+    if (areaName === "local") {
+      if (changes.currentProblem) {
+        renderPopup();
+      }
+      if (changes.latestAcceptedSubmission) {
+        console.log("[CodeRevise][Phase3] Popup received storage update for latestAcceptedSubmission:", changes.latestAcceptedSubmission.newValue);
+        renderLatestSubmission();
+        console.log("[CodeRevise] Popup updated.");
+      }
     }
   });
 

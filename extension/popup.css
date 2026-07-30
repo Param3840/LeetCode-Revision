@@ -233,3 +233,52 @@ body {
 .hidden {
   display: none !important;
 }
+
+/* Submission Card styles */
+.submission-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.submission-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.status-check {
+  font-size: 16px;
+}
+
+.status-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--green-active);
+}
+
+.submission-meta {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.submission-time {
+  margin: 0;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.no-submission-text {
+  margin: 8px 0;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+  text-align: center;
+}
