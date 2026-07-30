@@ -10,12 +10,12 @@ export default function About() {
       <div className={styles.aboutContainer}>
         {/* Header */}
         <div className={styles.aboutHeader}>
-          <span className={styles.aboutLabel}>What We Give </span>
+          <span className={styles.aboutLabel}>What We Give</span>
           <h2 className={styles.aboutTitle}>
             Elegantly Organize Your LeetCode Solutions
           </h2>
           <p className={styles.aboutSubtitle}>
-            Preparing for technical interviews can be chaotic. CodeRevise connects directly to your public GitHub LeetCode repository on-demand to create a structured revision library categorized by difficulty, topic, and programming language.
+            Preparing for technical interviews can be chaotic. CodeRevise automatically syncs your accepted LeetCode solutions to create a structured revision library categorized by difficulty, topic, and programming language.
           </p>
         </div>
 
@@ -26,9 +26,9 @@ export default function About() {
             <div className={styles.cardIconWrapper}>
               <FolderOpen className="h-5 w-5" />
             </div>
-            <h3 className={styles.cardTitle}>GitHub Repository Scanner</h3>
+            <h3 className={styles.cardTitle}>LeetCode Solution Sync</h3>
             <p className={styles.cardText}>
-              Just paste your public GitHub repository URL containing your LeetCode solution folders. Our analyzer automatically scans files and loads your solutions live.
+              Install the CodeRevise Chrome Extension, and your accepted LeetCode submissions will immediately and automatically sync to your dashboard.
             </p>
           </div>
 
@@ -81,9 +81,9 @@ export default function About() {
             <div className={styles.cardIconWrapper}>
               <Sparkles className="h-5 w-5" />
             </div>
-            <h3 className={styles.cardTitle}>No Accounts, Instant Access</h3>
+            <h3 className={styles.cardTitle}>Secure Google Authentication</h3>
             <p className={styles.cardText}>
-              No signups, user accounts, or server databases. All of your revision checkmarks and cached repository configurations are saved locally inside your own browser.
+              Sign in securely with Google to preserve your revision history and synchronize your dashboard across multiple devices.
             </p>
           </div>
         </div>

@@ -5,9 +5,10 @@ import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Check, Sparkles, ExternalLink, Copy, Code, HelpCircle, Clock, BookOpen, AlertCircle, RefreshCw } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { getRepoCache, getCurrentRepoUrl, getRevisedProblems, markProblemRevision } from "@/lib/storage";
+import { getUserRevisedProblems, markUserProblemRevision } from "@/lib/storage";
 import { getProblemMetadata } from "@/lib/problems";
-import { fetchSolutionCode, fetchReadmeContent, SolvedProblem } from "@/lib/github";
+import { SolvedProblem } from "@/lib/github";
+import { useAuth } from "@/context/AuthContext";
 import styles from "./page.module.css";
 
 function parseReadmeToHtml(text: string): string {
@@ -35,8 +36,9 @@ export default function ProblemDetailPage() {
   const router = useRouter();
   const problemId = parseInt(params.id as string, 10);
 
+  const { user, loading } = useAuth();
+
   // 1. Loading & State
-  const [repoDetails, setRepoDetails] = useState<any>(null);
   const [problem, setProblem] = useState<SolvedProblem | null>(null);
   const [revisedIds, setRevisedIds] = useState<number[]>([]);
   const [activeSolutionIdx, setActiveSolutionIdx] = useState(0);
@@ -49,86 +51,72 @@ export default function ProblemDetailPage() {
   const [readme, setReadme] = useState<string | null>(null);
   const [loadingReadme, setLoadingReadme] = useState(false);
 
-  // 2. Fetch repo details from localStorage
+  // Redirect if not logged in
   useEffect(() => {
-    const currentUrl = getCurrentRepoUrl();
-    if (!currentUrl) {
+    if (!loading && !user) {
       router.replace("/");
-      return;
     }
+  }, [user, loading, router]);
 
-    const urlParts = currentUrl.replace(/\.git$/, "").split("github.com/")[1]?.split("/");
-    if (!urlParts || urlParts.length < 2) {
-      router.replace("/");
-      return;
-    }
-
-    const owner = urlParts[0];
-    const repo = urlParts[1];
-    const cachedData = getRepoCache(owner, repo);
-
-    if (!cachedData) {
-      router.replace("/");
-      return;
-    }
-
-    setRepoDetails(cachedData);
-    setRevisedIds(getRevisedProblems(owner, repo));
-
-    // Find the current problem in the solved list
-    const foundProblem = cachedData.problems.find((p: any) => p.id === problemId);
-    if (foundProblem) {
-      setProblem(foundProblem);
-    }
-  }, [problemId, router]);
-
-  // 3. On-demand fetch of the active solution file content
+  // 2. Load problem details statically
   useEffect(() => {
-    if (!repoDetails || !problem || problem.solutions.length === 0) return;
+    if (!user) return;
+    
+    setRevisedIds(getUserRevisedProblems(user.uid));
+
+    // Look up the problem details by ID from the preloaded PROBLEMS_DB database
+    const metadata = getProblemMetadata(problemId, "two-sum");
+    if (metadata) {
+      const solvedProblem: SolvedProblem = {
+        id: metadata.id,
+        title: metadata.title,
+        slug: metadata.slug,
+        difficulty: metadata.difficulty,
+        topics: metadata.topics,
+        solutions: [
+          {
+            path: "Solution.java",
+            filename: "Solution.java",
+            extension: ".java",
+            language: "Java"
+          }
+        ]
+      };
+      setProblem(solvedProblem);
+    }
+  }, [problemId, user]);
+
+  // 3. Load preloaded solution content statically
+  useEffect(() => {
+    if (!problem) return;
 
     setIsSolutionRevealed(false);
     setShowHints(false);
-    const activeSolution = problem.solutions[activeSolutionIdx];
     setLoadingCode(true);
     setCodeError(null);
 
-    fetchSolutionCode(repoDetails.owner, repoDetails.repo, repoDetails.defaultBranch, activeSolution.path)
-      .then((data) => {
-        setCode(data);
-        setLoadingCode(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setCodeError("Failed to fetch solution code from GitHub. Please check your connection.");
-        setLoadingCode(false);
-      });
-  }, [repoDetails, problem, activeSolutionIdx]);
+    // If it's Two Sum (id: 1), render the Java code solution
+    if (problem.id === 1) {
+      setCode(`class Solution {\n    public int[] twoSum(int[] nums, int target) {\n        Map<Integer, Integer> map = new HashMap<>();\n        for (int i = 0; i < nums.length; i++) {\n            int complement = target - nums[i];\n            if (map.containsKey(complement)) {\n                return new int[] { map.get(complement), i };\n            }\n            map.put(nums[i], i);\n        }\n        return new int[] {};\n    }\n}`);
+      setLoadingCode(false);
+    } else {
+      setCode(`// Local solution code is not synced yet.\n// Solve this problem on LeetCode to sync it here.`);
+      setLoadingCode(false);
+    }
+  }, [problem, activeSolutionIdx]);
 
-  // Fetch README.md when problem changes
+  // Fetch README.md (no-op since we don't have GitHub connection anymore)
   useEffect(() => {
-    if (!repoDetails || !problem || problem.solutions.length === 0) return;
-
-    setLoadingReadme(true);
+    if (!problem) return;
+    setLoadingReadme(false);
     setReadme(null);
-    const activeSolution = problem.solutions[0];
-
-    fetchReadmeContent(repoDetails.owner, repoDetails.repo, repoDetails.defaultBranch, activeSolution.path)
-      .then((data) => {
-        setReadme(data);
-        setLoadingReadme(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setReadme(null);
-        setLoadingReadme(false);
-      });
-  }, [repoDetails, problem]);
+  }, [problem]);
 
   // Toggle revised state
   const handleToggleRevision = () => {
-    if (!repoDetails || !problem) return;
-    const isCurrentlyRevised = revisedIds.includes(problemId);
-    const updated = markProblemRevision(repoDetails.owner, repoDetails.repo, problemId, !isCurrentlyRevised);
+    if (!user || !problem) return;
+    const isCurrentlyRevised = revisedIds.includes(problem.id);
+    const updated = markUserProblemRevision(user.uid, problem.id, !isCurrentlyRevised);
     setRevisedIds(updated);
   };
 
@@ -153,8 +141,8 @@ export default function ProblemDetailPage() {
     router.back();
   };
 
-  // Error state: problem not found in repo solved list
-  if (repoDetails && !problem) {
+  // Error state: problem not found in solved list
+  if (user && !problem) {
     return (
       <>
         <Navbar />
@@ -163,7 +151,7 @@ export default function ProblemDetailPage() {
             <AlertCircle className={styles.fallbackIcon} style={{ color: "#b91c1c", width: "3rem", height: "3rem", marginBottom: "1rem" }} />
             <h3 className={styles.fallbackTitle}>Problem not found</h3>
             <p className={styles.fallbackText}>
-              Problem #{problemId} was not detected as solved in repository: {repoDetails.owner}/{repoDetails.repo}.
+              Problem #{problemId} details are not available in your revision library.
             </p>
             <button
               onClick={() => router.push("/revision/dashboard")}
@@ -180,8 +168,8 @@ export default function ProblemDetailPage() {
     );
   }
 
-  // Loading indicator for repo parsing
-  if (!repoDetails || !problem || !metadata) {
+  // Loading indicator
+  if (!problem || !metadata) {
     return (
       <div className={styles.loaderWrapper}>
         <div className={styles.loaderContent}>
@@ -392,7 +380,7 @@ export default function ProblemDetailPage() {
                 ) : loadingReadme ? (
                   <div className={styles.fallbackWrapper} style={{ padding: "4rem 2rem" }}>
                     <RefreshCw className="h-6 w-6 text-emerald-600 animate-spin mb-3" />
-                    <p className={styles.fallbackText}>Fetching question details from GitHub repository...</p>
+                    <p className={styles.fallbackText}>Loading question details...</p>
                   </div>
                 ) : readme ? (
                   <div className={styles.contentList} style={{ padding: "0.5rem" }}>
@@ -415,7 +403,7 @@ export default function ProblemDetailPage() {
                     </div>
                     <h4 className={styles.fallbackTitle}>No revision guide</h4>
                     <p className={styles.fallbackText}>
-                      Detailed revision notes for problem #{problemId} could not be retrieved from GitHub or local database.
+                      Detailed revision notes for problem #{problemId} are not available.
                     </p>
                     <a
                       href={`https://leetcode.com/problems/${problem.slug}/`}
@@ -561,18 +549,8 @@ export default function ProblemDetailPage() {
                                 )}
                               </button>
 
-                              <a
-                                href={`https://github.com/${repoDetails.owner}/${repoDetails.repo}/blob/${repoDetails.defaultBranch}/${problem.solutions[activeSolutionIdx].path}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={styles.backButton}
-                                style={{ gap: "0.25rem", fontSize: "10px", textDecoration: "none" }}
-                              >
-                                <ExternalLink className="h-3 w-3" />
-                                <span>View on GitHub</span>
-                              </a>
-                            </div>
-                          </div>
+                             </div>
+                           </div>
 
                           {/* Monospace Code block */}
                           <pre className={styles.codePre}>

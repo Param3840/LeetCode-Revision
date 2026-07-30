@@ -100,3 +100,47 @@ export function resetRevisionProgress(owner: string, repo: string): void {
   if (!isStorageAvailable()) return;
   localStorage.removeItem(revisionKey(owner, repo));
 }
+
+const userRevisionKey = (userId: string) => `${PREFIX}:revision:user:${userId}`.toLowerCase();
+
+export function getUserRevisedProblems(userId: string): number[] {
+  if (!isStorageAvailable()) return [];
+  const data = localStorage.getItem(userRevisionKey(userId));
+  if (!data) return [];
+  try {
+    return JSON.parse(data) as number[];
+  } catch {
+    return [];
+  }
+}
+
+export function saveUserRevisedProblems(userId: string, problemIds: number[]): void {
+  if (!isStorageAvailable()) return;
+  try {
+    localStorage.setItem(userRevisionKey(userId), JSON.stringify(problemIds));
+  } catch (err) {
+    console.error("Failed to save user revision progress:", err);
+  }
+}
+
+export function markUserProblemRevision(
+  userId: string,
+  problemId: number,
+  isRevised: boolean
+): number[] {
+  const current = getUserRevisedProblems(userId);
+  let updated: number[];
+  
+  if (isRevised) {
+    if (current.includes(problemId)) {
+      updated = current;
+    } else {
+      updated = [...current, problemId];
+    }
+  } else {
+    updated = current.filter((id) => id !== problemId);
+  }
+  
+  saveUserRevisedProblems(userId, updated);
+  return updated;
+}

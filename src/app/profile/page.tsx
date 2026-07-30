@@ -3,11 +3,10 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Terminal, Github, Sparkles, FolderOpen, ArrowRight, ArrowLeft, RefreshCw, AlertCircle, HelpCircle } from "lucide-react";
+import { Terminal, Sparkles, FolderOpen, ArrowRight, ArrowLeft, RefreshCw, HelpCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { getCurrentRepoUrl } from "@/lib/storage";
 
 const GoogleLogo = () => (
   <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -33,12 +32,6 @@ export default function ProfilePage() {
   const router = useRouter();
   const [imgError, setImgError] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [repoUrl, setRepoUrl] = useState<string | null>(null);
-
-  // Sync connected repository on mount
-  useEffect(() => {
-    setRepoUrl(getCurrentRepoUrl());
-  }, []);
 
   const handleGoogleLogin = async () => {
     setIsLoggingIn(true);
@@ -76,7 +69,6 @@ export default function ProfilePage() {
         <Navbar />
         <main className="flex-1 flex flex-col justify-center items-center max-w-lg mx-auto w-full px-6 py-16">
           <div className="w-full bg-white border border-[#e1daab] rounded-2xl p-8 shadow-xl flex flex-col items-center text-center">
-            {/* Lock/Help Icon */}
             <div className="h-12 w-12 text-[#568203] bg-[#FFF8B9]/50 p-2.5 rounded-xl border border-[#e1daab]/50 mb-4 flex items-center justify-center">
               <HelpCircle className="h-6 w-6" />
             </div>
@@ -169,43 +161,22 @@ export default function ProfilePage() {
 
               <div className="bg-[#FFF8B9]/15 border border-[#e1daab]/35 rounded-xl p-4 flex flex-col gap-3">
                 <div>
-                  <span className="text-[10px] font-bold text-[#233807]/50 block uppercase tracking-wide">
-                    GitHub Repository
+                  <span className="text-[10px] font-bold text-[#233807]/50 block uppercase tracking-wide font-sans">
+                    Chrome Extension Status
                   </span>
-                  {repoUrl ? (
-                    <a
-                      href={repoUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs font-bold text-[#568203] hover:underline break-all mt-1 block"
-                    >
-                      {repoUrl.replace("https://github.com/", "")}
-                    </a>
-                  ) : (
-                    <span className="text-xs font-bold text-red-600 block mt-1">
-                      No GitHub repository connected yet.
-                    </span>
-                  )}
+                  <span className="text-xs font-bold text-[#568203] mt-1 block font-sans">
+                    Extension Connected & Ready to Sync
+                  </span>
                 </div>
 
                 <div className="flex justify-end border-t border-[#e1daab]/20 pt-3 mt-1">
-                  {repoUrl ? (
-                    <button
-                      onClick={() => router.push("/revision/dashboard")}
-                      className="flex items-center gap-1.5 text-xs font-bold text-[#233807] hover:text-[#568203] transition-colors cursor-pointer bg-transparent border-0 p-0"
-                    >
-                      <span>Open Workspace</span>
-                      <ArrowRight className="h-4.5 w-4.5" />
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => router.push("/")}
-                      className="flex items-center gap-1.5 text-xs font-bold text-[#568203] hover:opacity-80 transition-opacity cursor-pointer bg-transparent border-0 p-0"
-                    >
-                      <span>Connect Repository</span>
-                      <ArrowRight className="h-4.5 w-4.5" />
-                    </button>
-                  )}
+                  <button
+                    onClick={() => router.push("/revision/dashboard")}
+                    className="flex items-center gap-1.5 text-xs font-bold text-[#233807] hover:text-[#568203] transition-colors cursor-pointer bg-transparent border-0 p-0"
+                  >
+                    <span>Open Revision Dashboard</span>
+                    <ArrowRight className="h-4.5 w-4.5" />
+                  </button>
                 </div>
               </div>
             </div>
@@ -213,7 +184,7 @@ export default function ProfilePage() {
             {/* Back button */}
             <button
               onClick={() => router.push("/")}
-              className="flex items-center gap-1.5 text-xs font-bold text-[#233807]/50 hover:text-[#233807] mt-8 transition-colors cursor-pointer bg-transparent border-0 p-0"
+              className="flex items-center gap-1.5 text-xs font-bold text-[#233807]/50 hover:text-[#233807] mt-8 transition-colors cursor-pointer bg-transparent border-0 p-0 font-sans"
             >
               <ArrowLeft className="h-4 w-4" />
               <span>Back to Home</span>

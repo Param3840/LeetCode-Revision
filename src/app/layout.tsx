@@ -5,7 +5,7 @@ import AppProviders from "@/components/providers/AppProviders";
 
 export const metadata: Metadata = {
   title: "CodeRevise - LeetCode Revision Dashboard",
-  description: "Organize and revise your solved LeetCode problems directly from your public GitHub repository.",
+  description: "Organize and revise your solved LeetCode problems directly from your CodeRevise sync dashboard.",
 };
 
 export default function RootLayout({

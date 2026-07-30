@@ -1,11 +1,14 @@
-// CodeRevise Content Script - Phase 2
-// Extracts structured LeetCode problem details and handles client-side SPA navigation
+// CodeRevise Content Script - Phase 2 (Bug Fixes)
+// Extracts structured LeetCode problem details and handles client-side SPA navigation safely
 
 let lastUrl = window.location.href;
 let extractionInterval = null;
 let retryCount = 0;
 const MAX_RETRIES = 10;
 const RETRY_INTERVAL_MS = 1000;
+
+// Token-based generation mechanism to prevent asynchronous race conditions
+let currentGeneration = 0;
 
 function getProblemSlug(urlStr) {
   try {
@@ -16,41 +19,84 @@ function getProblemSlug(urlStr) {
       return parts[1];
     }
   } catch (e) {
-    console.error("[CodeRevise] Error parsing slug from URL:", urlStr, e);
+    // Ignore invalid urls
   }
   return null;
+}
+
+function isCompleteProblemMetadata(problem, expectedSlug) {
+  if (!problem) return false;
+  if (problem.slug !== expectedSlug) return false;
+  if (!problem.problemId || typeof problem.problemId !== "string" || problem.problemId.trim() === "") return false;
+  if (!problem.title || typeof problem.title !== "string" || problem.title.trim() === "" || problem.title === "Detecting problem...") return false;
+  if (problem.title.endsWith("- LeetCode")) return false;
+  if (!["Easy", "Medium", "Hard"].includes(problem.difficulty)) return false;
+  if (problem.url !== `https://leetcode.com/problems/${expectedSlug}/`) return false;
+  if (problem.loading !== false) return false;
+  if (!Array.isArray(problem.topics)) return false;
+  return true;
 }
 
 function extractTitleAndId() {
   let problemId = null;
   let title = null;
 
-  // 1. Try to parse from document.title (usually "[ID]. [Title] - LeetCode")
-  const docTitle = document.title;
-  const titleMatch = docTitle.match(/^(\d+)\.\s+(.+?)(?:\s+-\s+LeetCode)?$/i);
-  if (titleMatch) {
-    problemId = titleMatch[1];
-    title = titleMatch[2];
-    return { problemId, title };
-  }
+  const normalizeTitle = (t) => {
+    if (!t) return "";
+    return t.replace(/\s+-\s+LeetCode$/i, "")
+            .replace(/\s+-\s+Description$/i, "")
+            .replace(/\s+-\s+Submissions$/i, "")
+            .replace(/\s+-\s+Solutions$/i, "")
+            .trim();
+  };
 
-  // 2. Fallback: Parse from heading tags or divs that display "[ID]. [Title]"
-  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6, div, span');
-  for (const el of headings) {
-    const text = el.textContent ? el.textContent.trim() : "";
-    const match = text.match(/^(\d+)\.\s+(.+)$/);
-    if (match) {
-      problemId = match[1];
-      title = match[2];
-      break;
+  // 1. Try to find the title in the DOM via H1 or tags with title classes
+  const selectors = [
+    'h1', 
+    'div[class*="text-title-large"]', 
+    'div[class*="question-title"]',
+    'span[class*="question-title"]',
+    'a[class*="question-title"]'
+  ];
+  
+  for (const selector of selectors) {
+    const el = document.querySelector(selector);
+    if (el && el.textContent) {
+      const text = el.textContent.trim();
+      const match = text.match(/^(\d+)\.\s*(.+)$/);
+      if (match) {
+        problemId = match[1];
+        title = normalizeTitle(match[2]);
+        console.log(`[CodeRevise] DOM Specific Match (Selector: ${selector}): id=${problemId}, title=${title}`);
+        return { problemId, title };
+      }
     }
   }
 
-  // 3. Fallback for title only if no ID found
-  if (!title) {
-    const docTitleFallback = docTitle.match(/^(.+?)(?:\s+-\s+LeetCode)?$/i);
-    if (docTitleFallback) {
-      title = docTitleFallback[1];
+  // 2. Scan other headings for pattern match
+  const headings = document.querySelectorAll('h1, h2, h3, h4');
+  for (const el of headings) {
+    const text = el.textContent ? el.textContent.trim() : "";
+    const match = text.match(/^(\d+)\.\s*(.+)$/);
+    if (match) {
+      problemId = match[1];
+      title = normalizeTitle(match[2]);
+      console.log(`[CodeRevise] DOM Specific Heading Match: id=${problemId}, title=${title}`);
+      return { problemId, title };
+    }
+  }
+
+  // 3. Fallback to document.title
+  const docTitle = document.title;
+  if (docTitle) {
+    const titleMatch = docTitle.match(/^(\d+)\.\s+(.+)$/);
+    if (titleMatch) {
+      problemId = titleMatch[1];
+      title = normalizeTitle(titleMatch[2]);
+      console.log(`[CodeRevise] DOM Fallback (docTitle match): id=${problemId}, title=${title}`);
+    } else {
+      title = normalizeTitle(docTitle);
+      console.log(`[CodeRevise] DOM Fallback (docTitle only): title=${title}`);
     }
   }
 
@@ -83,47 +129,92 @@ function extractTopics() {
   const tagLinks = document.querySelectorAll('a[href*="/tag/"]');
   tagLinks.forEach(link => {
     const text = link.textContent ? link.textContent.trim() : "";
-    if (text && !topics.includes(text)) {
+    if (text && !topics.includes(text) && text.toLowerCase() !== "discuss" && text.toLowerCase() !== "solution") {
       topics.push(text);
     }
   });
   return topics;
 }
 
-function startMetadataExtraction() {
+async function fetchMetadataFromGraphQL(slug) {
+  try {
+    console.log(`[CodeRevise] GraphQL request started: ${slug}`);
+    const response = await fetch("https://leetcode.com/graphql", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        query: `
+          query questionTitle($titleSlug: String!) {
+            question(titleSlug: $titleSlug) {
+              questionId
+              title
+              difficulty
+              topicTags {
+                name
+              }
+            }
+          }
+        `,
+        variables: {
+          titleSlug: slug
+        }
+      })
+    });
+    
+    console.log(`[CodeRevise] GraphQL HTTP status: ${response.status}`);
+    
+    if (!response.ok) {
+      console.error(`[CodeRevise] GraphQL failed: HTTP status ${response.status}`);
+      return null;
+    }
+    
+    const json = await response.json();
+    if (json && json.data && json.data.question) {
+      const q = json.data.question;
+      const result = {
+        problemId: q.questionId,
+        title: q.title,
+        difficulty: q.difficulty,
+        topics: q.topicTags ? q.topicTags.map(t => t.name) : []
+      };
+      console.log(`[CodeRevise] GraphQL metadata received:`, result);
+      return result;
+    } else {
+      console.warn(`[CodeRevise] GraphQL failed: missing data.question inside response`, json);
+    }
+  } catch (e) {
+    console.error(`[CodeRevise] GraphQL failed:`, e);
+  }
+  return null;
+}
+
+function runExtractionLoop(slug, generation) {
   if (extractionInterval) {
     clearInterval(extractionInterval);
+    extractionInterval = null;
   }
   
-  const slug = getProblemSlug(window.location.href);
-  if (!slug) return;
-  
-  console.log(`[CodeRevise] Started metadata extraction for slug: ${slug}`);
-  
-  // Set initial loading state in local storage
-  const initialData = {
-    slug: slug,
-    url: `https://leetcode.com/problems/${slug}/`,
-    title: "Detecting problem...",
-    difficulty: null,
-    topics: [],
-    loading: true
-  };
-  chrome.storage.local.set({ currentProblem: initialData });
-
   retryCount = 0;
-  extractionInterval = setInterval(() => {
-    retryCount++;
-    console.log(`[CodeRevise] Attempting metadata extraction (Try ${retryCount}/${MAX_RETRIES})...`);
+  let graphqlAttempted = false;
+  
+  const extractAndStore = async () => {
+    if (generation !== currentGeneration) {
+      console.log(`[CodeRevise] Aborting extraction for slug '${slug}': Stale generation`);
+      return true; // Stop loop
+    }
     
+    // 1. Try DOM Scraping first
     const { problemId, title } = extractTitleAndId();
     const difficulty = extractDifficulty();
     const topics = extractTopics();
     
-    // Check if we have gathered all required metadata (ID, Title, Difficulty)
     if (problemId && title && difficulty) {
-      clearInterval(extractionInterval);
-      extractionInterval = null;
+      if (generation !== currentGeneration || getProblemSlug(window.location.href) !== slug) {
+        console.log(`[CodeRevise] Aborting storage write for slug '${slug}': Stale generation/slug`);
+        return true;
+      }
       
       const problemData = {
         problemId: problemId,
@@ -137,29 +228,130 @@ function startMetadataExtraction() {
       };
       
       chrome.storage.local.set({ currentProblem: problemData }, () => {
-        console.log("[CodeRevise] Stored problem metadata successfully:", problemData);
+        console.log(`[CodeRevise] DOM metadata:`, { problemId, title, difficulty });
+        console.log(`[CodeRevise] currentProblem updated: ${title}`);
       });
-    } else if (retryCount >= MAX_RETRIES) {
-      clearInterval(extractionInterval);
-      extractionInterval = null;
+      return true;
+    }
+    
+    // 2. Try GraphQL as a fallback (exactly once per generation)
+    if (!graphqlAttempted) {
+      graphqlAttempted = true;
       
-      // Save whatever partial metadata we have gathered
-      const problemData = {
-        problemId: problemId || null,
-        title: title || slug,
-        slug: slug,
-        url: `https://leetcode.com/problems/${slug}/`,
-        difficulty: difficulty || null,
-        topics: topics || [],
-        loading: false,
-        detectedAt: Date.now()
-      };
-      
-      chrome.storage.local.set({ currentProblem: problemData }, () => {
-        console.warn("[CodeRevise] Max retries reached. Stored partial metadata:", problemData);
+      fetchMetadataFromGraphQL(slug).then(gqlData => {
+        if (generation !== currentGeneration || getProblemSlug(window.location.href) !== slug) {
+          console.log(`[CodeRevise] Ignoring stale result: ${slug} (generation: ${generation}, current: ${currentGeneration})`);
+          return;
+        }
+        
+        if (gqlData && gqlData.problemId && gqlData.title && gqlData.difficulty) {
+          const problemData = {
+            problemId: gqlData.problemId,
+            title: gqlData.title,
+            slug: slug,
+            url: `https://leetcode.com/problems/${slug}/`,
+            difficulty: gqlData.difficulty,
+            topics: gqlData.topics,
+            loading: false,
+            detectedAt: Date.now()
+          };
+          
+          chrome.storage.local.set({ currentProblem: problemData }, () => {
+            console.log(`[CodeRevise] currentProblem updated: ${gqlData.title}`);
+          });
+          
+          if (extractionInterval) {
+            clearInterval(extractionInterval);
+            extractionInterval = null;
+          }
+        }
       });
     }
-  }, RETRY_INTERVAL_MS);
+    
+    return false;
+  };
+
+  extractAndStore().then(success => {
+    if (success) return;
+    
+    extractionInterval = setInterval(async () => {
+      retryCount++;
+      console.log(`[CodeRevise] Attempting metadata extraction (Try ${retryCount}/${MAX_RETRIES})...`);
+      
+      if (generation !== currentGeneration) {
+        clearInterval(extractionInterval);
+        extractionInterval = null;
+        return;
+      }
+      
+      const success = await extractAndStore();
+      if (success || retryCount >= MAX_RETRIES) {
+        clearInterval(extractionInterval);
+        extractionInterval = null;
+        
+        if (!success && generation === currentGeneration) {
+          const { problemId, title } = extractTitleAndId();
+          const difficulty = extractDifficulty();
+          const topics = extractTopics();
+          
+          if (generation === currentGeneration && getProblemSlug(window.location.href) === slug) {
+            const problemData = {
+              slug,
+              url: `https://leetcode.com/problems/${slug}/`,
+              title: title || "Problem detected",
+              problemId: problemId || null,
+              difficulty: difficulty || null,
+              topics: topics || [],
+              loading: false,
+              partial: true,
+              detectedAt: Date.now()
+            };
+            
+            chrome.storage.local.set({ currentProblem: problemData }, () => {
+              console.warn("[CodeRevise] Max retries reached. Stored partial metadata:", problemData);
+            });
+          }
+        }
+      }
+    }, RETRY_INTERVAL_MS);
+  });
+}
+
+function startMetadataExtraction() {
+  const slug = getProblemSlug(window.location.href);
+  if (!slug) return;
+
+  currentGeneration++;
+  const thisGeneration = currentGeneration;
+
+  chrome.storage.local.get(["currentProblem"], (result) => {
+    const existing = result ? result.currentProblem : null;
+    
+    // If the stored problem matches the current slug and is fully populated, preserve it!
+    if (isCompleteProblemMetadata(existing, slug)) {
+      console.log(`[CodeRevise] Metadata for slug '${slug}' is already complete. Preserving.`);
+      return;
+    }
+    
+    console.log(`[CodeRevise] Active slug: ${slug}`);
+    console.log(`[CodeRevise] Navigation: ${existing ? existing.slug : "none"} -> ${slug}`);
+    console.log(`[CodeRevise] Clearing stale current problem`);
+    console.log(`[CodeRevise] Extraction started: ${slug} generation: ${thisGeneration}`);
+    
+    // Set loading state under this slug immediately to invalidate stale data
+    const initialData = {
+      slug: slug,
+      url: `https://leetcode.com/problems/${slug}/`,
+      title: "Detecting problem...",
+      problemId: null,
+      difficulty: null,
+      topics: [],
+      loading: true
+    };
+    chrome.storage.local.set({ currentProblem: initialData });
+
+    runExtractionLoop(slug, thisGeneration);
+  });
 }
 
 // Initial execution
@@ -173,13 +365,17 @@ if (initialSlug) {
 // Safe periodic URL polling to track client-side React navigation transitions
 setInterval(() => {
   if (window.location.href !== lastUrl) {
+    const oldUrl = lastUrl;
     lastUrl = window.location.href;
     console.log("[CodeRevise] URL change detected:", lastUrl);
     
     const slug = getProblemSlug(lastUrl);
+    const oldSlug = getProblemSlug(oldUrl);
+    
     if (slug) {
       startMetadataExtraction();
     } else {
+      currentGeneration++; // Cancel any active extraction runs
       if (extractionInterval) {
         clearInterval(extractionInterval);
         extractionInterval = null;
