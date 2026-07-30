@@ -22,6 +22,16 @@
         "content.js"
       ],
       "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "https://leetcode.com/problems/*"
+      ],
+      "js": [
+        "inject.js"
+      ],
+      "run_at": "document_end",
+      "world": "MAIN"
     }
   ],
   "action": {

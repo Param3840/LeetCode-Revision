@@ -1,4 +1,4 @@
-// CodeRevise Content Script - Phase 3 (Bug Fixes & Tracing Logs)
+// CodeRevise Content Script - Phase 4 (Bug Fixes & Solution Capture)
 // Extracts structured LeetCode problem details and handles client-side SPA navigation safely
 // Monitors LeetCode coding area to detect accepted code submissions in real-time
 
@@ -24,6 +24,29 @@ const TERMINAL_STATUSES = [
   "Runtime Error",
   "Compile Error",
   "Output Limit Exceeded"
+];
+
+const LANGUAGE_MAP = {
+  "cpp": "C++",
+  "java": "Java",
+  "python": "Python3",
+  "python3": "Python3",
+  "javascript": "JavaScript",
+  "typescript": "TypeScript",
+  "golang": "Go",
+  "go": "Go",
+  "rust": "Rust",
+  "csharp": "C#",
+  "ruby": "Ruby",
+  "swift": "Swift",
+  "kotlin": "Kotlin",
+  "scala": "Scala",
+  "php": "PHP"
+};
+
+const KNOWN_LANGUAGES = [
+  "C++", "Java", "Python", "Python3", "C", "C#", "JavaScript", "TypeScript",
+  "Go", "Rust", "Ruby", "Swift", "Kotlin", "Scala", "PHP", "HTML", "R", "Dart"
 ];
 
 function getProblemSlug(urlStr) {
@@ -379,8 +402,50 @@ function startMetadataExtraction() {
 }
 
 // ==========================================
-// Phase 3: Accepted Submission Detection
+// Phase 3 & 4: Accepted Submission Detection
 // ==========================================
+
+function normalizeLanguageName(name) {
+  if (!name) return "Unknown";
+  const trimmed = name.trim();
+  const lower = trimmed.toLowerCase();
+  if (LANGUAGE_MAP[lower]) {
+    return LANGUAGE_MAP[lower];
+  }
+  return trimmed;
+}
+
+function getSelectedLanguageFromDOM() {
+  const buttons = document.querySelectorAll('button, div[class*="select"]');
+  for (const btn of buttons) {
+    if (btn.textContent) {
+      const text = btn.textContent.trim();
+      if (KNOWN_LANGUAGES.includes(text)) {
+        return text;
+      }
+    }
+  }
+  return null;
+}
+
+function extractSolutionFromPage() {
+  return new Promise((resolve) => {
+    const handleResponse = (e) => {
+      window.removeEventListener("CodeRevise_SolutionResponse", handleResponse);
+      resolve(e.detail);
+    };
+    window.addEventListener("CodeRevise_SolutionResponse", handleResponse);
+    
+    console.log("[CodeRevise][Phase4] Dispatched CodeRevise_SolutionRequest to main world.");
+    window.dispatchEvent(new CustomEvent("CodeRevise_SolutionRequest"));
+    
+    // Safety timeout if main world does not reply in 1 second
+    setTimeout(() => {
+      window.removeEventListener("CodeRevise_SolutionResponse", handleResponse);
+      resolve(null);
+    }, 1000);
+  });
+}
 
 function isTerminalStatus(status) {
   if (!status) return false;
@@ -435,53 +500,144 @@ function handleSubmissionResult(statusText) {
 
   if (cleanStatus === "Accepted") {
     console.log("[CodeRevise][Phase3] Accepted condition matched.");
-    console.log("[CodeRevise][Phase3] Creating latestAcceptedSubmission object.");
+    console.log("[CodeRevise][Phase4] Capture started.");
     
-    // Retrieve the current problem metadata from local storage
-    chrome.storage.local.get(["currentProblem"], (result) => {
-      const currentProblem = result ? result.currentProblem : null;
-      const slug = getProblemSlug(window.location.href);
+    // Attempt Solution Capture (Language & Source Code)
+    console.log("[CodeRevise][Phase4] Attempting Monaco extraction.");
+    extractSolutionFromPage().then(solutionData => {
+      let detectedLanguage = null;
+      let detectedCode = null;
       
-      const problemInfo = currentProblem && currentProblem.slug === slug ? currentProblem : {
-        slug: slug,
-        url: `https://leetcode.com/problems/${slug}/`,
-        loading: false
-      };
-
-      const { problemId, title } = extractTitleAndId();
-      const difficulty = extractDifficulty();
-      const topics = extractTopics();
-
-      const acceptedSubmission = {
-        id: Date.now(),
-        status: "Accepted",
-        acceptedAt: new Date().toISOString(),
-        problem: {
-          problemId: problemInfo.problemId || problemId || null,
-          title: (problemInfo.title && problemInfo.title !== "Detecting problem...") ? problemInfo.title : (title || slug),
-          slug: slug,
-          difficulty: problemInfo.difficulty || difficulty || null,
-          topics: (problemInfo.topics && problemInfo.topics.length > 0) ? problemInfo.topics : (topics || []),
-          canonicalUrl: `https://leetcode.com/problems/${slug}/`
-        }
-      };
-
-      console.log("[CodeRevise][Phase3] Saving into chrome.storage.local");
-      console.log("[CodeRevise][Phase3] Before storage.");
-
-      chrome.storage.local.set({ latestAcceptedSubmission: acceptedSubmission }, () => {
-        console.log("[CodeRevise][Phase3] After storage.");
-        if (chrome.runtime.lastError) {
-          console.error("[CodeRevise][Phase3] Storage failed with error:", chrome.runtime.lastError);
+      if (solutionData) {
+        if (solutionData.code) {
+          detectedCode = solutionData.code;
+          console.log("[CodeRevise][Phase4] Monaco extraction succeeded.");
         } else {
-          console.log("[CodeRevise][Phase3] Storage completed successfully.");
-          console.log("[CodeRevise][Phase3] Popup should now update.");
-          
-          // Immediately read back to verify
-          chrome.storage.local.get(["latestAcceptedSubmission"], (readResult) => {
-            console.log("[CodeRevise][Phase3] Verified stored object from storage:", readResult.latestAcceptedSubmission);
-          });
+          console.log("[CodeRevise][Phase4] Monaco extraction failed.");
         }
+        if (solutionData.language) {
+          console.log(`Raw Monaco language ID: ${solutionData.language}`);
+          detectedLanguage = normalizeLanguageName(solutionData.language);
+          console.log(`Mapped language: ${detectedLanguage}`);
+        }
+      } else {
+        console.log("[CodeRevise][Phase4] Monaco extraction failed (No response from main world).");
+      }
+
+      // Fallback 1: React Fiber (executed in main world context, if it failed there, we print log and move to DOM fallbacks)
+      if (!detectedCode) {
+        console.log("[CodeRevise][Phase4] Attempting React Fiber fallback.");
+      }
+
+      // Fallback 2: Hidden textarea
+      if (!detectedCode) {
+        console.log("[CodeRevise][Phase4] Attempting textarea fallback.");
+        const textarea = document.querySelector('.monaco-editor textarea.inputarea');
+        if (textarea && textarea.value && textarea.value.trim().length > 0) {
+          detectedCode = textarea.value;
+          console.log("[CodeRevise][Phase4] Textarea fallback succeeded.");
+        } else {
+          console.log("[CodeRevise][Phase4] Textarea fallback failed.");
+        }
+      }
+
+      // Fallback 3: Rendered DOM lines
+      if (!detectedCode) {
+        console.log("[CodeRevise][Phase4] Attempting DOM fallback.");
+        const lineEls = document.querySelectorAll('.monaco-editor .view-line');
+        if (lineEls && lineEls.length > 0) {
+          const lines = [];
+          lineEls.forEach(el => {
+            lines.push(el.textContent || "");
+          });
+          detectedCode = lines.join("\n");
+          console.log("[CodeRevise][Phase4] DOM fallback succeeded.");
+        } else {
+          console.log("[CodeRevise][Phase4] DOM fallback failed.");
+        }
+      }
+
+      // Check if code was successfully captured
+      if (!detectedCode) {
+        console.error("[CodeRevise][Phase4] Solution capture failed: No source code could be extracted from any fallback tier.");
+        return;
+      }
+
+      // Language final lookup from DOM selector if Monaco query yielded empty results
+      if (!detectedLanguage) {
+        detectedLanguage = getSelectedLanguageFromDOM();
+        if (detectedLanguage) {
+          console.log(`Mapped language (from DOM selector): ${detectedLanguage}`);
+        }
+      }
+
+      if (!detectedLanguage) {
+        console.warn("[CodeRevise][Phase4] Language detection failed. Defaulting to 'Unknown'.");
+        detectedLanguage = "Unknown";
+      }
+
+      const charCount = detectedCode.length;
+      const lineCount = detectedCode.split("\n").length;
+
+      console.log(`[CodeRevise][Phase4]\nLanguage detected:\n${detectedLanguage}\n--------------------------------\nSource code length:\n${charCount} characters\n--------------------------------\nLines:\n${lineCount}\n--------------------------------\nCode successfully extracted.\n--------------------------------`);
+
+      // Retrieve the current problem metadata from local storage
+      chrome.storage.local.get(["currentProblem"], (result) => {
+        const currentProblem = result ? result.currentProblem : null;
+        const slug = getProblemSlug(window.location.href);
+        
+        const problemInfo = currentProblem && currentProblem.slug === slug ? currentProblem : {
+          slug: slug,
+          url: `https://leetcode.com/problems/${slug}/`,
+          loading: false
+        };
+
+        const { problemId, title } = extractTitleAndId();
+        const difficulty = extractDifficulty();
+        const topics = extractTopics();
+
+        const acceptedSubmission = {
+          id: Date.now(),
+          status: "Accepted",
+          acceptedAt: new Date().toISOString(),
+          problem: {
+            problemId: problemInfo.problemId || problemId || null,
+            title: (problemInfo.title && problemInfo.title !== "Detecting problem...") ? problemInfo.title : (title || slug),
+            slug: slug,
+            difficulty: problemInfo.difficulty || difficulty || null,
+            topics: (problemInfo.topics && problemInfo.topics.length > 0) ? problemInfo.topics : (topics || []),
+            canonicalUrl: `https://leetcode.com/problems/${slug}/`
+          },
+          solution: {
+            language: detectedLanguage,
+            code: detectedCode
+          }
+        };
+
+        console.log("[CodeRevise][Phase3] Saving into chrome.storage.local");
+        console.log("[CodeRevise][Phase3] Before storage.");
+        console.log("[CodeRevise][Phase4] Submission object updated.");
+
+        chrome.storage.local.set({ latestAcceptedSubmission: acceptedSubmission }, () => {
+          console.log("[CodeRevise][Phase3] After storage.");
+          if (chrome.runtime.lastError) {
+            console.error("[CodeRevise][Phase3] Storage failed with error:", chrome.runtime.lastError);
+          } else {
+            console.log("[CodeRevise][Phase3] Storage completed successfully.");
+            console.log("[CodeRevise][Phase4] Storage completed.");
+            console.log("[CodeRevise][Phase3] Popup should now update.");
+            
+            // Immediately read back to verify
+            chrome.storage.local.get(["latestAcceptedSubmission"], (readResult) => {
+              const sub = readResult ? readResult.latestAcceptedSubmission : null;
+              if (sub && sub.solution && sub.solution.language && sub.solution.code !== undefined && sub.status === "Accepted" && sub.problem) {
+                console.log("[CodeRevise][Phase4] Verified stored submission with solution.");
+              } else {
+                console.warn("[CodeRevise][Phase4] Verification failed: read back object was incomplete", sub);
+              }
+            });
+          }
+        });
       });
     });
   } else {

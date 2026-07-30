@@ -269,6 +269,18 @@ body {
   color: var(--text-secondary);
 }
 
+.submission-language {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.submission-code {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
 .submission-time {
   margin: 0;
   font-size: 10px;

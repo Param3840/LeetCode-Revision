@@ -1,4 +1,4 @@
-// CodeRevise Extension Popup Script - Phase 3 (Bug Fixes & Submission Rendering)
+// CodeRevise Extension Popup Script - Phase 4 (Bug Fixes & Solution Rendering)
 
 const CODEREVISE_URL = "http://localhost:3000";
 
@@ -50,6 +50,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const submissionCard = document.getElementById("submission-card");
   const noSubmissionCard = document.getElementById("no-submission-card");
   const submissionMetaEl = document.getElementById("submission-meta");
+  const submissionLanguageEl = document.getElementById("submission-language");
+  const submissionCodeEl = document.getElementById("submission-code");
   const submissionTimeEl = document.getElementById("submission-time");
   
   const openBtn = document.getElementById("open-btn");
@@ -144,6 +146,11 @@ document.addEventListener("DOMContentLoaded", () => {
         
         const prob = sub.problem || {};
         submissionMetaEl.textContent = `Problem: #${prob.problemId || ""} ${prob.title || ""}`;
+        
+        const sol = sub.solution || {};
+        submissionLanguageEl.textContent = `Language: ${sol.language || "Unknown"}`;
+        submissionCodeEl.textContent = `Code: ${sol.code ? "Available" : "Not Available"}`;
+        
         submissionTimeEl.textContent = formatSubmissionTime(sub.acceptedAt);
       } else {
         submissionCard.classList.add("hidden");
