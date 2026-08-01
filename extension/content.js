@@ -627,16 +627,8 @@ function handleSubmissionResult(statusText) {
             console.log("[CodeRevise][Phase4] Storage completed.");
             console.log("[CodeRevise][Phase3] Popup should now update.");
             
-            // Immediately read back to verify
-            chrome.storage.local.get(["latestAcceptedSubmission"], (readResult) => {
-              const sub = readResult ? readResult.latestAcceptedSubmission : null;
-              if (sub && sub.solution && sub.solution.language && sub.solution.code !== undefined && sub.status === "Accepted" && sub.problem) {
-                console.log("[CodeRevise][Phase4] Verified stored submission with solution.");
-                syncSubmissionToBackend(sub);
-              } else {
-                console.warn("[CodeRevise][Phase4] Verification failed: read back object was incomplete", sub);
-              }
-            });
+            // Invoke automatic submission sync immediately after storage completion
+            syncSubmissionToBackend(acceptedSubmission);
           }
         });
       });
@@ -783,7 +775,7 @@ function syncSubmissionToBackend(sub, isRetry = false) {
   chrome.storage.local.get(["auth"], async (res) => {
     const auth = res ? res.auth : null;
     if (!auth || !auth.token) {
-      console.log("[CodeRevise][Sync] JWT missing. Skipping upload.");
+      console.log("[CodeRevise][Sync] JWT Missing");
       sub.syncStatus = "Please connect your account.";
       chrome.storage.local.set({ latestAcceptedSubmission: sub });
       return;
@@ -823,6 +815,7 @@ function syncSubmissionToBackend(sub, isRetry = false) {
         chrome.storage.local.set({ latestAcceptedSubmission: sub });
       } else {
         const errorData = await response.json().catch(() => ({}));
+        console.log("[CodeRevise][Sync] Upload failed");
         
         if (response.status === 401) {
           console.warn("[CodeRevise][Sync] Expired JWT - Auto logout");
@@ -839,6 +832,7 @@ function syncSubmissionToBackend(sub, isRetry = false) {
         }
       }
     } catch (err) {
+      console.log("[CodeRevise][Sync] Upload failed");
       console.error("[CodeRevise][Sync] Network failure: ", err);
       handleUploadFailure(sub, isRetry);
     }
