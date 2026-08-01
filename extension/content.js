@@ -8,9 +8,35 @@ let retryCount = 0;
 const MAX_RETRIES = 10;
 const RETRY_INTERVAL_MS = 1000;
 
-// Token-based generation mechanism to prevent asynchronous race conditions
 let currentGeneration = 0;
 let currentSlug = null;
+
+// Inject main-world history patch to catch client-side SPA navigation calls
+(function injectHistoryPatch() {
+  try {
+    const script = document.createElement("script");
+    script.textContent = `
+      (function() {
+        const _pushState = history.pushState;
+        history.pushState = function(...args) {
+          const res = _pushState.apply(this, args);
+          window.dispatchEvent(new CustomEvent('coderevise_locationchange'));
+          return res;
+        };
+        const _replaceState = history.replaceState;
+        history.replaceState = function(...args) {
+          const res = _replaceState.apply(this, args);
+          window.dispatchEvent(new CustomEvent('coderevise_locationchange'));
+          return res;
+        };
+      })();
+    `;
+    (document.head || document.documentElement).appendChild(script);
+    script.remove();
+  } catch (e) {
+    // Ignore injection errors
+  }
+})();
 
 // Submission observation state
 let submissionPending = false;
@@ -356,7 +382,7 @@ function runExtractionLoop(slug, generation) {
   });
 }
 
-function startMetadataExtraction() {
+function startMetadataExtraction(force = false) {
   const slug = getProblemSlug(window.location.href);
   if (!slug) return;
 
@@ -375,17 +401,17 @@ function startMetadataExtraction() {
   chrome.storage.local.get(["currentProblem"], (result) => {
     const existing = result ? result.currentProblem : null;
     
-    // If the stored problem matches the current slug and is fully populated, preserve it!
-    if (isCompleteProblemMetadata(existing, slug)) {
+    // If NOT forced, and the stored problem matches the current slug and is fully populated, preserve it!
+    if (!force && isCompleteProblemMetadata(existing, slug)) {
       console.log(`[CodeRevise] Metadata for slug '${slug}' is already complete. Preserving.`);
       return;
     }
     
     console.log(`[CodeRevise] Active slug: ${slug}`);
-    console.log(`[CodeRevise] Clearing stale current problem`);
+    console.log(`[CodeRevise] Clearing stale current problem for ${slug}`);
     console.log(`[CodeRevise] Extraction started: ${slug} generation: ${thisGeneration}`);
     
-    // Set loading state under this slug immediately to invalidate stale data
+    // Set loading state under this slug immediately to invalidate stale data & notify popup
     const initialData = {
       slug: slug,
       url: `https://leetcode.com/problems/${slug}/`,
@@ -395,7 +421,9 @@ function startMetadataExtraction() {
       topics: [],
       loading: true
     };
-    chrome.storage.local.set({ currentProblem: initialData });
+    chrome.storage.local.set({ currentProblem: initialData }, () => {
+      console.log(`[CodeRevise] Updated storage.local.currentProblem for ${slug} (loading)`);
+    });
 
     runExtractionLoop(slug, thisGeneration);
   });
@@ -740,18 +768,17 @@ if (initialSlug) {
   chrome.storage.local.remove("currentProblem");
 }
 
-// Safe periodic URL polling to track client-side React navigation transitions
-setInterval(() => {
-  if (window.location.href !== lastUrl) {
+function checkUrlChange(force = false) {
+  const currentUrl = window.location.href;
+  if (currentUrl !== lastUrl || force) {
     const oldUrl = lastUrl;
-    lastUrl = window.location.href;
-    console.log("[CodeRevise] URL change detected:", lastUrl);
+    lastUrl = currentUrl;
+    console.log(`[CodeRevise] SPA Navigation detected: ${oldUrl} -> ${currentUrl}`);
     
-    const slug = getProblemSlug(lastUrl);
-    const oldSlug = getProblemSlug(oldUrl);
+    const newSlug = getProblemSlug(currentUrl);
     
-    if (slug) {
-      startMetadataExtraction();
+    if (newSlug) {
+      startMetadataExtraction(true);
     } else {
       currentGeneration++; // Cancel any active extraction runs
       currentSlug = null; // Clear active slug
@@ -765,7 +792,31 @@ setInterval(() => {
       });
     }
   }
-}, 1000);
+}
+
+// SPA Navigation Event Listeners
+window.addEventListener("coderevise_locationchange", () => checkUrlChange());
+window.addEventListener("popstate", () => checkUrlChange());
+window.addEventListener("pushstate", () => checkUrlChange());
+window.addEventListener("replacestate", () => checkUrlChange());
+window.addEventListener("hashchange", () => checkUrlChange());
+
+// Fast 200ms polling fallback for zero-latency detection
+setInterval(() => {
+  checkUrlChange();
+}, 200);
+
+// Observe document title changes (fires when React/Next updates problem title in SPA)
+try {
+  const titleObserver = new MutationObserver(() => {
+    checkUrlChange();
+  });
+  if (document.querySelector("title")) {
+    titleObserver.observe(document.querySelector("title"), { childList: true, subtree: true, characterData: true });
+  }
+} catch (e) {
+  // Ignore observer setup errors
+}
 
 // ==========================================
 // Phase 6: Automatic Submission Syncing
