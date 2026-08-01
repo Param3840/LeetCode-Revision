@@ -22,30 +22,27 @@ const PORT = Number(process.env.PORT) || 5000;
 const startServer = async () => {
   await connectDB();
   
-  let currentPort = PORT;
+  const server = app.listen(PORT, () => {
+    console.log(`🚀 Express server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+  });
   
-  const listen = () => {
-    const server = app.listen(currentPort, () => {
-      console.log(`🚀 Express server running in ${process.env.NODE_ENV || 'development'} mode on port ${currentPort}`);
-    });
-    
-    server.on('error', (err) => {
-      if (err.code === 'EADDRINUSE') {
-        console.warn(`[CodeRevise] Port ${currentPort} is already in use. Retrying on port ${currentPort + 1}...`);
-        currentPort++;
-        try {
-          server.close();
-        } catch (closeErr) {
-          // Ignore close errors on unbound sockets
-        }
-        listen();
-      } else {
-        console.error('[CodeRevise] Server error:', err);
-      }
-    });
-  };
-
-  listen();
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error('\n--------------------------------------------------');
+      console.error(`❌ Port ${PORT} is already in use.`);
+      console.error('Another process is already using this port.');
+      console.error('To identify the process on Windows:');
+      console.error(`  netstat -ano | findstr :${PORT}`);
+      console.error('To terminate it:');
+      console.error('  taskkill /PID <PID> /F');
+      console.error('After stopping the process, restart the backend.');
+      console.error('--------------------------------------------------\n');
+      process.exit(1);
+    } else {
+      console.error('❌ Server startup error:', err.message);
+      process.exit(1);
+    }
+  });
 };
 
 startServer();
