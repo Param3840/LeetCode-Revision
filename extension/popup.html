@@ -37,9 +37,14 @@
             <span class="status-check">✅</span>
             <span class="status-text" style="color: var(--easy-color);">Connected</span>
           </div>
-          <p id="auth-name" class="submission-meta" style="margin-top: 6px; font-weight: 700;"></p>
-          <p id="auth-email" class="submission-language" style="color: var(--text-secondary);"></p>
-          <button id="logout-btn" class="action-btn logout-btn" style="margin-top: 10px;">
+          <div class="auth-profile-row" style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+            <img id="auth-avatar" class="auth-avatar hidden" src="" alt="Avatar" />
+            <div>
+              <p id="auth-name" class="submission-meta" style="margin: 0; font-weight: 700;"></p>
+              <p id="auth-email" class="submission-language" style="margin: 0; color: var(--text-secondary);"></p>
+            </div>
+          </div>
+          <button id="logout-btn" class="action-btn logout-btn" style="margin-top: 12px;">
             Logout
           </button>
         </div>

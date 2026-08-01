@@ -304,3 +304,12 @@ body {
   background-color: #991b1b; /* lighter red */
 }
 
+.auth-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  object-fit: cover;
+}
+
+

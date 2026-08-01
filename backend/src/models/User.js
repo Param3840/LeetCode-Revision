@@ -1,7 +1,11 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 
 const UserSchema = new mongoose.Schema({
+  googleId: {
+    type: String,
+    required: [true, 'Google ID is required'],
+    unique: true
+  },
   name: {
     type: String,
     required: [true, 'Name is required'],
@@ -14,17 +18,16 @@ const UserSchema = new mongoose.Schema({
     trim: true,
     lowercase: true
   },
-  passwordHash: {
+  picture: {
     type: String,
-    required: [true, 'Password hash is required']
+    trim: true
+  },
+  provider: {
+    type: String,
+    default: 'google'
   }
 }, {
   timestamps: true
 });
-
-// Method to verify passwords
-UserSchema.methods.matchPassword = async function(enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.passwordHash);
-};
 
 module.exports = mongoose.model('User', UserSchema);

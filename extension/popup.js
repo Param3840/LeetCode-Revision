@@ -63,6 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const authConnected = document.getElementById("auth-connected");
   const authNameEl = document.getElementById("auth-name");
   const authEmailEl = document.getElementById("auth-email");
+  const authAvatarEl = document.getElementById("auth-avatar");
   const connectBtn = document.getElementById("connect-btn");
   const logoutBtn = document.getElementById("logout-btn");
 
@@ -190,7 +191,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 user: {
                   id: data.data._id || data.data.id,
                   name: data.data.name,
-                  email: data.data.email
+                  email: data.data.email,
+                  picture: data.data.picture
                 }
               };
               chrome.storage.local.set({ auth: updatedAuth });
@@ -226,9 +228,18 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       authNameEl.textContent = displayName;
       authEmailEl.textContent = auth.user.email || "";
+
+      // Render Avatar image if present
+      if (auth.user.picture) {
+        authAvatarEl.src = auth.user.picture;
+        authAvatarEl.classList.remove("hidden");
+      } else {
+        authAvatarEl.classList.add("hidden");
+      }
     } else {
       authConnected.classList.add("hidden");
       authDisconnected.classList.remove("hidden");
+      authAvatarEl.classList.add("hidden");
     }
   };
 

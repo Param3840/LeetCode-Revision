@@ -1,98 +1,129 @@
 const User = require('../models/User');
-const bcrypt = require('bcryptjs');
 const { generateToken } = require('../utils/jwt');
-const { validationResult } = require('express-validator');
 
-// @desc    Register a new user
-// @route   POST /api/auth/register
+// @desc    Initiate Google OAuth Redirect
+// @route   GET /api/auth/google
 // @access  Public
-const registerUser = async (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({
-      success: false,
-      message: errors.array()[0].msg
-    });
-  }
+const initiateGoogleAuth = (req, res) => {
+  const rootUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
+  const options = {
+    redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+    client_id: process.env.GOOGLE_CLIENT_ID,
+    access_type: 'offline',
+    response_type: 'code',
+    prompt: 'consent',
+    scope: [
+      'https://www.googleapis.com/auth/userinfo.profile',
+      'https://www.googleapis.com/auth/userinfo.email',
+    ].join(' '),
+  };
 
-  const { name, email, password } = req.body;
-
-  try {
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({
-        success: false,
-        message: 'User already exists'
-      });
-    }
-
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
-
-    const user = await User.create({
-      name,
-      email,
-      passwordHash
-    });
-
-    if (user) {
-      const token = generateToken(user._id);
-      return res.status(201).json({
-        success: true,
-        data: {
-          token,
-          user: {
-            id: user._id,
-            name: user.name,
-            email: user.email
-          }
-        }
-      });
-    } else {
-      res.status(400);
-      throw new Error('Invalid user data');
-    }
-  } catch (error) {
-    next(error);
-  }
+  const queryString = new URLSearchParams(options).toString();
+  const redirectUrl = `${rootUrl}?${queryString}`;
+  
+  console.log('[CodeRevise][OAuth] Redirecting user to Google consent page.');
+  return res.redirect(redirectUrl);
 };
 
-// @desc    Authenticate user & get token
-// @route   POST /api/auth/login
+// @desc    Handle Google OAuth Callback
+// @route   GET /api/auth/google/callback
 // @access  Public
-const loginUser = async (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
+const handleGoogleCallback = async (req, res, next) => {
+  const { code } = req.query;
+
+  if (!code) {
     return res.status(400).json({
       success: false,
-      message: errors.array()[0].msg
+      message: 'Authorization code is missing.'
     });
   }
 
-  const { email, password } = req.body;
-
   try {
-    const user = await User.findOne({ email });
-    if (user && (await user.matchPassword(password))) {
-      const token = generateToken(user._id);
-      return res.status(200).json({
-        success: true,
-        data: {
-          token,
-          user: {
-            id: user._id,
-            name: user.name,
-            email: user.email
-          }
-        }
-      });
-    } else {
+    console.log('[CodeRevise][OAuth] Exchanging authorization code for tokens.');
+    // 1. Exchange auth code for tokens
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code,
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+        grant_type: 'authorization_code'
+      })
+    });
+
+    const tokenData = await tokenResponse.json();
+    if (!tokenResponse.ok) {
+      console.error('[CodeRevise][OAuth] Token exchange failed:', tokenData);
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: 'Google authorization failed.'
       });
     }
+
+    const { access_token } = tokenData;
+
+    console.log('[CodeRevise][OAuth] Retrieving user profile from Google.');
+    // 2. Fetch user profile
+    const profileResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { 'Authorization': `Bearer ${access_token}` }
+    });
+
+    const profileData = await profileResponse.json();
+    if (!profileResponse.ok) {
+      console.error('[CodeRevise][OAuth] Failed to fetch user info:', profileData);
+      return res.status(401).json({
+        success: false,
+        message: 'Failed to retrieve Google profile.'
+      });
+    }
+
+    const { sub: googleId, name, email, picture } = profileData;
+
+    console.log('[CodeRevise][OAuth] Profile received:', { googleId, email, name });
+
+    // 3. Find or create user in MongoDB
+    let user = await User.findOne({ googleId });
+    
+    // Fallback search by email if Google accounts are linked
+    if (!user) {
+      user = await User.findOne({ email });
+      if (user) {
+        // Link googleId to existing user
+        user.googleId = googleId;
+        user.picture = picture || user.picture;
+        await user.save();
+        console.log('[CodeRevise][OAuth] Linked Google sign-in to existing email account.');
+      }
+    }
+
+    if (!user) {
+      console.log('[CodeRevise][OAuth] Creating new user profile.');
+      user = await User.create({
+        googleId,
+        name,
+        email,
+        picture,
+        provider: 'google'
+      });
+    }
+
+    // 4. Generate CodeRevise JWT
+    const token = generateToken(user._id);
+
+    // 5. Redirect user to the frontend with credentials as URL search parameters
+    const frontendUrl = 'http://localhost:3000/login';
+    const redirectParams = new URLSearchParams({
+      token,
+      id: user._id.toString(),
+      name: user.name,
+      email: user.email,
+      picture: user.picture || ''
+    }).toString();
+
+    console.log('[CodeRevise][OAuth] Authentication successful. Redirecting back to web app.');
+    return res.redirect(`${frontendUrl}?${redirectParams}`);
   } catch (error) {
     next(error);
   }
@@ -113,7 +144,7 @@ const getMe = async (req, res, next) => {
 };
 
 module.exports = {
-  registerUser,
-  loginUser,
+  initiateGoogleAuth,
+  handleGoogleCallback,
   getMe
 };
