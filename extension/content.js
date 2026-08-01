@@ -255,178 +255,113 @@ async function fetchMetadataFromGraphQL(slug) {
   return null;
 }
 
-function runExtractionLoop(slug, generation) {
-  if (extractionInterval) {
-    clearInterval(extractionInterval);
-    extractionInterval = null;
-  }
-  
-  retryCount = 0;
-  let graphqlAttempted = false;
-  
-  const extractAndStore = async () => {
-    if (generation !== currentGeneration) {
-      console.log(`[CodeRevise] Aborting extraction for slug '${slug}': Stale generation`);
-      return true; // Stop loop
-    }
-    
-    // 1. Try DOM Scraping first
-    const { problemId, title } = extractTitleAndId();
-    const difficulty = extractDifficulty();
-    const topics = extractTopics();
-    
-    if (problemId && title && difficulty) {
-      if (generation !== currentGeneration || getProblemSlug(window.location.href) !== slug) {
-        console.log(`[CodeRevise] Aborting storage write for slug '${slug}': Stale generation/slug`);
-        return true;
-      }
-      
-      const problemData = {
-        problemId: problemId,
-        title: title,
-        slug: slug,
-        url: `https://leetcode.com/problems/${slug}/`,
-        difficulty: difficulty,
-        topics: topics,
-        loading: false,
-        detectedAt: Date.now()
-      };
-      
-      chrome.storage.local.set({ currentProblem: problemData }, () => {
-        console.log(`[CodeRevise] DOM metadata:`, { problemId, title, difficulty });
-        console.log(`[CodeRevise] currentProblem updated: ${title}`);
-      });
-      return true;
-    }
-    
-    // 2. Try GraphQL as a fallback (exactly once per generation)
-    if (!graphqlAttempted) {
-      graphqlAttempted = true;
-      
-      fetchMetadataFromGraphQL(slug).then(gqlData => {
-        if (generation !== currentGeneration || getProblemSlug(window.location.href) !== slug) {
-          console.log(`[CodeRevise] Ignoring stale result: ${slug} (generation: ${generation}, current: ${currentGeneration})`);
-          return;
-        }
-        
-        if (gqlData && gqlData.problemId && gqlData.title && gqlData.difficulty) {
-          const problemData = {
-            problemId: gqlData.problemId,
-            title: gqlData.title,
-            slug: slug,
-            url: `https://leetcode.com/problems/${slug}/`,
-            difficulty: gqlData.difficulty,
-            topics: gqlData.topics,
-            loading: false,
-            detectedAt: Date.now()
-          };
-          
-          chrome.storage.local.set({ currentProblem: problemData }, () => {
-            console.log(`[CodeRevise] currentProblem updated: ${gqlData.title}`);
-          });
-          
-          if (extractionInterval) {
-            clearInterval(extractionInterval);
-            extractionInterval = null;
-          }
-        }
-      });
-    }
-    
-    return false;
-  };
-
-  extractAndStore().then(success => {
-    if (success) return;
-    
-    extractionInterval = setInterval(async () => {
-      retryCount++;
-      console.log(`[CodeRevise] Attempting metadata extraction (Try ${retryCount}/${MAX_RETRIES})...`);
-      
-      if (generation !== currentGeneration) {
-        clearInterval(extractionInterval);
-        extractionInterval = null;
-        return;
-      }
-      
-      const success = await extractAndStore();
-      if (success || retryCount >= MAX_RETRIES) {
-        clearInterval(extractionInterval);
-        extractionInterval = null;
-        
-        if (!success && generation === currentGeneration) {
-          const { problemId, title } = extractTitleAndId();
-          const difficulty = extractDifficulty();
-          const topics = extractTopics();
-          
-          if (generation === currentGeneration && getProblemSlug(window.location.href) === slug) {
-            const problemData = {
-              slug,
-              url: `https://leetcode.com/problems/${slug}/`,
-              title: title || "Problem detected",
-              problemId: problemId || null,
-              difficulty: difficulty || null,
-              topics: topics || [],
-              loading: false,
-              partial: true,
-              detectedAt: Date.now()
-            };
-            
-            chrome.storage.local.set({ currentProblem: problemData }, () => {
-              console.warn("[CodeRevise] Max retries reached. Stored partial metadata:", problemData);
-            });
-          }
-        }
-      }
-    }, RETRY_INTERVAL_MS);
-  });
-}
-
-function startMetadataExtraction(force = false) {
-  const slug = getProblemSlug(window.location.href);
+function startMetadataExtraction(targetSlug) {
+  const currentUrlSlug = getProblemSlug(window.location.href);
+  const slug = targetSlug || currentUrlSlug;
   if (!slug) return;
 
   currentGeneration++;
   const thisGeneration = currentGeneration;
 
-  // Invalidate pending submissions ONLY if navigating to a DIFFERENT slug
   if (slug !== currentSlug) {
-    console.log(`[CodeRevise][Phase3] Navigation: ${currentSlug || "none"} -> ${slug}. Invalidating pending submission.`);
     currentSlug = slug;
     cancelPendingSubmission();
-  } else {
-    console.log(`[CodeRevise][Phase3] Same slug transition: ${slug}. Keeping pending submission observer active.`);
   }
 
-  chrome.storage.local.get(["currentProblem"], (result) => {
-    const existing = result ? result.currentProblem : null;
-    
-    // If NOT forced, and the stored problem matches the current slug and is fully populated, preserve it!
-    if (!force && isCompleteProblemMetadata(existing, slug)) {
-      console.log(`[CodeRevise] Metadata for slug '${slug}' is already complete. Preserving.`);
+  console.log("[CodeRevise] Extraction started");
+
+  if (extractionInterval) {
+    clearInterval(extractionInterval);
+    extractionInterval = null;
+  }
+
+  const runExtraction = async () => {
+    // 1. Try GraphQL first (immune to DOM re-rendering lag)
+    const gqlData = await fetchMetadataFromGraphQL(slug);
+
+    const activeSlugNow = getProblemSlug(window.location.href);
+    if (thisGeneration !== currentGeneration || activeSlugNow !== slug || !window.location.pathname.includes(slug)) {
+      console.log("[CodeRevise] Ignored stale extraction");
       return;
     }
-    
-    console.log(`[CodeRevise] Active slug: ${slug}`);
-    console.log(`[CodeRevise] Clearing stale current problem for ${slug}`);
-    console.log(`[CodeRevise] Extraction started: ${slug} generation: ${thisGeneration}`);
-    
-    // Set loading state under this slug immediately to invalidate stale data & notify popup
-    const initialData = {
-      slug: slug,
-      url: `https://leetcode.com/problems/${slug}/`,
-      title: "Detecting problem...",
-      problemId: null,
-      difficulty: null,
-      topics: [],
-      loading: true
-    };
-    chrome.storage.local.set({ currentProblem: initialData }, () => {
-      console.log(`[CodeRevise] Updated storage.local.currentProblem for ${slug} (loading)`);
-    });
 
-    runExtractionLoop(slug, thisGeneration);
-  });
+    if (gqlData && gqlData.problemId && gqlData.title && gqlData.difficulty) {
+      const problemData = {
+        problemId: String(gqlData.problemId),
+        title: gqlData.title,
+        slug: slug,
+        url: `https://leetcode.com/problems/${slug}/`,
+        difficulty: gqlData.difficulty,
+        topics: gqlData.topics || [],
+        loading: false,
+        detectedAt: Date.now()
+      };
+
+      if (thisGeneration === currentGeneration && getProblemSlug(window.location.href) === slug) {
+        console.log("[CodeRevise] Extraction completed");
+        chrome.storage.local.set({ currentProblem: problemData }, () => {
+          console.log("[CodeRevise] Current problem updated");
+        });
+        return;
+      } else {
+        console.log("[CodeRevise] Ignored stale extraction");
+        return;
+      }
+    }
+
+    // 2. Fallback: DOM scraping with DOM title verification
+    let retries = 0;
+    extractionInterval = setInterval(() => {
+      retries++;
+      const currentActiveSlug = getProblemSlug(window.location.href);
+
+      if (thisGeneration !== currentGeneration || currentActiveSlug !== slug || !window.location.pathname.includes(slug)) {
+        console.log("[CodeRevise] Ignored stale extraction");
+        clearInterval(extractionInterval);
+        extractionInterval = null;
+        return;
+      }
+
+      const { problemId, title } = extractTitleAndId();
+      const difficulty = extractDifficulty();
+      const topics = extractTopics();
+
+      const cleanTitleSlug = title ? title.toLowerCase().replace(/[^a-z0-9]/g, "") : "";
+      const cleanTargetSlug = slug.replace(/[^a-z0-9]/g, "");
+      const isTitleMatchingSlug = cleanTitleSlug.includes(cleanTargetSlug) || cleanTargetSlug.includes(cleanTitleSlug);
+
+      if (problemId && title && difficulty && isTitleMatchingSlug) {
+        clearInterval(extractionInterval);
+        extractionInterval = null;
+
+        if (thisGeneration === currentGeneration && getProblemSlug(window.location.href) === slug) {
+          const problemData = {
+            problemId: String(problemId),
+            title: title,
+            slug: slug,
+            url: `https://leetcode.com/problems/${slug}/`,
+            difficulty: difficulty,
+            topics: topics || [],
+            loading: false,
+            detectedAt: Date.now()
+          };
+
+          console.log("[CodeRevise] Extraction completed");
+          chrome.storage.local.set({ currentProblem: problemData }, () => {
+            console.log("[CodeRevise] Current problem updated");
+          });
+        } else {
+          console.log("[CodeRevise] Ignored stale extraction");
+        }
+      } else if (retries >= MAX_RETRIES) {
+        clearInterval(extractionInterval);
+        extractionInterval = null;
+        console.log("[CodeRevise] Ignored stale extraction");
+      }
+    }, 500);
+  };
+
+  runExtraction();
 }
 
 // ==========================================
@@ -768,17 +703,18 @@ if (initialSlug) {
   chrome.storage.local.remove("currentProblem");
 }
 
-function checkUrlChange(force = false) {
+function checkUrlChange() {
   const currentUrl = window.location.href;
-  if (currentUrl !== lastUrl || force) {
+  if (currentUrl !== lastUrl) {
     const oldUrl = lastUrl;
     lastUrl = currentUrl;
-    console.log(`[CodeRevise] SPA Navigation detected: ${oldUrl} -> ${currentUrl}`);
+    
+    console.log("[CodeRevise] Navigation detected");
     
     const newSlug = getProblemSlug(currentUrl);
     
     if (newSlug) {
-      startMetadataExtraction(true);
+      startMetadataExtraction(newSlug);
     } else {
       currentGeneration++; // Cancel any active extraction runs
       currentSlug = null; // Clear active slug
@@ -787,9 +723,7 @@ function checkUrlChange(force = false) {
         clearInterval(extractionInterval);
         extractionInterval = null;
       }
-      chrome.storage.local.remove("currentProblem", () => {
-        console.log("[CodeRevise] Navigated away from LeetCode problem. Cleared currentProblem.");
-      });
+      chrome.storage.local.remove("currentProblem");
     }
   }
 }
