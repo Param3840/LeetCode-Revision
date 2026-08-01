@@ -67,7 +67,7 @@ const BACKEND_URL = "http://localhost:5000";
 export default function ProblemDetailView() {
   const router = useRouter();
   const params = useParams();
-  const rawParam = params?.problemNumber || params?.id;
+  const rawParam = params?.problemNumber;
   const problemNumberParam = Array.isArray(rawParam) ? rawParam[0] : rawParam as string;
 
   const [submission, setSubmission] = useState<Submission | null>(null);

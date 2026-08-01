@@ -5,6 +5,6 @@ export const metadata = {
   description: "Review LeetCode problem statements, solution code, personal notes, and revision timelines in CodeRevise."
 };
 
-export default function ProblemDetailIdPage() {
+export default function RevisionProblemDetailPage() {
   return <ProblemDetailView />;
 }
