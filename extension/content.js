@@ -632,6 +632,7 @@ function handleSubmissionResult(statusText) {
               const sub = readResult ? readResult.latestAcceptedSubmission : null;
               if (sub && sub.solution && sub.solution.language && sub.solution.code !== undefined && sub.status === "Accepted" && sub.problem) {
                 console.log("[CodeRevise][Phase4] Verified stored submission with solution.");
+                syncSubmissionToBackend(sub);
               } else {
                 console.warn("[CodeRevise][Phase4] Verification failed: read back object was incomplete", sub);
               }
@@ -773,3 +774,87 @@ setInterval(() => {
     }
   }
 }, 1000);
+
+// ==========================================
+// Phase 6: Automatic Submission Syncing
+// ==========================================
+
+function syncSubmissionToBackend(sub, isRetry = false) {
+  chrome.storage.local.get(["auth"], async (res) => {
+    const auth = res ? res.auth : null;
+    if (!auth || !auth.token) {
+      console.log("[CodeRevise][Sync] JWT missing. Skipping upload.");
+      sub.syncStatus = "Please connect your account.";
+      chrome.storage.local.set({ latestAcceptedSubmission: sub });
+      return;
+    }
+
+    console.log("[CodeRevise][Sync] JWT Found");
+    console.log("[CodeRevise][Sync] Upload started");
+
+    sub.syncStatus = "Uploading...";
+    chrome.storage.local.set({ latestAcceptedSubmission: sub });
+
+    const payload = {
+      problemNumber: sub.problem.problemId,
+      title: sub.problem.title,
+      slug: sub.problem.slug,
+      url: sub.problem.canonicalUrl,
+      difficulty: sub.problem.difficulty,
+      tags: sub.problem.topics,
+      language: sub.solution.language,
+      solution: sub.solution.code,
+      submittedAt: sub.acceptedAt
+    };
+
+    try {
+      const response = await fetch("http://localhost:5000/api/submissions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${auth.token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        console.log("[CodeRevise][Sync] Upload successful");
+        sub.syncStatus = "Synced Successfully";
+        chrome.storage.local.set({ latestAcceptedSubmission: sub });
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        
+        if (response.status === 401) {
+          console.warn("[CodeRevise][Sync] Expired JWT - Auto logout");
+          chrome.storage.local.remove(["auth"]);
+          sub.syncStatus = "Upload Failed";
+          chrome.storage.local.set({ latestAcceptedSubmission: sub });
+        } else if (response.status === 400) {
+          console.error("[CodeRevise][Sync] Validation error: ", errorData.message || "Bad Request");
+          sub.syncStatus = "Upload Failed";
+          chrome.storage.local.set({ latestAcceptedSubmission: sub });
+        } else {
+          console.error(`[CodeRevise][Sync] Upload failed with status ${response.status}`);
+          handleUploadFailure(sub, isRetry);
+        }
+      }
+    } catch (err) {
+      console.error("[CodeRevise][Sync] Network failure: ", err);
+      handleUploadFailure(sub, isRetry);
+    }
+  });
+}
+
+function handleUploadFailure(sub, isRetry) {
+  if (!isRetry) {
+    console.log("[CodeRevise][Sync] Network Failure. Retrying once...");
+    setTimeout(() => {
+      syncSubmissionToBackend(sub, true);
+    }, 1500);
+  } else {
+    console.log("[CodeRevise][Sync] Upload failed");
+    sub.syncStatus = "Upload Failed";
+    chrome.storage.local.set({ latestAcceptedSubmission: sub });
+  }
+}
+

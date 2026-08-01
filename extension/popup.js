@@ -55,6 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const submissionLanguageEl = document.getElementById("submission-language");
   const submissionCodeEl = document.getElementById("submission-code");
   const submissionTimeEl = document.getElementById("submission-time");
+  const submissionSyncEl = document.getElementById("submission-sync");
   
   const openBtn = document.getElementById("open-btn");
   
@@ -159,6 +160,19 @@ document.addEventListener("DOMContentLoaded", () => {
         submissionCodeEl.textContent = `Code: ${sol.code ? "Available" : "Not Available"}`;
         
         submissionTimeEl.textContent = formatSubmissionTime(sub.acceptedAt);
+
+        // Render Sync Status
+        const syncStatus = sub.syncStatus || "Not Synced";
+        submissionSyncEl.textContent = syncStatus;
+        
+        submissionSyncEl.className = "sync-badge";
+        if (syncStatus.includes("Successfully")) {
+          submissionSyncEl.classList.add("synced");
+        } else if (syncStatus.includes("Uploading")) {
+          submissionSyncEl.classList.add("pending");
+        } else {
+          submissionSyncEl.classList.add("failed");
+        }
       } else {
         submissionCard.classList.add("hidden");
         noSubmissionCard.classList.remove("hidden");
