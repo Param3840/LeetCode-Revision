@@ -51,7 +51,172 @@ const syncSubmission = async (req, res, next) => {
     
     return res.status(200).json({
       success: true,
-      submissionId: submission._id
+      submissionId: submission._id,
+      data: submission
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get all submissions belonging to logged in user
+// @route   GET /api/submissions
+// @access  Private
+const getAllSubmissions = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const submissions = await Submission.find({ userId }).sort({ submittedAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      count: submissions.length,
+      data: submissions
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get single submission by ID
+// @route   GET /api/submissions/:id
+// @access  Private
+const getSubmissionById = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const submission = await Submission.findOne({ _id: req.params.id, userId });
+
+    if (!submission) {
+      return res.status(404).json({
+        success: false,
+        message: 'Submission not found'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: submission
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete single submission by ID
+// @route   DELETE /api/submissions/:id
+// @access  Private
+const deleteSubmission = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const submission = await Submission.findOneAndDelete({ _id: req.params.id, userId });
+
+    if (!submission) {
+      return res.status(404).json({
+        success: false,
+        message: 'Submission not found'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Submission deleted successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Toggle favorite status
+// @route   PATCH /api/submissions/:id/favorite
+// @access  Private
+const toggleFavorite = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const submission = await Submission.findOne({ _id: req.params.id, userId });
+
+    if (!submission) {
+      return res.status(404).json({
+        success: false,
+        message: 'Submission not found'
+      });
+    }
+
+    const newFavoriteState = typeof req.body.favorite === 'boolean' 
+      ? req.body.favorite 
+      : !submission.favorite;
+
+    submission.favorite = newFavoriteState;
+    await submission.save();
+
+    return res.status(200).json({
+      success: true,
+      data: submission
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update revision status
+// @route   PATCH /api/submissions/:id/revision
+// @access  Private
+const updateRevisionStatus = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const { revisionStatus } = req.body;
+
+    const validStatuses = ['New', 'Learning', 'Revising', 'Mastered'];
+    if (!validStatuses.includes(revisionStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid revision status. Must be one of: ${validStatuses.join(', ')}`
+      });
+    }
+
+    const submission = await Submission.findOne({ _id: req.params.id, userId });
+    if (!submission) {
+      return res.status(404).json({
+        success: false,
+        message: 'Submission not found'
+      });
+    }
+
+    submission.revisionStatus = revisionStatus;
+    submission.lastReviewed = new Date();
+    submission.reviewCount = (submission.reviewCount || 0) + 1;
+
+    await submission.save();
+
+    return res.status(200).json({
+      success: true,
+      data: submission
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Save personal notes
+// @route   PATCH /api/submissions/:id/notes
+// @access  Private
+const updateNotes = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const { notes } = req.body;
+
+    const submission = await Submission.findOne({ _id: req.params.id, userId });
+    if (!submission) {
+      return res.status(404).json({
+        success: false,
+        message: 'Submission not found'
+      });
+    }
+
+    submission.notes = typeof notes === 'string' ? notes : '';
+    await submission.save();
+
+    return res.status(200).json({
+      success: true,
+      data: submission
     });
   } catch (error) {
     next(error);
@@ -59,5 +224,11 @@ const syncSubmission = async (req, res, next) => {
 };
 
 module.exports = {
-  syncSubmission
+  syncSubmission,
+  getAllSubmissions,
+  getSubmissionById,
+  deleteSubmission,
+  toggleFavorite,
+  updateRevisionStatus,
+  updateNotes
 };

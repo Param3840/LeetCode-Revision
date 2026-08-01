@@ -44,6 +44,27 @@ const SubmissionSchema = new mongoose.Schema({
     type: Date,
     required: [true, 'Submission time is required'],
     default: Date.now
+  },
+  favorite: {
+    type: Boolean,
+    default: false
+  },
+  notes: {
+    type: String,
+    default: ""
+  },
+  revisionStatus: {
+    type: String,
+    enum: ['New', 'Learning', 'Revising', 'Mastered'],
+    default: 'New'
+  },
+  lastReviewed: {
+    type: Date,
+    default: null
+  },
+  reviewCount: {
+    type: Number,
+    default: 0
   }
 }, {
   timestamps: true

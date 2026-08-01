@@ -42,7 +42,7 @@ function LoginContent() {
 
       // Redirect after 2 seconds
       setTimeout(() => {
-        router.push("/revision/dashboard");
+        router.push("/dashboard");
       }, 2000);
     }
     
@@ -73,7 +73,7 @@ function LoginContent() {
   };
 
   const handleContinueClick = () => {
-    router.push("/revision/dashboard");
+    router.push("/dashboard");
   };
 
   return (

@@ -1,9 +1,25 @@
 const express = require('express');
 const router = express.Router();
-const { syncSubmission } = require('../controllers/submission.controller');
+const {
+  syncSubmission,
+  getAllSubmissions,
+  getSubmissionById,
+  deleteSubmission,
+  toggleFavorite,
+  updateRevisionStatus,
+  updateNotes
+} = require('../controllers/submission.controller');
 const { protect } = require('../middleware/auth.middleware');
 
-// Protected endpoint to sync a submission
-router.post('/', protect, syncSubmission);
+// Protect all submission routes
+router.use(protect);
+
+router.post('/', syncSubmission);
+router.get('/', getAllSubmissions);
+router.get('/:id', getSubmissionById);
+router.delete('/:id', deleteSubmission);
+router.patch('/:id/favorite', toggleFavorite);
+router.patch('/:id/revision', updateRevisionStatus);
+router.patch('/:id/notes', updateNotes);
 
 module.exports = router;
