@@ -11,33 +11,6 @@ const RETRY_INTERVAL_MS = 1000;
 let currentGeneration = 0;
 let currentSlug = null;
 
-// Inject main-world history patch to catch client-side SPA navigation calls
-(function injectHistoryPatch() {
-  try {
-    const script = document.createElement("script");
-    script.textContent = `
-      (function() {
-        const _pushState = history.pushState;
-        history.pushState = function(...args) {
-          const res = _pushState.apply(this, args);
-          window.dispatchEvent(new CustomEvent('coderevise_locationchange'));
-          return res;
-        };
-        const _replaceState = history.replaceState;
-        history.replaceState = function(...args) {
-          const res = _replaceState.apply(this, args);
-          window.dispatchEvent(new CustomEvent('coderevise_locationchange'));
-          return res;
-        };
-      })();
-    `;
-    (document.head || document.documentElement).appendChild(script);
-    script.remove();
-  } catch (e) {
-    // Ignore injection errors
-  }
-})();
-
 // Submission observation state
 let submissionPending = false;
 let resultObserver = null;
@@ -276,7 +249,8 @@ function startMetadataExtraction(targetSlug) {
   }
 
   const runExtraction = async () => {
-    // 1. Try GraphQL first (immune to DOM re-rendering lag)
+    // 1. Query LeetCode GraphQL immediately using the slug
+    console.log("[CodeRevise] Fetching GraphQL metadata");
     const gqlData = await fetchMetadataFromGraphQL(slug);
 
     const activeSlugNow = getProblemSlug(window.location.href);
@@ -286,6 +260,8 @@ function startMetadataExtraction(targetSlug) {
     }
 
     if (gqlData && gqlData.problemId && gqlData.title && gqlData.difficulty) {
+      console.log("[CodeRevise] GraphQL metadata received");
+
       const problemData = {
         problemId: String(gqlData.problemId),
         title: gqlData.title,
@@ -299,17 +275,21 @@ function startMetadataExtraction(targetSlug) {
 
       if (thisGeneration === currentGeneration && getProblemSlug(window.location.href) === slug) {
         console.log("[CodeRevise] Extraction completed");
+        console.log("[CodeRevise] Updating currentProblem from GraphQL");
         chrome.storage.local.set({ currentProblem: problemData }, () => {
           console.log("[CodeRevise] Current problem updated");
         });
-        return;
+        return; // STOP! GraphQL succeeded. NEVER execute DOM fallback or DOM overwrite!
       } else {
         console.log("[CodeRevise] Ignored stale extraction");
         return;
       }
     }
 
-    // 2. Fallback: DOM scraping with DOM title verification
+    // 2. DOM Fallback ONLY if GraphQL failed!
+    console.log("[CodeRevise] GraphQL failed");
+    console.log("[CodeRevise] Using DOM fallback");
+
     let retries = 0;
     extractionInterval = setInterval(() => {
       retries++;
@@ -328,7 +308,7 @@ function startMetadataExtraction(targetSlug) {
 
       const cleanTitleSlug = title ? title.toLowerCase().replace(/[^a-z0-9]/g, "") : "";
       const cleanTargetSlug = slug.replace(/[^a-z0-9]/g, "");
-      const isTitleMatchingSlug = cleanTitleSlug.includes(cleanTargetSlug) || cleanTargetSlug.includes(cleanTitleSlug);
+      const isTitleMatchingSlug = cleanTitleSlug.includes(cleanTargetSlug) || cleanTargetSlug.includes(cleanTargetSlug);
 
       if (problemId && title && difficulty && isTitleMatchingSlug) {
         clearInterval(extractionInterval);
@@ -728,11 +708,8 @@ function checkUrlChange() {
   }
 }
 
-// SPA Navigation Event Listeners
-window.addEventListener("coderevise_locationchange", () => checkUrlChange());
+// SPA Navigation Event Listeners (non-inline for CSP compliance)
 window.addEventListener("popstate", () => checkUrlChange());
-window.addEventListener("pushstate", () => checkUrlChange());
-window.addEventListener("replacestate", () => checkUrlChange());
 window.addEventListener("hashchange", () => checkUrlChange());
 
 // Fast 200ms polling fallback for zero-latency detection
