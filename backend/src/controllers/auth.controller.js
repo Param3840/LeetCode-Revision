@@ -85,10 +85,14 @@ const handleGoogleCallback = async (req, res, next) => {
 
     // 3. Find or create user in MongoDB
     let user = await User.findOne({ googleId });
+    console.log("[Debug] User found by Google ID:");
+    console.log(user);
     
     // Fallback search by email if Google accounts are linked
     if (!user) {
       user = await User.findOne({ email });
+      console.log("[Debug] User found by Email:");
+      console.log(user);
       if (user) {
         // Link googleId to existing user
         user.googleId = googleId;
@@ -99,6 +103,8 @@ const handleGoogleCallback = async (req, res, next) => {
     }
 
     if (!user) {
+      console.log("[Debug] No existing user found.");
+      console.log("[Debug] Creating new user profile...");
       console.log('[CodeRevise][OAuth] Creating new user profile.');
       user = await User.create({
         googleId,
@@ -107,6 +113,8 @@ const handleGoogleCallback = async (req, res, next) => {
         picture,
         provider: 'google'
       });
+      console.log("[Debug] User created successfully:");
+      console.log(user);
     }
 
     // 4. Generate CodeRevise JWT
