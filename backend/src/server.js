@@ -16,14 +16,36 @@ try {
 const app = require('./app');
 const connectDB = require('./config/db');
 
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT) || 5000;
 
 // Connect to Database and start server
 const startServer = async () => {
   await connectDB();
-  app.listen(PORT, () => {
-    console.log(`Express server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-  });
+  
+  let currentPort = PORT;
+  
+  const listen = () => {
+    const server = app.listen(currentPort, () => {
+      console.log(`🚀 Express server running in ${process.env.NODE_ENV || 'development'} mode on port ${currentPort}`);
+    });
+    
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        console.warn(`[CodeRevise] Port ${currentPort} is already in use. Retrying on port ${currentPort + 1}...`);
+        currentPort++;
+        try {
+          server.close();
+        } catch (closeErr) {
+          // Ignore close errors on unbound sockets
+        }
+        listen();
+      } else {
+        console.error('[CodeRevise] Server error:', err);
+      }
+    });
+  };
+
+  listen();
 };
 
 startServer();
