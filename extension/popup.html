@@ -21,6 +21,30 @@
 
     <!-- Content Card -->
     <main class="main-content">
+      <!-- Auth Section -->
+      <div id="auth-section" class="submission-card">
+        <h2 class="card-label">Account</h2>
+        
+        <!-- Not Connected State -->
+        <div id="auth-disconnected" class="hidden">
+          <p class="no-submission-text" style="text-align: left; font-style: normal; margin-bottom: 12px;">You are not connected.</p>
+          <button id="connect-btn" class="action-btn">Connect Account</button>
+        </div>
+        
+        <!-- Connected State -->
+        <div id="auth-connected" class="hidden">
+          <div class="submission-status">
+            <span class="status-check">✅</span>
+            <span class="status-text" style="color: var(--easy-color);">Connected</span>
+          </div>
+          <p id="auth-name" class="submission-meta" style="margin-top: 6px; font-weight: 700;"></p>
+          <p id="auth-email" class="submission-language" style="color: var(--text-secondary);"></p>
+          <button id="logout-btn" class="action-btn logout-btn" style="margin-top: 10px;">
+            Logout
+          </button>
+        </div>
+      </div>
+
       <div id="problem-card" class="problem-card hidden">
         <h2 class="card-label">Current Problem</h2>
         <div class="problem-meta">

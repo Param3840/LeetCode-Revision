@@ -32,6 +32,15 @@
       ],
       "run_at": "document_end",
       "world": "MAIN"
+    },
+    {
+      "matches": [
+        "http://localhost:3000/*"
+      ],
+      "js": [
+        "auth-handler.js"
+      ],
+      "run_at": "document_end"
     }
   ],
   "action": {

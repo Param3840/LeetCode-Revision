@@ -1,6 +1,8 @@
-// CodeRevise Extension Popup Script - Phase 4 (Bug Fixes & Solution Rendering)
+// CodeRevise Extension Popup Script - Phase 5B (Account Connection)
 
 const CODEREVISE_URL = "http://localhost:3000";
+const LOGIN_URL = "http://localhost:3000/login";
+const BACKEND_URL = "http://localhost:5000";
 
 function getProblemSlug(urlStr) {
   try {
@@ -55,6 +57,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const submissionTimeEl = document.getElementById("submission-time");
   
   const openBtn = document.getElementById("open-btn");
+  
+  // Auth UI Elements
+  const authDisconnected = document.getElementById("auth-disconnected");
+  const authConnected = document.getElementById("auth-connected");
+  const authNameEl = document.getElementById("auth-name");
+  const authEmailEl = document.getElementById("auth-email");
+  const connectBtn = document.getElementById("connect-btn");
+  const logoutBtn = document.getElementById("logout-btn");
 
   const showLoading = (msg) => {
     problemCard.classList.add("hidden");
@@ -84,10 +94,10 @@ document.addEventListener("DOMContentLoaded", () => {
       difficultyEl.classList.add("hidden");
     }
 
-    // Set Title (never fallback to slug directly unless formatted)
+    // Set Title
     titleEl.textContent = problem.title || "Problem detected";
 
-    // Set URL (canonical)
+    // Set URL
     let displayUrl = problem.url || "";
     if (displayUrl.startsWith("https://")) {
       displayUrl = displayUrl.substring(8);
@@ -107,14 +117,12 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const renderPopup = () => {
-    // 1. Query the active tab URL to make sure it matches the problem we show
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const activeTab = tabs[0];
       const activeTabUrl = activeTab ? activeTab.url : "";
       const activeTabSlug = getProblemSlug(activeTabUrl);
 
       if (activeTabSlug) {
-        // We are on a supported LeetCode problems page!
         chrome.storage.local.get(["currentProblem"], (result) => {
           const problem = result ? result.currentProblem : null;
           
@@ -125,12 +133,10 @@ document.addEventListener("DOMContentLoaded", () => {
               showProblemCard(problem);
             }
           } else {
-            // Slug mismatch or loading state hasn't written yet. Show loader.
             showLoading("Detecting current problem...");
           }
         });
       } else {
-        // Not on a LeetCode problem page
         showEmptyState("Open a LeetCode problem to get started.");
       }
     });
@@ -159,7 +165,84 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
 
+  const checkAuth = async () => {
+    return new Promise((resolve) => {
+      chrome.storage.local.get(["auth"], async (result) => {
+        const auth = result ? result.auth : null;
+        if (!auth || !auth.token) {
+          resolve(null);
+          return;
+        }
+
+        try {
+          const res = await fetch(`${BACKEND_URL}/api/auth/me`, {
+            method: "GET",
+            headers: {
+              "Authorization": `Bearer ${auth.token}`
+            }
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.success && data.data) {
+              const updatedAuth = {
+                ...auth,
+                user: {
+                  id: data.data._id || data.data.id,
+                  name: data.data.name,
+                  email: data.data.email
+                }
+              };
+              chrome.storage.local.set({ auth: updatedAuth });
+              resolve(updatedAuth);
+            } else {
+              chrome.storage.local.remove(["auth"]);
+              resolve(null);
+            }
+          } else if (res.status === 401) {
+            console.warn("[CodeRevise] Token expired or invalid.");
+            chrome.storage.local.remove(["auth"]);
+            resolve(null);
+          } else {
+            console.error("[CodeRevise] Backend server returned error status:", res.status);
+            resolve({ ...auth, offline: true });
+          }
+        } catch (err) {
+          console.error("[CodeRevise] Network error connecting to backend:", err);
+          resolve({ ...auth, offline: true });
+        }
+      });
+    });
+  };
+
+  const renderAuth = (auth) => {
+    if (auth && auth.user) {
+      authDisconnected.classList.add("hidden");
+      authConnected.classList.remove("hidden");
+      
+      let displayName = auth.user.name || "User";
+      if (auth.offline) {
+        displayName += " (Offline)";
+      }
+      authNameEl.textContent = displayName;
+      authEmailEl.textContent = auth.user.email || "";
+    } else {
+      authConnected.classList.add("hidden");
+      authDisconnected.classList.remove("hidden");
+    }
+  };
+
+  const initAuth = async () => {
+    // Show disconnected by default while checking
+    authDisconnected.classList.remove("hidden");
+    authConnected.classList.add("hidden");
+    
+    const auth = await checkAuth();
+    renderAuth(auth);
+  };
+
   // Run initial renders
+  initAuth();
   renderPopup();
   renderLatestSubmission();
 
@@ -170,11 +253,25 @@ document.addEventListener("DOMContentLoaded", () => {
         renderPopup();
       }
       if (changes.latestAcceptedSubmission) {
-        console.log("[CodeRevise][Phase3] Popup received storage update for latestAcceptedSubmission:", changes.latestAcceptedSubmission.newValue);
         renderLatestSubmission();
-        console.log("[CodeRevise] Popup updated.");
+      }
+      if (changes.auth) {
+        renderAuth(changes.auth.newValue);
       }
     }
+  });
+
+  // Connect Account button handler
+  connectBtn.addEventListener("click", () => {
+    chrome.tabs.create({ url: LOGIN_URL });
+  });
+
+  // Logout button handler
+  logoutBtn.addEventListener("click", () => {
+    chrome.storage.local.remove(["auth"], () => {
+      renderAuth(null);
+      console.log("[CodeRevise] Logged out successfully.");
+    });
   });
 
   // Navigation button handler
