@@ -716,7 +716,10 @@ export default function RevisionDashboard() {
                       </div>
 
                       {/* Title */}
-                      <h3 className="text-base font-bold text-slate-100 group-hover:text-emerald-300 transition-colors line-clamp-1">
+                      <h3
+                        onClick={() => router.push(`/problems/${sub.problemNumber || sub.slug}`)}
+                        className="text-base font-bold text-slate-100 group-hover:text-emerald-300 transition-colors line-clamp-1 cursor-pointer"
+                      >
                         {sub.title}
                       </h3>
 
@@ -761,11 +764,11 @@ export default function RevisionDashboard() {
 
                       <div className="flex items-center gap-1.5">
                         <button
-                          onClick={() => setActiveSolutionModal(sub)}
+                          onClick={() => router.push(`/problems/${sub.problemNumber || sub.slug}`)}
                           className="px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-bold border border-emerald-500/30 transition-all flex items-center gap-1.5 cursor-pointer"
                         >
-                          <Code2 className="h-3.5 w-3.5" />
-                          <span>Code</span>
+                          <BookOpen className="h-3.5 w-3.5" />
+                          <span>Review</span>
                         </button>
 
                         <button

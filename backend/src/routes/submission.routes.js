@@ -9,6 +9,7 @@ const {
   updateRevisionStatus,
   updateNotes
 } = require('../controllers/submission.controller');
+const { getProblemDetails } = require('../controllers/problem.controller');
 const { protect } = require('../middleware/auth.middleware');
 
 // Protect all submission routes
@@ -16,6 +17,7 @@ router.use(protect);
 
 router.post('/', syncSubmission);
 router.get('/', getAllSubmissions);
+router.get('/:problemNumber/details', getProblemDetails);
 router.get('/:id', getSubmissionById);
 router.delete('/:id', deleteSubmission);
 router.patch('/:id/favorite', toggleFavorite);
