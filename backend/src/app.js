@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/auth.routes');
 const submissionRoutes = require('./routes/submission.routes');
+const streakRoutes = require('./routes/streak.routes');
 const errorHandler = require('./middleware/error.middleware');
 
 const app = express();
@@ -26,6 +27,7 @@ app.use(cookieParser());
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/submissions', submissionRoutes);
+app.use('/api/revision', streakRoutes);
 
 // Centralized Error Handler
 app.use(errorHandler);

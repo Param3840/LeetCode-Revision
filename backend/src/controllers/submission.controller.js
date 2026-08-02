@@ -1,4 +1,5 @@
 const Submission = require('../models/Submission');
+const { updateUserStreak } = require('../services/streak.service');
 
 // @desc    Sync an accepted LeetCode submission
 // @route   POST /api/submissions
@@ -249,9 +250,13 @@ const markRevised = async (req, res, next) => {
 
     await submission.save();
 
+    // Automatically update daily revision streak stats
+    const streakStats = await updateUserStreak(userId, now);
+
     return res.status(200).json({
       success: true,
-      data: submission
+      data: submission,
+      streak: streakStats
     });
   } catch (error) {
     next(error);

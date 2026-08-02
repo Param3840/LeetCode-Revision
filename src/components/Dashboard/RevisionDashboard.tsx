@@ -21,7 +21,9 @@ import {
   Check,
   RotateCcw,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Flame,
+  Trophy
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import styles from "./RevisionDashboard.module.css";
@@ -48,6 +50,14 @@ interface Submission {
   revisionHistory?: Array<{ revisedAt: string }>;
 }
 
+interface StreakStats {
+  currentStreak: number;
+  longestStreak: number;
+  lastRevisionDate: string | null;
+  totalRevisionDays: number;
+  totalRevisions: number;
+}
+
 interface User {
   id: string;
   name: string;
@@ -63,6 +73,13 @@ export default function RevisionDashboard() {
   // 1. Local State
   const [user, setUser] = useState<User | null>(null);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [streak, setStreak] = useState<StreakStats>({
+    currentStreak: 0,
+    longestStreak: 0,
+    lastRevisionDate: null,
+    totalRevisionDays: 0,
+    totalRevisions: 0
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -116,7 +133,27 @@ export default function RevisionDashboard() {
     }
 
     fetchSubmissions(token);
+    fetchStreakStats(token);
   }, [router]);
+
+  // Fetch Streak Stats API
+  const fetchStreakStats = async (token: string) => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/revision/streak`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          setStreak(json.data);
+        }
+      }
+    } catch (e) {
+      console.error("Error fetching streak stats:", e);
+    }
+  };
 
   // Fetch Submissions from Backend API
   const fetchSubmissions = async (token: string) => {
@@ -267,7 +304,14 @@ export default function RevisionDashboard() {
         }
       });
 
-      if (!res.ok) {
+      if (res.ok) {
+        const json = await res.json();
+        if (json.streak) {
+          setStreak(json.streak);
+        } else {
+          fetchStreakStats(token);
+        }
+      } else {
         fetchSubmissions(token); // Revert on failure
         showToast("Failed to record revision");
       }
@@ -564,6 +608,16 @@ export default function RevisionDashboard() {
     });
   };
 
+  const getStreakTier = (days: number) => {
+    if (days >= 100) return { name: "Diamond", color: "text-cyan-300" };
+    if (days >= 30) return { name: "Gold", color: "text-yellow-400" };
+    if (days >= 7) return { name: "Silver", color: "text-slate-300" };
+    if (days >= 1) return { name: "Bronze", color: "text-amber-500" };
+    return { name: "Starter", color: "text-[#FFF8B9]/60" };
+  };
+
+  const currentTier = getStreakTier(streak.currentStreak || 0);
+
   return (
     <div className={styles.container}>
       
@@ -649,6 +703,27 @@ export default function RevisionDashboard() {
               <span className="h-2.5 w-2.5 rounded-full bg-rose-400"></span>
             </div>
             <p className="text-2xl font-extrabold text-rose-400 mt-2">{stats.hard}</p>
+          </div>
+
+          <div className={styles.statCard}>
+            <div className={styles.statCardHeader}>
+              <span>Current Streak</span>
+              <Flame className="h-4 w-4 text-orange-400 fill-orange-400" />
+            </div>
+            <div className="flex items-baseline justify-between mt-2">
+              <p className="text-2xl font-extrabold text-orange-400">{streak.currentStreak || 0} <span className="text-xs font-bold text-orange-300">Days</span></p>
+              <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-[#FFF8B9]/10 border border-[#FFF8B9]/20 ${currentTier.color}`}>
+                {currentTier.name}
+              </span>
+            </div>
+          </div>
+
+          <div className={styles.statCard}>
+            <div className={styles.statCardHeader}>
+              <span>Longest Streak</span>
+              <Trophy className="h-4 w-4 text-yellow-400" />
+            </div>
+            <p className="text-2xl font-extrabold text-yellow-400 mt-2">{streak.longestStreak || 0} <span className="text-xs font-bold text-yellow-300">Days</span></p>
           </div>
 
           <div className={styles.statCard}>
