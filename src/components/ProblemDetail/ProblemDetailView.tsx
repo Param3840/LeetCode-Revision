@@ -392,23 +392,6 @@ export default function ProblemDetailView() {
                     {submission?.title || problem?.title}
                   </h1>
                 </div>
-
-                {/* Status Selector */}
-                {submission?._id && (
-                  <div className="flex items-center gap-2 bg-[#121e07] border border-[#FFF8B9]/25 p-2 rounded-2xl">
-                    <span className="text-xs text-[#FFF8B9]/80 font-semibold px-2">Revision Status:</span>
-                    <select
-                      value={submission.revisionStatus || "New"}
-                      onChange={(e) => handleUpdateStatus(e.target.value as any)}
-                      className="bg-[#233807] border border-[#FFF8B9]/30 text-[#FFF8B9] font-bold text-xs rounded-xl px-3 py-1.5 focus:outline-none cursor-pointer"
-                    >
-                      <option value="New">New</option>
-                      <option value="Learning">Learning</option>
-                      <option value="Revising">Revising</option>
-                      <option value="Mastered">Mastered</option>
-                    </select>
-                  </div>
-                )}
               </div>
 
               {/* Tags & Company Pills */}
