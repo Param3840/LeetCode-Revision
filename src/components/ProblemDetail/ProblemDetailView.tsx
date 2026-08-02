@@ -476,10 +476,10 @@ export default function ProblemDetailView() {
                   <motion.button
                     whileTap={{ scale: 0.9 }}
                     onClick={handleMarkRevised}
-                    className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all cursor-pointer ${
+                    className={`w-10 h-10 rounded-2xl flex items-center justify-center border-2 transition-all cursor-pointer ${
                       submission?.isRevised
                         ? "bg-emerald-500 border-emerald-400 text-white shadow-lg shadow-emerald-500/30"
-                        : "bg-[#FFF8B9]/10 border-[#FFF8B9]/35 text-transparent hover:border-emerald-400 hover:bg-emerald-500/10"
+                        : "bg-[#FFF8B9]/10 border-[#FFF8B9]/40 hover:border-emerald-400 hover:bg-emerald-500/10"
                     }`}
                     title={submission?.isRevised ? "Record Another Revision" : "Mark as Revised"}
                   >
@@ -492,7 +492,7 @@ export default function ProblemDetailView() {
                         <Check className="h-6 w-6 stroke-[3] text-white" />
                       </motion.div>
                     ) : (
-                      <Check className="h-5 w-5 text-[#FFF8B9]/60 hover:text-emerald-400 stroke-[2.5]" />
+                      <Check className="h-5 w-5 text-[#FFF8B9]/40 hover:text-emerald-400 stroke-[2]" />
                     )}
                   </motion.button>
 

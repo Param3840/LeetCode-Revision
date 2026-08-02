@@ -845,14 +845,14 @@ export default function RevisionDashboard() {
                       {/* Phase 9: Revision Tracking Section */}
                       <div className={styles.revisionSection}>
                         <div className="flex items-center gap-3">
-                          {/* Large Circular Checkbox */}
+                          {/* Checkbox Button */}
                           <motion.button
                             whileTap={{ scale: 0.9 }}
                             onClick={() => handleMarkRevised(sub)}
-                            className={`${styles.revisionCheckBtn} ${
+                            className={`w-7 h-7 rounded-xl flex items-center justify-center border-2 transition-all cursor-pointer ${
                               sub.isRevised
-                                ? styles.revisionCheckBtnChecked
-                                : styles.revisionCheckBtnUnchecked
+                                ? "bg-emerald-500 border-emerald-400 text-white shadow-md shadow-emerald-500/25"
+                                : "bg-[#FFF8B9]/10 border-[#FFF8B9]/40 hover:border-emerald-400 hover:bg-emerald-500/10"
                             }`}
                             title={sub.isRevised ? "Record Another Revision" : "Mark as Revised"}
                           >
@@ -862,10 +862,10 @@ export default function RevisionDashboard() {
                                 animate={{ scale: 1 }}
                                 transition={{ type: "spring", stiffness: 400, damping: 15 }}
                               >
-                                <Check className="h-5 w-5 stroke-[3] text-white" />
+                                <Check className="h-4 w-4 stroke-[3] text-white" />
                               </motion.div>
                             ) : (
-                              <Check className="h-4 w-4 text-[#FFF8B9]/50 group-hover:text-emerald-400 stroke-[2.5]" />
+                              <Check className="h-4 w-4 text-[#FFF8B9]/40 hover:text-emerald-400 stroke-[2]" />
                             )}
                           </motion.button>
 
