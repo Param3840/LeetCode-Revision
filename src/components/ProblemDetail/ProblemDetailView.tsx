@@ -73,8 +73,8 @@ export default function ProblemDetailView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Active Tab: 'description' | 'solution' | 'notes' | 'revision' | 'related'
-  const [activeTab, setActiveTab] = useState<"description" | "solution" | "notes" | "revision" | "related">("description");
+  // Active Tab: 'description' | 'solution' | 'notes'
+  const [activeTab, setActiveTab] = useState<"description" | "solution" | "notes">("description");
 
   // Notes fields
   const [notesText, setNotesText] = useState("");
@@ -478,32 +478,6 @@ export default function ProblemDetailView() {
                 <FileText className="h-4 w-4" />
                 <span>Study Notes</span>
               </button>
-
-              <button
-                onClick={() => setActiveTab("revision")}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  activeTab === "revision"
-                    ? "bg-[#233807] text-[#FFF8B9] border border-[#FFF8B9]/30 shadow-md"
-                    : "text-[#233807]/80 hover:text-[#233807] hover:bg-[#233807]/10"
-                }`}
-              >
-                <TrendingUp className="h-4 w-4" />
-                <span>Revision Timeline</span>
-              </button>
-
-              {problem?.relatedProblems && problem.relatedProblems.length > 0 && (
-                <button
-                  onClick={() => setActiveTab("related")}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    activeTab === "related"
-                      ? "bg-[#233807] text-[#FFF8B9] border border-[#FFF8B9]/30 shadow-md"
-                      : "text-[#233807]/80 hover:text-[#233807] hover:bg-[#233807]/10"
-                  }`}
-                >
-                  <Layers className="h-4 w-4" />
-                  <span>Related ({problem.relatedProblems.length})</span>
-                </button>
-              )}
             </div>
 
             {/* Tab Contents */}
@@ -637,92 +611,6 @@ export default function ProblemDetailView() {
                   onChange={(e) => setNotesText(e.target.value)}
                   className="w-full bg-[#121e07] border border-[#FFF8B9]/25 rounded-2xl p-5 text-xs text-[#FFF8B9] placeholder-[#FFF8B9]/40 focus:outline-none focus:border-[#FFF8B9] resize-none font-sans leading-relaxed"
                 ></textarea>
-              </motion.div>
-            )}
-
-            {/* 4. REVISION TIMELINE TAB */}
-            {activeTab === "revision" && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-[#233807] border border-[#FFF8B9]/20 rounded-3xl p-8 shadow-md space-y-8 text-[#FFF8B9]"
-              >
-                <h3 className="text-base font-bold text-[#FFF8B9]">Revision History & Progress</h3>
-
-                {/* Progress Steps */}
-                <div className="grid grid-cols-4 gap-4">
-                  {["New", "Learning", "Revising", "Mastered"].map((st, idx) => {
-                    const isActive = submission?.revisionStatus === st;
-                    return (
-                      <button
-                        key={st}
-                        onClick={() => handleUpdateStatus(st as any)}
-                        className={`p-4 rounded-2xl border text-center transition-all cursor-pointer ${
-                          isActive
-                            ? "bg-[#FFF8B9] border-[#FFF8B9] text-[#233807] font-extrabold shadow-md"
-                            : "bg-[#121e07] border-[#FFF8B9]/20 text-[#FFF8B9] hover:bg-[#FFF8B9]/15"
-                        }`}
-                      >
-                        <span className="text-[10px] block opacity-70">Step {idx + 1}</span>
-                        <span className="text-sm">{st}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Statistics Table */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-4 border-t border-[#FFF8B9]/15">
-                  <div className="bg-[#121e07] border border-[#FFF8B9]/20 rounded-2xl p-4">
-                    <span className="text-xs text-[#FFF8B9]/70 font-semibold block">First Solved</span>
-                    <span className="text-sm font-bold text-[#FFF8B9] mt-1 block">
-                      {formatDate(submission?.submittedAt || null)}
-                    </span>
-                  </div>
-
-                  <div className="bg-[#121e07] border border-[#FFF8B9]/20 rounded-2xl p-4">
-                    <span className="text-xs text-[#FFF8B9]/70 font-semibold block">Total Reviews</span>
-                    <span className="text-xl font-extrabold text-[#FFF8B9] mt-1 block">
-                      {submission?.reviewCount || 0} times
-                    </span>
-                  </div>
-
-                  <div className="bg-[#121e07] border border-[#FFF8B9]/20 rounded-2xl p-4">
-                    <span className="text-xs text-[#FFF8B9]/70 font-semibold block">Last Reviewed</span>
-                    <span className="text-sm font-bold text-[#FFF8B9] mt-1 block">
-                      {formatDate(submission?.lastReviewed || null)}
-                    </span>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* 5. RELATED PROBLEMS TAB */}
-            {activeTab === "related" && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-              >
-                {problem?.relatedProblems.map((rel) => (
-                  <div
-                    key={rel.slug || rel.problemNumber}
-                    onClick={() => router.push(`/problems/${rel.problemNumber || rel.slug}`)}
-                    className="bg-[#233807] border border-[#FFF8B9]/20 hover:border-[#FFF8B9]/50 rounded-2xl p-6 shadow-md hover:shadow-lg transition-all cursor-pointer group space-y-3 text-[#FFF8B9]"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-[#FFF8B9]/15 text-[#FFF8B9]">
-                        #{rel.problemNumber || "N/A"}
-                      </span>
-                      <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#FFF8B9]/15 text-[#FFF8B9] border border-[#FFF8B9]/25">
-                        {rel.difficulty}
-                      </span>
-                    </div>
-
-                    <h4 className="text-sm font-bold text-[#FFF8B9] group-hover:text-[#ffffff] transition-colors">
-                      {rel.title}
-                    </h4>
-                  </div>
-                ))}
               </motion.div>
             )}
 
