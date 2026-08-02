@@ -19,7 +19,9 @@ import {
   X,
   Copy,
   Check,
-  RotateCcw
+  RotateCcw,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import styles from "./RevisionDashboard.module.css";
@@ -507,6 +509,51 @@ export default function RevisionDashboard() {
     sortOrder
   ]);
 
+  // 5. Pagination Logic (18 Items per Page)
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 18;
+
+  // Auto-reset to Page 1 when any filter or search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [
+    searchQuery,
+    selectedDifficulty,
+    selectedLanguage,
+    selectedTopic,
+    selectedStatus,
+    selectedRevisionFilter,
+    showFavoritesOnly,
+    sortOrder
+  ]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredSubmissions.length / ITEMS_PER_PAGE));
+
+  const paginatedSubmissions = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredSubmissions.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredSubmissions, currentPage]);
+
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (currentPage > 3) pages.push("...");
+
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+      for (let i = start; i <= end; i++) {
+        if (!pages.includes(i)) pages.push(i);
+      }
+
+      if (currentPage < totalPages - 2) pages.push("...");
+      pages.push(totalPages);
+    }
+    return pages;
+  };
+
   const formatDate = (dateStr: string | null | undefined) => {
     if (!dateStr) return "N/A";
     const d = new Date(dateStr);
@@ -751,191 +798,247 @@ export default function RevisionDashboard() {
 
         {/* Submissions Card Grid */}
         {!loading && !error && filteredSubmissions.length > 0 && (
-          <div className={styles.cardsGrid}>
-            <AnimatePresence>
-              {filteredSubmissions.map((sub) => {
-                const diffLower = sub.difficulty?.toLowerCase() || "easy";
-                const isEasy = diffLower === "easy";
-                const isMedium = diffLower === "medium";
+          <>
+            <div className={styles.cardsGrid}>
+              <AnimatePresence mode="wait">
+                {paginatedSubmissions.map((sub) => {
+                  const diffLower = sub.difficulty?.toLowerCase() || "easy";
+                  const isEasy = diffLower === "easy";
+                  const isMedium = diffLower === "medium";
 
-                return (
-                  <motion.div
-                    key={sub._id}
-                    layout
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                    className={styles.problemCard}
-                  >
-                    {/* Top Badge & Favorite Star */}
-                    <div>
-                      <div className="flex items-center justify-between gap-2 mb-3">
-                        <span className={styles.problemNumberBadge}>
-                          #{sub.problemNumber || "N/A"}
-                        </span>
-
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border uppercase tracking-wider ${
-                              isEasy
-                                ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
-                                : isMedium
-                                ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
-                                : "bg-rose-500/20 text-rose-300 border-rose-500/40"
-                            }`}
-                          >
-                            {sub.difficulty}
+                  return (
+                    <motion.div
+                      key={sub._id}
+                      layout
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className={styles.problemCard}
+                    >
+                      {/* Top Badge & Favorite Star */}
+                      <div>
+                        <div className="flex items-center justify-between gap-2 mb-3">
+                          <span className={styles.problemNumberBadge}>
+                            #{sub.problemNumber || "N/A"}
                           </span>
 
-                          <button
-                            onClick={() => handleToggleFavorite(sub)}
-                            className="p-1.5 rounded-lg bg-[#FFF8B9]/10 hover:bg-[#FFF8B9]/20 text-[#FFF8B9]/80 hover:text-yellow-400 transition-colors cursor-pointer border border-[#FFF8B9]/20"
-                          >
-                            <Star
-                              className={`h-4 w-4 ${
-                                sub.favorite ? "fill-yellow-400 text-yellow-400" : ""
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border uppercase tracking-wider ${
+                                isEasy
+                                  ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                                  : isMedium
+                                  ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
+                                  : "bg-rose-500/20 text-rose-300 border-rose-500/40"
                               }`}
-                            />
+                            >
+                              {sub.difficulty}
+                            </span>
+
+                            <button
+                              onClick={() => handleToggleFavorite(sub)}
+                              className="p-1.5 rounded-lg bg-[#FFF8B9]/10 hover:bg-[#FFF8B9]/20 text-[#FFF8B9]/80 hover:text-yellow-400 transition-colors cursor-pointer border border-[#FFF8B9]/20"
+                            >
+                              <Star
+                                className={`h-4 w-4 ${
+                                  sub.favorite ? "fill-yellow-400 text-yellow-400" : ""
+                                }`}
+                              />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Title */}
+                        <h3
+                          onClick={() => router.push(`/problems/${sub.problemNumber || sub.slug}`)}
+                          className={styles.problemTitle}
+                        >
+                          {sub.title}
+                        </h3>
+
+                        {/* Meta Pills */}
+                        <div className="flex items-center gap-2 mt-3 flex-wrap">
+                          <span className="text-[11px] font-semibold text-[#FFF8B9] bg-[#FFF8B9]/10 border border-[#FFF8B9]/20 px-2.5 py-1 rounded-lg">
+                            {sub.language}
+                          </span>
+
+                          {sub.tags && sub.tags.slice(0, 2).map((t) => (
+                            <span
+                              key={t}
+                              className="text-[10px] font-medium text-[#FFF8B9]/90 bg-[#FFF8B9]/10 border border-[#FFF8B9]/15 px-2 py-0.5 rounded-md"
+                            >
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+
+                        {/* Phase 9: Revision Tracking Section */}
+                        <div className={styles.revisionSection}>
+                          <div className="flex items-center gap-3">
+                            {/* Checkbox Button */}
+                            <motion.button
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => handleMarkRevised(sub)}
+                              className={`w-7 h-7 rounded-xl flex items-center justify-center border-2 transition-all cursor-pointer ${
+                                sub.isRevised
+                                  ? "bg-emerald-500 border-emerald-400 text-white shadow-md shadow-emerald-500/25"
+                                  : "bg-[#FFF8B9]/10 border-[#FFF8B9]/40 hover:border-emerald-400 hover:bg-emerald-500/10"
+                              }`}
+                              title={sub.isRevised ? "Record Another Revision" : "Mark as Revised"}
+                            >
+                              {sub.isRevised ? (
+                                <motion.div
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                                >
+                                  <Check className="h-4 w-4 stroke-[3] text-white" />
+                                </motion.div>
+                              ) : (
+                                <Check className="h-4 w-4 text-[#FFF8B9]/40 hover:text-emerald-400 stroke-[2]" />
+                              )}
+                            </motion.button>
+
+                            {/* Revision Status Info */}
+                            <div className={styles.revisionInfo}>
+                              {sub.isRevised ? (
+                                <>
+                                  <span className={styles.revisionStatusTextRevised}>
+                                    <Check className="h-3.5 w-3.5 text-emerald-400 inline" /> Revised
+                                  </span>
+                                  <span className={styles.revisionDateText}>
+                                    Last revised: {formatDate(sub.lastRevisionDate || sub.submittedAt)}
+                                  </span>
+                                  <span className="text-[10px] font-bold text-[#FFF8B9]/90">
+                                    Revision Count: {sub.revisionCount || 0}
+                                  </span>
+                                </>
+                              ) : (
+                                <>
+                                  <span className={styles.revisionStatusTextNot}>Not Revised</span>
+                                  <span className={styles.revisionDateText}>Click check to record</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Reset Revision History Button */}
+                          <button
+                            onClick={() => setResetRevisionConfirmId(sub._id)}
+                            className={styles.resetRevisionBtn}
+                            title="Reset Revision History"
+                          >
+                            <RotateCcw className="h-3.5 w-3.5" />
                           </button>
                         </div>
                       </div>
 
-                      {/* Title */}
-                      <h3
-                        onClick={() => router.push(`/problems/${sub.problemNumber || sub.slug}`)}
-                        className={styles.problemTitle}
-                      >
-                        {sub.title}
-                      </h3>
-
-                      {/* Meta Pills */}
-                      <div className="flex items-center gap-2 mt-3 flex-wrap">
-                        <span className="text-[11px] font-semibold text-[#FFF8B9] bg-[#FFF8B9]/10 border border-[#FFF8B9]/20 px-2.5 py-1 rounded-lg">
-                          {sub.language}
+                      {/* Bottom Actions Bar */}
+                      <div className="mt-5 pt-4 border-t border-[#FFF8B9]/15 flex items-center justify-between gap-2">
+                        <span className="text-[10px] text-[#FFF8B9]/70 flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {formatDate(sub.submittedAt)}
                         </span>
 
-                        {sub.tags && sub.tags.slice(0, 2).map((t) => (
-                          <span
-                            key={t}
-                            className="text-[10px] font-medium text-[#FFF8B9]/90 bg-[#FFF8B9]/10 border border-[#FFF8B9]/15 px-2 py-0.5 rounded-md"
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => router.push(`/problems/${sub.problemNumber || sub.slug}`)}
+                            className={styles.btnReview}
                           >
-                            {t}
-                          </span>
-                        ))}
-                      </div>
+                            <BookOpen className="h-3.5 w-3.5" />
+                            <span>Review</span>
+                          </button>
 
-                      {/* Phase 9: Revision Tracking Section */}
-                      <div className={styles.revisionSection}>
-                        <div className="flex items-center gap-3">
-                          {/* Checkbox Button */}
-                          <motion.button
-                            whileTap={{ scale: 0.9 }}
-                            onClick={() => handleMarkRevised(sub)}
-                            className={`w-7 h-7 rounded-xl flex items-center justify-center border-2 transition-all cursor-pointer ${
-                              sub.isRevised
-                                ? "bg-emerald-500 border-emerald-400 text-white shadow-md shadow-emerald-500/25"
-                                : "bg-[#FFF8B9]/10 border-[#FFF8B9]/40 hover:border-emerald-400 hover:bg-emerald-500/10"
-                            }`}
-                            title={sub.isRevised ? "Record Another Revision" : "Mark as Revised"}
+                          <button
+                            onClick={() => setActiveSolutionModal(sub)}
+                            className={styles.btnCode}
                           >
-                            {sub.isRevised ? (
-                              <motion.div
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                              >
-                                <Check className="h-4 w-4 stroke-[3] text-white" />
-                              </motion.div>
-                            ) : (
-                              <Check className="h-4 w-4 text-[#FFF8B9]/40 hover:text-emerald-400 stroke-[2]" />
-                            )}
-                          </motion.button>
+                            <Code2 className="h-3.5 w-3.5" />
+                            <span>Code</span>
+                          </button>
 
-                          {/* Revision Status Info */}
-                          <div className={styles.revisionInfo}>
-                            {sub.isRevised ? (
-                              <>
-                                <span className={styles.revisionStatusTextRevised}>
-                                  <Check className="h-3.5 w-3.5 text-emerald-400 inline" /> Revised
-                                </span>
-                                <span className={styles.revisionDateText}>
-                                  Last revised: {formatDate(sub.lastRevisionDate || sub.submittedAt)}
-                                </span>
-                                <span className="text-[10px] font-bold text-[#FFF8B9]/90">
-                                  Revision Count: {sub.revisionCount || 0}
-                                </span>
-                              </>
-                            ) : (
-                              <>
-                                <span className={styles.revisionStatusTextNot}>Not Revised</span>
-                                <span className={styles.revisionDateText}>Click check to record</span>
-                              </>
-                            )}
-                          </div>
+                          <button
+                            onClick={() => {
+                              setActiveNotesModal(sub);
+                              setNotesText(sub.notes || "");
+                            }}
+                            className="p-1.5 rounded-xl bg-[#FFF8B9]/10 hover:bg-[#FFF8B9]/20 text-[#FFF8B9] border border-[#FFF8B9]/20 transition-all cursor-pointer"
+                            title="Notes"
+                          >
+                            <Edit3 className="h-3.5 w-3.5" />
+                          </button>
+
+                          <button
+                            onClick={() => setDeleteConfirmId(sub._id)}
+                            className="p-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 transition-all cursor-pointer"
+                            title="Delete"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
                         </div>
-
-                        {/* Reset Revision History Button */}
-                        <button
-                          onClick={() => setResetRevisionConfirmId(sub._id)}
-                          className={styles.resetRevisionBtn}
-                          title="Reset Revision History"
-                        >
-                          <RotateCcw className="h-3.5 w-3.5" />
-                        </button>
                       </div>
-                    </div>
 
-                    {/* Bottom Actions Bar */}
-                    <div className="mt-5 pt-4 border-t border-[#FFF8B9]/15 flex items-center justify-between gap-2">
-                      <span className="text-[10px] text-[#FFF8B9]/70 flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {formatDate(sub.submittedAt)}
-                      </span>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+            </div>
 
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          onClick={() => router.push(`/problems/${sub.problemNumber || sub.slug}`)}
-                          className={styles.btnReview}
-                        >
-                          <BookOpen className="h-3.5 w-3.5" />
-                          <span>Review</span>
-                        </button>
+            {/* Pagination Controls Bar (Only shown if filteredSubmissions > 18) */}
+            {filteredSubmissions.length > ITEMS_PER_PAGE && (
+              <div className={styles.paginationWrapper}>
+                <div className={styles.paginationBar}>
+                  {/* Previous Button */}
+                  <button
+                    onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                    className={`${styles.paginationBtn} ${currentPage === 1 ? styles.paginationBtnDisabled : ""}`}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    <span>Previous</span>
+                  </button>
 
-                        <button
-                          onClick={() => setActiveSolutionModal(sub)}
-                          className={styles.btnCode}
-                        >
-                          <Code2 className="h-3.5 w-3.5" />
-                          <span>Code</span>
-                        </button>
+                  {/* Page Numbers */}
+                  {getPageNumbers().map((page, idx) => {
+                    if (typeof page === "string") {
+                      return (
+                        <span key={`ellipsis-${idx}`} className="px-2 text-xs font-bold text-[#233807]/60 select-none">
+                          ...
+                        </span>
+                      );
+                    }
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`${styles.paginationBtn} ${currentPage === page ? styles.paginationBtnActive : ""}`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  })}
 
-                        <button
-                          onClick={() => {
-                            setActiveNotesModal(sub);
-                            setNotesText(sub.notes || "");
-                          }}
-                          className="p-1.5 rounded-xl bg-[#FFF8B9]/10 hover:bg-[#FFF8B9]/20 text-[#FFF8B9] border border-[#FFF8B9]/20 transition-all cursor-pointer"
-                          title="Notes"
-                        >
-                          <Edit3 className="h-3.5 w-3.5" />
-                        </button>
+                  {/* Next Button */}
+                  <button
+                    onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                    disabled={currentPage === totalPages}
+                    className={`${styles.paginationBtn} ${currentPage === totalPages ? styles.paginationBtnDisabled : ""}`}
+                  >
+                    <span>Next</span>
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
 
-                        <button
-                          onClick={() => setDeleteConfirmId(sub._id)}
-                          className="p-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 transition-all cursor-pointer"
-                          title="Delete"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    </div>
-
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </div>
+                {/* Summary Info */}
+                <div className={styles.paginationInfo}>
+                  Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}–
+                  {Math.min(currentPage * ITEMS_PER_PAGE, filteredSubmissions.length)} of{" "}
+                  {filteredSubmissions.length} problems
+                </div>
+              </div>
+            )}
+          </>
         )}
 
       </main>
