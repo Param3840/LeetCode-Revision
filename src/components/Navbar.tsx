@@ -20,7 +20,11 @@ const getInitials = (name: string | null) => {
     .toUpperCase();
 };
 
-export default function Navbar() {
+interface NavbarProps {
+  forceTheme?: "dark-bg" | "light-bg";
+}
+
+export default function Navbar({ forceTheme }: NavbarProps = {}) {
   const pathname = usePathname();
   const [activeTheme, setActiveTheme] = useState<"dark-bg" | "light-bg">("dark-bg");
   const { user, loading, logout, isLoginModalOpen, openLoginModal, closeLoginModal } = useAuth();
@@ -34,9 +38,14 @@ export default function Navbar() {
   }, [user]);
 
   useEffect(() => {
+    if (forceTheme) {
+      setActiveTheme(forceTheme);
+      return;
+    }
+
     // Only run on the landing/home page where scrolling sections exist
     if (pathname !== "/") {
-      setActiveTheme("light-bg"); // Default light styling for other pages (like dashboard)
+      setActiveTheme("dark-bg"); // Hero section floating capsule styling
       return;
     }
 

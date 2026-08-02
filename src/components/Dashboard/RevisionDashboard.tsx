@@ -20,6 +20,7 @@ import {
   Copy,
   Check
 } from "lucide-react";
+import Navbar from "@/components/Navbar";
 import styles from "./RevisionDashboard.module.css";
 
 interface Submission {
@@ -413,79 +414,31 @@ export default function RevisionDashboard() {
         )}
       </AnimatePresence>
 
-      {/* Top Header Navigation */}
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          
-          {/* Logo */}
-          <div className={styles.logoGroup}>
-            <div className={styles.logoIcon}>
-              <Code2 className="h-5 w-5" />
-            </div>
-            <div>
-              <span className={styles.logoText}>
-                Code<span className={styles.logoAccent}>Revise</span>
-              </span>
-              <span className={styles.badgeDashboard}>
-                Dashboard
-              </span>
-            </div>
-          </div>
-
-          {/* Search Bar */}
-          <div className={styles.searchWrapper}>
-            <Search className={styles.searchIcon} />
-            <input
-              type="text"
-              placeholder="Search problem #, title, tag, or language..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={styles.searchInput}
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className={styles.searchClear}
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-
-          {/* Profile & Logout */}
-          <div className={styles.profileGroup}>
-            <div className={styles.profileCard}>
-              {user?.picture ? (
-                <img
-                  src={user.picture}
-                  alt="Profile"
-                  className="h-8 w-8 rounded-full border border-[#233807]/30 object-cover"
-                />
-              ) : (
-                <div className="h-8 w-8 rounded-full bg-[#233807] text-[#fdfdfd] flex items-center justify-center font-bold text-xs">
-                  {user?.name ? user.name[0] : "U"}
-                </div>
-              )}
-              <div className="hidden sm:block text-left">
-                <p className="text-xs font-bold text-[#233807] leading-tight">{user?.name || "Student"}</p>
-                <p className="text-[10px] text-[#233807]/70 truncate max-w-[120px]">{user?.email || ""}</p>
-              </div>
-            </div>
-
-            <button
-              onClick={handleLogout}
-              title="Logout"
-              className={styles.logoutButton}
-            >
-              <LogOut className="h-4 w-4" />
-            </button>
-          </div>
-
-        </div>
-      </header>
+      {/* Top Floating Capsule Navbar (Hero Styling) */}
+      <Navbar forceTheme="dark-bg" />
 
       {/* Main Dashboard Workspace */}
       <main className={styles.workspace}>
+
+        {/* Dashboard Search Bar */}
+        <div className="relative w-full max-w-xl mx-auto mb-2">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#233807]/50" />
+          <input
+            type="text"
+            placeholder="Search problem #, title, tag, or language..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-[#ffffff] border border-[#233807]/20 rounded-2xl pl-11 pr-10 py-3 text-sm text-[#233807] placeholder-[#233807]/40 focus:outline-none focus:border-[#233807] focus:ring-2 focus:ring-[#233807]/20 transition-all shadow-sm"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#233807]/60 hover:text-[#233807]"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
         
         {/* Statistics Cards Grid */}
         <div className={styles.statsGrid}>
