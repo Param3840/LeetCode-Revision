@@ -656,7 +656,7 @@ export default function RevisionDashboard() {
                 className={styles.selectInput}
               >
                 <option value="all">All Problems</option>
-                <option value="revised">✓ Revised Only</option>
+                <option value="revised">Revised</option>
                 <option value="not_revised">Not Revised</option>
               </select>
             </div>
