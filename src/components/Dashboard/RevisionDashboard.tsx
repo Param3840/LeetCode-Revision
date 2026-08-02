@@ -702,23 +702,6 @@ export default function RevisionDashboard() {
               </select>
             </div>
 
-            {/* Sort Order */}
-            <div>
-              <label className={styles.filterLabel}>Sort By</label>
-              <select
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value as any)}
-                className={styles.selectInput}
-              >
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="recently_revised">Recently Revised</option>
-                <option value="oldest_revision">Oldest Revision</option>
-                <option value="most_revised">Most Revised</option>
-                <option value="least_revised">Least Revised</option>
-              </select>
-            </div>
-
           </div>
 
         </div>
