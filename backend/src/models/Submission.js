@@ -65,7 +65,25 @@ const SubmissionSchema = new mongoose.Schema({
   reviewCount: {
     type: Number,
     default: 0
-  }
+  },
+  isRevised: {
+    type: Boolean,
+    default: false
+  },
+  revisionCount: {
+    type: Number,
+    default: 0
+  },
+  lastRevisionDate: {
+    type: Date,
+    default: null
+  },
+  revisionHistory: [{
+    revisedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }]
 }, {
   timestamps: true
 });

@@ -223,6 +223,72 @@ const updateNotes = async (req, res, next) => {
   }
 };
 
+// @desc    Mark submission as revised
+// @route   PATCH /api/submissions/:id/revise
+// @access  Private
+const markRevised = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const submission = await Submission.findOne({ _id: req.params.id, userId });
+
+    if (!submission) {
+      return res.status(404).json({
+        success: false,
+        message: 'Submission not found'
+      });
+    }
+
+    const now = new Date();
+    submission.isRevised = true;
+    submission.revisionCount = (submission.revisionCount || 0) + 1;
+    submission.lastRevisionDate = now;
+    if (!submission.revisionHistory) {
+      submission.revisionHistory = [];
+    }
+    submission.revisionHistory.push({ revisedAt: now });
+
+    await submission.save();
+
+    return res.status(200).json({
+      success: true,
+      data: submission
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Reset revision history
+// @route   PATCH /api/submissions/:id/reset-revision
+// @access  Private
+const resetRevision = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const submission = await Submission.findOne({ _id: req.params.id, userId });
+
+    if (!submission) {
+      return res.status(404).json({
+        success: false,
+        message: 'Submission not found'
+      });
+    }
+
+    submission.isRevised = false;
+    submission.revisionCount = 0;
+    submission.lastRevisionDate = null;
+    submission.revisionHistory = [];
+
+    await submission.save();
+
+    return res.status(200).json({
+      success: true,
+      data: submission
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   syncSubmission,
   getAllSubmissions,
@@ -230,5 +296,7 @@ module.exports = {
   deleteSubmission,
   toggleFavorite,
   updateRevisionStatus,
-  updateNotes
+  updateNotes,
+  markRevised,
+  resetRevision
 };

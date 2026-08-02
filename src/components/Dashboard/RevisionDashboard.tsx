@@ -18,7 +18,8 @@ import {
   Sparkles,
   X,
   Copy,
-  Check
+  Check,
+  RotateCcw
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import styles from "./RevisionDashboard.module.css";
@@ -39,6 +40,10 @@ interface Submission {
   revisionStatus: "New" | "Learning" | "Revising" | "Mastered";
   lastReviewed: string | null;
   reviewCount: number;
+  isRevised?: boolean;
+  revisionCount?: number;
+  lastRevisionDate?: string | null;
+  revisionHistory?: Array<{ revisedAt: string }>;
 }
 
 interface User {
@@ -65,8 +70,11 @@ export default function RevisionDashboard() {
   const [selectedLanguage, setSelectedLanguage] = useState("all");
   const [selectedTopic, setSelectedTopic] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedRevisionFilter, setSelectedRevisionFilter] = useState<"all" | "revised" | "not_revised">("all");
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
-  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
+  const [sortOrder, setSortOrder] = useState<
+    "newest" | "oldest" | "recently_revised" | "oldest_revision" | "most_revised" | "least_revised"
+  >("newest");
 
   // Modal State
   const [activeNotesModal, setActiveNotesModal] = useState<Submission | null>(null);
@@ -77,6 +85,7 @@ export default function RevisionDashboard() {
   const [copiedCode, setCopiedCode] = useState(false);
 
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [resetRevisionConfirmId, setResetRevisionConfirmId] = useState<string | null>(null);
 
   // Toast Notification
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -222,6 +231,92 @@ export default function RevisionDashboard() {
     }
   };
 
+  // Mark Revision API (Optimistic UI)
+  const handleMarkRevised = async (submission: Submission) => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const now = new Date().toISOString();
+    const newCount = (submission.revisionCount || 0) + 1;
+    const newHistory = [{ revisedAt: now }, ...(submission.revisionHistory || [])];
+
+    // Optimistic UI update
+    setSubmissions((prev) =>
+      prev.map((item) =>
+        item._id === submission._id
+          ? {
+              ...item,
+              isRevised: true,
+              revisionCount: newCount,
+              lastRevisionDate: now,
+              revisionHistory: newHistory
+            }
+          : item
+      )
+    );
+    showToast(`✓ Revision #${newCount} recorded!`);
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/submissions/${submission._id}/revise`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (!res.ok) {
+        fetchSubmissions(token); // Revert on failure
+        showToast("Failed to record revision");
+      }
+    } catch (e) {
+      console.error("Error marking revision:", e);
+      fetchSubmissions(token); // Revert
+      showToast("Network error recording revision");
+    }
+  };
+
+  // Reset Revision History API (Optimistic UI)
+  const handleResetRevision = async (id: string) => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    // Optimistic UI update
+    setSubmissions((prev) =>
+      prev.map((item) =>
+        item._id === id
+          ? {
+              ...item,
+              isRevised: false,
+              revisionCount: 0,
+              lastRevisionDate: null,
+              revisionHistory: []
+            }
+          : item
+      )
+    );
+    showToast("Revision history reset!");
+    setResetRevisionConfirmId(null);
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/submissions/${id}/reset-revision`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (!res.ok) {
+        fetchSubmissions(token);
+        showToast("Failed to reset revision");
+      }
+    } catch (e) {
+      console.error("Error resetting revision:", e);
+      fetchSubmissions(token);
+      showToast("Network error resetting revision");
+    }
+  };
+
   // Save Notes API
   const handleSaveNotes = async () => {
     if (!activeNotesModal) return;
@@ -301,8 +396,9 @@ export default function RevisionDashboard() {
     const hard = submissions.filter((s) => s.difficulty?.toLowerCase() === "hard").length;
     const favorites = submissions.filter((s) => s.favorite).length;
     const mastered = submissions.filter((s) => s.revisionStatus === "Mastered").length;
+    const revised = submissions.filter((s) => s.isRevised).length;
 
-    return { total, easy, medium, hard, favorites, mastered };
+    return { total, easy, medium, hard, favorites, mastered, revised };
   }, [submissions]);
 
   const uniqueLanguages = useMemo(() => {
@@ -364,6 +460,14 @@ export default function RevisionDashboard() {
           }
         }
 
+        if (selectedRevisionFilter === "revised" && !sub.isRevised) {
+          return false;
+        }
+
+        if (selectedRevisionFilter === "not_revised" && sub.isRevised) {
+          return false;
+        }
+
         if (showFavoritesOnly && !sub.favorite) {
           return false;
         }
@@ -371,6 +475,22 @@ export default function RevisionDashboard() {
         return true;
       })
       .sort((a, b) => {
+        if (sortOrder === "recently_revised") {
+          const dateA = new Date(a.lastRevisionDate || a.submittedAt).getTime();
+          const dateB = new Date(b.lastRevisionDate || b.submittedAt).getTime();
+          return dateB - dateA;
+        }
+        if (sortOrder === "oldest_revision") {
+          const dateA = new Date(a.lastRevisionDate || a.submittedAt).getTime();
+          const dateB = new Date(b.lastRevisionDate || b.submittedAt).getTime();
+          return dateA - dateB;
+        }
+        if (sortOrder === "most_revised") {
+          return (b.revisionCount || 0) - (a.revisionCount || 0);
+        }
+        if (sortOrder === "least_revised") {
+          return (a.revisionCount || 0) - (b.revisionCount || 0);
+        }
         const dateA = new Date(a.submittedAt).getTime();
         const dateB = new Date(b.submittedAt).getTime();
         return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
@@ -382,11 +502,12 @@ export default function RevisionDashboard() {
     selectedLanguage,
     selectedTopic,
     selectedStatus,
+    selectedRevisionFilter,
     showFavoritesOnly,
     sortOrder
   ]);
 
-  const formatDate = (dateStr: string) => {
+  const formatDate = (dateStr: string | null | undefined) => {
     if (!dateStr) return "N/A";
     const d = new Date(dateStr);
     return d.toLocaleDateString("en-US", {
@@ -441,7 +562,7 @@ export default function RevisionDashboard() {
         </div>
         
         {/* Statistics Cards Grid */}
-        <div className={styles.statsGrid}>
+        <div className={styles.statsGrid} style={{ gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))" }}>
           
           <div className={styles.statCard}>
             <div className={styles.statCardHeader}>
@@ -449,6 +570,14 @@ export default function RevisionDashboard() {
               <Layers className="h-4 w-4 text-[#FFF8B9]" />
             </div>
             <p className={styles.statNumber}>{stats.total}</p>
+          </div>
+
+          <div className={styles.statCard}>
+            <div className={styles.statCardHeader}>
+              <span>Revised</span>
+              <Check className="h-4 w-4 text-emerald-400 stroke-[3]" />
+            </div>
+            <p className="text-2xl font-extrabold text-emerald-400 mt-2">{stats.revised}</p>
           </div>
 
           <div className={styles.statCard}>
@@ -516,8 +645,22 @@ export default function RevisionDashboard() {
             </button>
           </div>
 
-          <div className={styles.filterGrid}>
+          <div className={styles.filterGrid} style={{ gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))" }}>
             
+            {/* Revision Filter */}
+            <div>
+              <label className={styles.filterLabel}>Revision Filter</label>
+              <select
+                value={selectedRevisionFilter}
+                onChange={(e) => setSelectedRevisionFilter(e.target.value as any)}
+                className={styles.selectInput}
+              >
+                <option value="all">All Problems</option>
+                <option value="revised">✓ Revised Only</option>
+                <option value="not_revised">Not Revised</option>
+              </select>
+            </div>
+
             {/* Difficulty Filter */}
             <div>
               <label className={styles.filterLabel}>Difficulty</label>
@@ -588,11 +731,15 @@ export default function RevisionDashboard() {
               <label className={styles.filterLabel}>Sort By</label>
               <select
                 value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value as "newest" | "oldest")}
+                onChange={(e) => setSortOrder(e.target.value as any)}
                 className={styles.selectInput}
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
+                <option value="recently_revised">Recently Revised</option>
+                <option value="oldest_revision">Oldest Revision</option>
+                <option value="most_revised">Most Revised</option>
+                <option value="least_revised">Least Revised</option>
               </select>
             </div>
 
@@ -719,8 +866,68 @@ export default function RevisionDashboard() {
                         ))}
                       </div>
 
+                      {/* Phase 9: Revision Tracking Section */}
+                      <div className={styles.revisionSection}>
+                        <div className="flex items-center gap-3">
+                          {/* Large Circular Checkbox */}
+                          <motion.button
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => handleMarkRevised(sub)}
+                            className={`${styles.revisionCheckBtn} ${
+                              sub.isRevised
+                                ? styles.revisionCheckBtnChecked
+                                : styles.revisionCheckBtnUnchecked
+                            }`}
+                            title={sub.isRevised ? "Record Another Revision" : "Mark as Revised"}
+                          >
+                            {sub.isRevised ? (
+                              <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                              >
+                                <Check className="h-5 w-5 stroke-[3]" />
+                              </motion.div>
+                            ) : (
+                              <span className="h-2 w-2 rounded-full bg-[#FFF8B9]/30" />
+                            )}
+                          </motion.button>
+
+                          {/* Revision Status Info */}
+                          <div className={styles.revisionInfo}>
+                            {sub.isRevised ? (
+                              <>
+                                <span className={styles.revisionStatusTextRevised}>
+                                  <Check className="h-3.5 w-3.5 text-emerald-400 inline" /> Revised
+                                </span>
+                                <span className={styles.revisionDateText}>
+                                  Last revised: {formatDate(sub.lastRevisionDate || sub.submittedAt)}
+                                </span>
+                                <span className="text-[10px] font-bold text-[#FFF8B9]/90">
+                                  Revision Count: {sub.revisionCount || 0}
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                <span className={styles.revisionStatusTextNot}>Not Revised</span>
+                                <span className={styles.revisionDateText}>Click check to record</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Reset Revision History Button */}
+                        <button
+                          onClick={() => setResetRevisionConfirmId(sub._id)}
+                          className={styles.resetRevisionBtn}
+                          title="Reset Revision History"
+                        >
+                          <RotateCcw className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+
                       {/* Revision Status Selector */}
-                      <div className="mt-4 pt-3 border-t border-[#FFF8B9]/15 flex items-center justify-between text-xs">
+                      <div className="mt-3 pt-3 border-t border-[#FFF8B9]/15 flex items-center justify-between text-xs">
                         <span className="text-[#FFF8B9]/80 font-medium">Status</span>
                         <select
                           value={sub.revisionStatus || "New"}
@@ -912,6 +1119,41 @@ export default function RevisionDashboard() {
                   className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold cursor-pointer shadow-sm"
                 >
                   Delete
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL 4: Reset Revision History Modal */}
+      <AnimatePresence>
+        {resetRevisionConfirmId && (
+          <div className={styles.modalOverlay}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className={styles.modalCard}
+              style={{ maxWidth: "24rem", textAlign: "center" }}
+            >
+              <div className="h-12 w-12 bg-amber-500/20 text-amber-300 rounded-2xl flex items-center justify-center mx-auto mb-3 border border-amber-500/30">
+                <RotateCcw className="h-6 w-6" />
+              </div>
+              <h4 className="text-base font-bold text-[#FFF8B9]">Reset revision history?</h4>
+              <p className="text-xs text-[#FFF8B9]/70 mb-4">This will remove all revision records for this problem.</p>
+              <div className="flex justify-center gap-3">
+                <button
+                  onClick={() => setResetRevisionConfirmId(null)}
+                  className="px-4 py-2 rounded-xl bg-[#FFF8B9]/10 hover:bg-[#FFF8B9]/20 text-[#FFF8B9] text-xs font-bold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleResetRevision(resetRevisionConfirmId)}
+                  className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold cursor-pointer shadow-sm"
+                >
+                  Reset
                 </button>
               </div>
             </motion.div>

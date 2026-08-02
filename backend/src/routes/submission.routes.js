@@ -7,7 +7,9 @@ const {
   deleteSubmission,
   toggleFavorite,
   updateRevisionStatus,
-  updateNotes
+  updateNotes,
+  markRevised,
+  resetRevision
 } = require('../controllers/submission.controller');
 const { getProblemDetails } = require('../controllers/problem.controller');
 const { protect } = require('../middleware/auth.middleware');
@@ -23,5 +25,7 @@ router.delete('/:id', deleteSubmission);
 router.patch('/:id/favorite', toggleFavorite);
 router.patch('/:id/revision', updateRevisionStatus);
 router.patch('/:id/notes', updateNotes);
+router.patch('/:id/revise', markRevised);
+router.patch('/:id/reset-revision', resetRevision);
 
 module.exports = router;

@@ -19,7 +19,9 @@ import {
   Building2,
   AlertCircle,
   ChevronRight,
-  TrendingUp
+  TrendingUp,
+  RotateCcw,
+  Clock
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
@@ -40,6 +42,10 @@ interface Submission {
   revisionStatus: "New" | "Learning" | "Revising" | "Mastered";
   lastReviewed: string | null;
   reviewCount: number;
+  isRevised?: boolean;
+  revisionCount?: number;
+  lastRevisionDate?: string | null;
+  revisionHistory?: Array<{ revisedAt: string }>;
 }
 
 interface ProblemMetadata {
@@ -76,12 +82,13 @@ export default function ProblemDetailView() {
   // Active Tab: 'description' | 'solution' | 'notes'
   const [activeTab, setActiveTab] = useState<"description" | "solution" | "notes">("description");
 
-  // Notes fields
+  // Notes & Modals
   const [notesText, setNotesText] = useState("");
   const [isSavingNotes, setIsSavingNotes] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [expandedHints, setExpandedHints] = useState<number[]>([]);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -164,33 +171,71 @@ export default function ProblemDetailView() {
     }
   };
 
-  // Update Revision Status
-  const handleUpdateStatus = async (newStatus: "New" | "Learning" | "Revising" | "Mastered") => {
+  // Mark Revised (Optimistic UI)
+  const handleMarkRevised = async () => {
+    if (!submission || !submission._id) return;
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const now = new Date().toISOString();
+    const newCount = (submission.revisionCount || 0) + 1;
+    const newHistory = [{ revisedAt: now }, ...(submission.revisionHistory || [])];
+
+    setSubmission({
+      ...submission,
+      isRevised: true,
+      revisionCount: newCount,
+      lastRevisionDate: now,
+      revisionHistory: newHistory
+    });
+    showToast(`✓ Revision #${newCount} recorded!`);
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/submissions/${submission._id}/revise`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (!res.ok) {
+        if (problemNumberParam) fetchProblemDetails(token, problemNumberParam);
+      }
+    } catch (e) {
+      showToast("Error recording revision");
+      if (problemNumberParam) fetchProblemDetails(token, problemNumberParam);
+    }
+  };
+
+  // Reset Revision History (Optimistic UI)
+  const handleResetRevision = async () => {
     if (!submission || !submission._id) return;
     const token = localStorage.getItem("token");
     if (!token) return;
 
     setSubmission({
       ...submission,
-      revisionStatus: newStatus,
-      reviewCount: (submission.reviewCount || 0) + 1,
-      lastReviewed: new Date().toISOString()
+      isRevised: false,
+      revisionCount: 0,
+      lastRevisionDate: null,
+      revisionHistory: []
     });
+    showToast("Revision history reset!");
+    setShowResetConfirm(false);
 
     try {
-      const res = await fetch(`${BACKEND_URL}/api/submissions/${submission._id}/revision`, {
+      const res = await fetch(`${BACKEND_URL}/api/submissions/${submission._id}/reset-revision`, {
         method: "PATCH",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ revisionStatus: newStatus })
+        }
       });
-      if (res.ok) {
-        showToast(`Status updated to ${newStatus}`);
+      if (!res.ok) {
+        if (problemNumberParam) fetchProblemDetails(token, problemNumberParam);
       }
     } catch (e) {
-      showToast("Error updating revision status");
+      showToast("Error resetting revision");
+      if (problemNumberParam) fetchProblemDetails(token, problemNumberParam);
     }
   };
 
@@ -264,14 +309,12 @@ export default function ProblemDetailView() {
     );
   };
 
-  const formatDate = (dateStr: string | null) => {
+  const formatDate = (dateStr: string | null | undefined) => {
     if (!dateStr) return "N/A";
     return new Date(dateStr).toLocaleDateString("en-US", {
       day: "numeric",
       month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
+      year: "numeric"
     });
   };
 
@@ -422,6 +465,110 @@ export default function ProblemDetailView() {
                 )}
               </div>
 
+            </div>
+
+            {/* Phase 9: Revision Tracking Card & Timeline */}
+            <div className="bg-[#233807] border border-[#FFF8B9]/20 rounded-3xl p-8 shadow-md space-y-6 text-[#FFF8B9]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#FFF8B9]/15 pb-6">
+                
+                {/* Left Revision Status Badge & Check Button */}
+                <div className="flex items-center gap-4">
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={handleMarkRevised}
+                    className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all cursor-pointer ${
+                      submission?.isRevised
+                        ? "bg-emerald-500 border-emerald-400 text-white shadow-lg shadow-emerald-500/30"
+                        : "bg-[#FFF8B9]/10 border-[#FFF8B9]/35 text-transparent hover:border-emerald-400 hover:bg-emerald-500/10"
+                    }`}
+                    title={submission?.isRevised ? "Record Another Revision" : "Mark as Revised"}
+                  >
+                    {submission?.isRevised ? (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                      >
+                        <Check className="h-6 w-6 stroke-[3]" />
+                      </motion.div>
+                    ) : (
+                      <span className="h-3 w-3 rounded-full bg-[#FFF8B9]/40" />
+                    )}
+                  </motion.button>
+
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-base font-extrabold ${submission?.isRevised ? "text-emerald-400" : "text-[#FFF8B9]/70"}`}>
+                        {submission?.isRevised ? "✓ Revised" : "Not Revised"}
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#FFF8B9]/70 mt-0.5">
+                      {submission?.isRevised
+                        ? "Click check button anytime to log a new revision iteration."
+                        : "Click the circular check button to record your first revision."}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Reset Revision History Button */}
+                {submission?._id && (
+                  <button
+                    onClick={() => setShowResetConfirm(true)}
+                    className="flex items-center gap-2 text-xs font-bold text-[#FFF8B9]/80 hover:text-[#FFF8B9] bg-[#FFF8B9]/10 hover:bg-[#FFF8B9]/20 px-3.5 py-2 rounded-xl border border-[#FFF8B9]/20 transition-all cursor-pointer self-start sm:self-auto"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" />
+                    <span>Reset Revision History</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Revision Stats Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-[#121e07] border border-[#FFF8B9]/20 rounded-2xl p-4">
+                  <span className="text-xs text-[#FFF8B9]/70 font-semibold block">Last Revision</span>
+                  <span className="text-sm font-extrabold text-[#FFF8B9] mt-1 block">
+                    {submission?.lastRevisionDate ? formatDate(submission.lastRevisionDate) : (submission?.isRevised ? formatDate(submission.submittedAt) : "None")}
+                  </span>
+                </div>
+
+                <div className="bg-[#121e07] border border-[#FFF8B9]/20 rounded-2xl p-4">
+                  <span className="text-xs text-[#FFF8B9]/70 font-semibold block">Revision Count</span>
+                  <span className="text-2xl font-extrabold text-emerald-400 mt-1 block">
+                    {submission?.revisionCount || 0}
+                  </span>
+                </div>
+              </div>
+
+              {/* Revision Timeline */}
+              {submission?.revisionHistory && submission.revisionHistory.length > 0 && (
+                <div className="pt-4 space-y-3">
+                  <h4 className="text-xs font-bold text-[#FFF8B9] uppercase tracking-wider flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-emerald-400" />
+                    <span>Revision Timeline (Newest First)</span>
+                  </h4>
+
+                  <div className="space-y-2">
+                    {submission.revisionHistory
+                      .slice()
+                      .reverse()
+                      .map((entry, idx) => (
+                        <motion.div
+                          key={idx}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: idx * 0.05 }}
+                          className="flex items-center justify-between bg-[#121e07] border border-[#FFF8B9]/15 rounded-xl px-4 py-2.5 text-xs text-[#FFF8B9]"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
+                            <span className="font-semibold">Revision iteration #{submission.revisionHistory!.length - idx}</span>
+                          </div>
+                          <span className="font-mono text-[#FFF8B9]/80">{formatDate(entry.revisedAt)}</span>
+                        </motion.div>
+                      ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Navigation Tabs Bar */}
@@ -601,6 +748,40 @@ export default function ProblemDetailView() {
         )}
 
       </main>
+
+      {/* Reset Revision History Confirmation Modal */}
+      <AnimatePresence>
+        {showResetConfirm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#233807]/40 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-[#233807] border border-[#FFF8B9]/25 rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center text-[#FFF8B9]"
+            >
+              <div className="h-12 w-12 bg-amber-500/20 text-amber-300 rounded-2xl flex items-center justify-center mx-auto mb-3 border border-amber-500/30">
+                <RotateCcw className="h-6 w-6" />
+              </div>
+              <h4 className="text-base font-bold text-[#FFF8B9]">Reset revision history?</h4>
+              <p className="text-xs text-[#FFF8B9]/70 mb-4">This will remove all revision records for this problem.</p>
+              <div className="flex justify-center gap-3">
+                <button
+                  onClick={() => setShowResetConfirm(false)}
+                  className="px-4 py-2 rounded-xl bg-[#FFF8B9]/10 hover:bg-[#FFF8B9]/20 text-[#FFF8B9] text-xs font-bold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleResetRevision}
+                  className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold cursor-pointer shadow-sm"
+                >
+                  Reset
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
   );
