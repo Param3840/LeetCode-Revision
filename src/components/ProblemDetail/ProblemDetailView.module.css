@@ -1,0 +1,310 @@
+/* Problem Detail View CSS Module - #233807 Cards Theme */
+
+.container {
+  min-height: 100vh;
+  background-color: #FFF8B9;
+  color: #233807;
+  font-family: var(--font-sans), sans-serif;
+  padding-bottom: 4rem;
+}
+
+.toast {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 50;
+  background-color: #233807;
+  color: #FFF8B9;
+  border: 1px solid rgba(255, 248, 185, 0.3);
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(12px);
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.workspace {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 3.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.actionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.btnBack {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #FFF8B9;
+  background-color: #233807;
+  border: 1px solid rgba(255, 248, 185, 0.25);
+  padding: 0.625rem 1rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.btnBack:hover {
+  background-color: #34540a;
+}
+
+.btnLeetCode {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.625rem 1rem;
+  border-radius: 0.75rem;
+  background-color: #233807;
+  border: 1px solid rgba(255, 248, 185, 0.25);
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #FFF8B9;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+}
+
+.btnLeetCode:hover {
+  background-color: #34540a;
+}
+
+.btnFavorite {
+  padding: 0.625rem;
+  border-radius: 0.75rem;
+  background-color: #233807;
+  border: 1px solid rgba(255, 248, 185, 0.25);
+  color: #FFF8B9;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.btnFavorite:hover {
+  background-color: #34540a;
+  color: #facc15;
+}
+
+.cardOverview {
+  background-color: #233807;
+  border: 1px solid rgba(255, 248, 185, 0.2);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 4px 15px rgba(35, 56, 7, 0.12);
+  color: #FFF8B9;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.cardRevision {
+  background-color: #233807;
+  border: 1px solid rgba(255, 248, 185, 0.2);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 4px 15px rgba(35, 56, 7, 0.12);
+  color: #FFF8B9;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.revisionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(255, 248, 185, 0.15);
+  padding-bottom: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .revisionHeader {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.revisionCheckBtn {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.revisionCheckBtnChecked {
+  background-color: #22c55e;
+  border-color: #4ade80;
+  color: #ffffff;
+  box-shadow: 0 10px 15px -3px rgba(34, 197, 94, 0.3);
+}
+
+.revisionCheckBtnUnchecked {
+  background-color: rgba(255, 248, 185, 0.1);
+  border-color: rgba(255, 248, 185, 0.4);
+}
+
+.revisionCheckBtnUnchecked:hover {
+  border-color: #4ade80;
+  background-color: rgba(74, 222, 128, 0.1);
+}
+
+.btnResetRevision {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(255, 248, 185, 0.8);
+  background-color: rgba(255, 248, 185, 0.1);
+  border: 1px solid rgba(255, 248, 185, 0.2);
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnResetRevision:hover {
+  background-color: rgba(255, 248, 185, 0.2);
+  color: #FFF8B9;
+}
+
+.revisionStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .revisionStatsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.revisionStatBox {
+  background-color: #121e07;
+  border: 1px solid rgba(255, 248, 185, 0.2);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.timelineList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.timelineItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #121e07;
+  border: 1px solid rgba(255, 248, 185, 0.15);
+  border-radius: 0.75rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.75rem;
+  color: #FFF8B9;
+}
+
+.tabsBar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid rgba(35, 56, 7, 0.2);
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.tabButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.tabButtonActive {
+  background-color: #233807;
+  color: #FFF8B9;
+  border: 1px solid rgba(255, 248, 185, 0.3);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.tabButtonInactive {
+  background-color: transparent;
+  color: rgba(35, 56, 7, 0.8);
+}
+
+.tabButtonInactive:hover {
+  color: #233807;
+  background-color: rgba(35, 56, 7, 0.1);
+}
+
+.contentCard {
+  background-color: #233807;
+  border: 1px solid rgba(255, 248, 185, 0.2);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 4px 15px rgba(35, 56, 7, 0.12);
+  color: #FFF8B9;
+}
+
+.codeContainer {
+  background-color: #0b1404;
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #fdfdfd;
+  line-height: 1.6;
+  padding: 1.5rem;
+  overflow-x: auto;
+  border-top: 1px solid rgba(255, 248, 185, 0.1);
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: rgba(35, 56, 7, 0.4);
+  backdrop-filter: blur(8px);
+}
+
+.modalCard {
+  background-color: #233807;
+  border: 1px solid rgba(255, 248, 185, 0.25);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  max-width: 24rem;
+  width: 100%;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  text-align: center;
+  color: #FFF8B9;
+}
