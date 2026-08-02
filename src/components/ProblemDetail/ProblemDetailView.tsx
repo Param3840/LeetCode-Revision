@@ -489,10 +489,10 @@ export default function ProblemDetailView() {
                         animate={{ scale: 1 }}
                         transition={{ type: "spring", stiffness: 400, damping: 15 }}
                       >
-                        <Check className="h-6 w-6 stroke-[3]" />
+                        <Check className="h-6 w-6 stroke-[3] text-white" />
                       </motion.div>
                     ) : (
-                      <span className="h-3 w-3 rounded-full bg-[#FFF8B9]/40" />
+                      <Check className="h-5 w-5 text-[#FFF8B9]/60 hover:text-emerald-400 stroke-[2.5]" />
                     )}
                   </motion.button>
 

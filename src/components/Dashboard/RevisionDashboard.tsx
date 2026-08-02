@@ -612,14 +612,6 @@ export default function RevisionDashboard() {
             <p className="text-2xl font-extrabold text-yellow-400 mt-2">{stats.favorites}</p>
           </div>
 
-          <div className={styles.statCard}>
-            <div className={styles.statCardHeader}>
-              <span>Mastered</span>
-              <Award className="h-4 w-4 text-purple-300" />
-            </div>
-            <p className="text-2xl font-extrabold text-purple-300 mt-2">{stats.mastered}</p>
-          </div>
-
         </div>
 
         {/* Filter Controls Toolbar */}
@@ -870,10 +862,10 @@ export default function RevisionDashboard() {
                                 animate={{ scale: 1 }}
                                 transition={{ type: "spring", stiffness: 400, damping: 15 }}
                               >
-                                <Check className="h-5 w-5 stroke-[3]" />
+                                <Check className="h-5 w-5 stroke-[3] text-white" />
                               </motion.div>
                             ) : (
-                              <span className="h-2 w-2 rounded-full bg-[#FFF8B9]/30" />
+                              <Check className="h-4 w-4 text-[#FFF8B9]/50 group-hover:text-emerald-400 stroke-[2.5]" />
                             )}
                           </motion.button>
 
