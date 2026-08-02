@@ -347,7 +347,7 @@ export default function ProblemDetailView() {
       <Navbar forceTheme="dark-bg" />
 
       {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-6 pt-4 space-y-6">
+      <main className="max-w-7xl mx-auto px-6 pt-24 space-y-6">
 
         {/* Action Header Controls Bar */}
         <div className="flex items-center justify-between gap-4">
