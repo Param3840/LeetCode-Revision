@@ -22,15 +22,18 @@ const getInitials = (name: string | null) => {
 
 interface NavbarProps {
   forceTheme?: "dark-bg" | "light-bg";
+  hideNavLinks?: boolean;
 }
 
-export default function Navbar({ forceTheme }: NavbarProps = {}) {
+export default function Navbar({ forceTheme, hideNavLinks }: NavbarProps = {}) {
   const pathname = usePathname();
   const [activeTheme, setActiveTheme] = useState<"dark-bg" | "light-bg">("dark-bg");
   const { user, loading, logout, isLoginModalOpen, openLoginModal, closeLoginModal } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [imgError, setImgError] = useState(false);
+
+  const isLandingPage = pathname === "/" && !hideNavLinks;
 
   // Reset image error state when user changes
   useEffect(() => {
@@ -82,7 +85,7 @@ export default function Navbar({ forceTheme }: NavbarProps = {}) {
     return () => {
       observer.disconnect();
     };
-  }, [pathname]);
+  }, [pathname, forceTheme]);
 
   const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     e.preventDefault();
@@ -119,36 +122,38 @@ export default function Navbar({ forceTheme }: NavbarProps = {}) {
           </span>
         </Link>
 
-        {/* Navigation Links (Desktop) */}
-        <nav className={styles.navLinks}>
-          <Link
-            href="/"
-            className={`${styles.navLink} ${pathname === "/" ? styles.navLinkActive : ""}`}
-          >
-            Revision Platform
-          </Link>
-          <a
-            href="#about"
-            onClick={(e) => handleScroll(e, "about")}
-            className={styles.navLink}
-          >
-            About Us
-          </a>
-          <a
-            href="#steps"
-            onClick={(e) => handleScroll(e, "steps")}
-            className={styles.navLink}
-          >
-            Steps to Use
-          </a>
-          <a
-            href="#aboutme"
-            onClick={(e) => handleScroll(e, "aboutme")}
-            className={styles.navLink}
-          >
-            About Me
-          </a>
-        </nav>
+        {/* Navigation Links (Desktop) - Only on Landing Page */}
+        {isLandingPage && (
+          <nav className={styles.navLinks}>
+            <Link
+              href="/"
+              className={`${styles.navLink} ${pathname === "/" ? styles.navLinkActive : ""}`}
+            >
+              Revision Platform
+            </Link>
+            <a
+              href="#about"
+              onClick={(e) => handleScroll(e, "about")}
+              className={styles.navLink}
+            >
+              About Us
+            </a>
+            <a
+              href="#steps"
+              onClick={(e) => handleScroll(e, "steps")}
+              className={styles.navLink}
+            >
+              Steps to Use
+            </a>
+            <a
+              href="#aboutme"
+              onClick={(e) => handleScroll(e, "aboutme")}
+              className={styles.navLink}
+            >
+              About Me
+            </a>
+          </nav>
+        )}
 
         {/* Auth slot */}
         <div className="flex items-center gap-4 relative">
