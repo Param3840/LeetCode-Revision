@@ -422,18 +422,18 @@ export default function RevisionDashboard() {
 
         {/* Dashboard Search Bar */}
         <div className="relative w-full max-w-xl mx-auto mb-2">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#233807]/50" />
+          <Search className={styles.searchIcon} />
           <input
             type="text"
             placeholder="Search problem #, title, tag, or language..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#ffffff] border border-[#233807]/20 rounded-2xl pl-11 pr-10 py-3 text-sm text-[#233807] placeholder-[#233807]/40 focus:outline-none focus:border-[#233807] focus:ring-2 focus:ring-[#233807]/20 transition-all shadow-sm"
+            className={styles.searchInput}
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#233807]/60 hover:text-[#233807]"
+              className={styles.searchClear}
             >
               <X className="h-4 w-4" />
             </button>
@@ -446,7 +446,7 @@ export default function RevisionDashboard() {
           <div className={styles.statCard}>
             <div className={styles.statCardHeader}>
               <span>Total Problems</span>
-              <Layers className="h-4 w-4 text-[#233807]" />
+              <Layers className="h-4 w-4 text-[#FFF8B9]" />
             </div>
             <p className={styles.statNumber}>{stats.total}</p>
           </div>
@@ -454,41 +454,41 @@ export default function RevisionDashboard() {
           <div className={styles.statCard}>
             <div className={styles.statCardHeader}>
               <span>Easy</span>
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-600"></span>
+              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
             </div>
-            <p className="text-2xl font-extrabold text-emerald-700 mt-2">{stats.easy}</p>
+            <p className="text-2xl font-extrabold text-emerald-400 mt-2">{stats.easy}</p>
           </div>
 
           <div className={styles.statCard}>
             <div className={styles.statCardHeader}>
               <span>Medium</span>
-              <span className="h-2.5 w-2.5 rounded-full bg-amber-600"></span>
+              <span className="h-2.5 w-2.5 rounded-full bg-amber-400"></span>
             </div>
-            <p className="text-2xl font-extrabold text-amber-700 mt-2">{stats.medium}</p>
+            <p className="text-2xl font-extrabold text-amber-400 mt-2">{stats.medium}</p>
           </div>
 
           <div className={styles.statCard}>
             <div className={styles.statCardHeader}>
               <span>Hard</span>
-              <span className="h-2.5 w-2.5 rounded-full bg-rose-600"></span>
+              <span className="h-2.5 w-2.5 rounded-full bg-rose-400"></span>
             </div>
-            <p className="text-2xl font-extrabold text-rose-700 mt-2">{stats.hard}</p>
+            <p className="text-2xl font-extrabold text-rose-400 mt-2">{stats.hard}</p>
           </div>
 
           <div className={styles.statCard}>
             <div className={styles.statCardHeader}>
               <span>Starred</span>
-              <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
+              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
             </div>
-            <p className="text-2xl font-extrabold text-yellow-600 mt-2">{stats.favorites}</p>
+            <p className="text-2xl font-extrabold text-yellow-400 mt-2">{stats.favorites}</p>
           </div>
 
           <div className={styles.statCard}>
             <div className={styles.statCardHeader}>
               <span>Mastered</span>
-              <Award className="h-4 w-4 text-purple-600" />
+              <Award className="h-4 w-4 text-purple-300" />
             </div>
-            <p className="text-2xl font-extrabold text-purple-700 mt-2">{stats.mastered}</p>
+            <p className="text-2xl font-extrabold text-purple-300 mt-2">{stats.mastered}</p>
           </div>
 
         </div>
@@ -497,8 +497,8 @@ export default function RevisionDashboard() {
         <div className={styles.filterToolbar}>
           
           <div className={styles.filterHeader}>
-            <div className="flex items-center gap-2 text-sm font-bold text-[#233807]">
-              <Filter className="h-4 w-4 text-[#233807]" />
+            <div className="flex items-center gap-2 text-sm font-bold text-[#FFF8B9]">
+              <Filter className="h-4 w-4 text-[#FFF8B9]" />
               <span>Filters & Customization</span>
             </div>
 
@@ -507,11 +507,11 @@ export default function RevisionDashboard() {
               onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
               className={`flex items-center gap-2 text-xs font-bold px-3.5 py-1.5 rounded-xl border transition-all cursor-pointer ${
                 showFavoritesOnly
-                  ? "bg-yellow-500/20 border-yellow-500/50 text-yellow-800"
-                  : "bg-[#233807]/5 border-[#233807]/15 text-[#233807] hover:bg-[#233807]/10"
+                  ? "bg-yellow-400/20 border-yellow-400/60 text-yellow-300"
+                  : "bg-[#FFF8B9]/10 border-[#FFF8B9]/25 text-[#FFF8B9] hover:bg-[#FFF8B9]/20"
               }`}
             >
-              <Star className={`h-3.5 w-3.5 ${showFavoritesOnly ? "fill-yellow-500 text-yellow-500" : ""}`} />
+              <Star className={`h-3.5 w-3.5 ${showFavoritesOnly ? "fill-yellow-400 text-yellow-400" : ""}`} />
               <span>{showFavoritesOnly ? "Showing Favorites Only" : "Favorites Only"}</span>
             </button>
           </div>
@@ -606,12 +606,12 @@ export default function RevisionDashboard() {
             {[1, 2, 3, 4, 5, 6].map((idx) => (
               <div
                 key={idx}
-                className="bg-[#ffffff] border border-[#233807]/10 rounded-2xl p-6 space-y-4 animate-pulse"
+                className="bg-[#233807] border border-[#FFF8B9]/20 rounded-2xl p-6 space-y-4 animate-pulse"
               >
-                <div className="h-4 bg-[#233807]/10 rounded w-1/3"></div>
-                <div className="h-6 bg-[#233807]/10 rounded w-3/4"></div>
-                <div className="h-4 bg-[#233807]/10 rounded w-1/2"></div>
-                <div className="h-10 bg-[#233807]/5 rounded-xl"></div>
+                <div className="h-4 bg-[#FFF8B9]/15 rounded w-1/3"></div>
+                <div className="h-6 bg-[#FFF8B9]/15 rounded w-3/4"></div>
+                <div className="h-4 bg-[#FFF8B9]/15 rounded w-1/2"></div>
+                <div className="h-10 bg-[#FFF8B9]/10 rounded-xl"></div>
               </div>
             ))}
           </div>
@@ -619,7 +619,7 @@ export default function RevisionDashboard() {
 
         {/* Error Alert */}
         {!loading && error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-700 p-4 rounded-2xl text-center text-sm font-medium">
+          <div className="bg-rose-500/15 border border-rose-500/30 text-rose-300 p-4 rounded-2xl text-center text-sm font-medium">
             {error}
           </div>
         )}
@@ -629,13 +629,13 @@ export default function RevisionDashboard() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center text-center p-12 bg-[#ffffff] border border-[#233807]/12 rounded-3xl shadow-sm max-w-lg mx-auto py-16"
+            className="flex flex-col items-center justify-center text-center p-12 bg-[#233807] border border-[#FFF8B9]/20 rounded-3xl shadow-sm max-w-lg mx-auto py-16 text-[#FFF8B9]"
           >
-            <div className="h-16 w-16 bg-[#233807]/10 rounded-2xl border border-[#233807]/20 flex items-center justify-center text-[#233807] mb-4">
+            <div className="h-16 w-16 bg-[#FFF8B9]/10 rounded-2xl border border-[#FFF8B9]/20 flex items-center justify-center text-[#FFF8B9] mb-4">
               <BookOpen className="h-8 w-8" />
             </div>
-            <h3 className="text-xl font-extrabold text-[#233807] tracking-tight">No Submissions Found</h3>
-            <p className="text-xs text-[#233807]/70 mt-2 max-w-xs leading-relaxed">
+            <h3 className="text-xl font-extrabold text-[#FFF8B9] tracking-tight">No Submissions Found</h3>
+            <p className="text-xs text-[#FFF8B9]/70 mt-2 max-w-xs leading-relaxed">
               {submissions.length === 0
                 ? "No submissions yet. Solve your first LeetCode problem to start building your revision library."
                 : "No items match your active filters or search query."}
@@ -673,10 +673,10 @@ export default function RevisionDashboard() {
                           <span
                             className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border uppercase tracking-wider ${
                               isEasy
-                                ? "bg-emerald-500/10 text-emerald-800 border-emerald-500/30"
+                                ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
                                 : isMedium
-                                ? "bg-amber-500/10 text-amber-800 border-amber-500/30"
-                                : "bg-rose-500/10 text-rose-800 border-rose-500/30"
+                                ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
+                                : "bg-rose-500/20 text-rose-300 border-rose-500/40"
                             }`}
                           >
                             {sub.difficulty}
@@ -684,11 +684,11 @@ export default function RevisionDashboard() {
 
                           <button
                             onClick={() => handleToggleFavorite(sub)}
-                            className="p-1.5 rounded-lg bg-[#233807]/5 hover:bg-[#233807]/10 text-[#233807]/60 hover:text-yellow-600 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg bg-[#FFF8B9]/10 hover:bg-[#FFF8B9]/20 text-[#FFF8B9]/80 hover:text-yellow-400 transition-colors cursor-pointer border border-[#FFF8B9]/20"
                           >
                             <Star
                               className={`h-4 w-4 ${
-                                sub.favorite ? "fill-yellow-500 text-yellow-500" : ""
+                                sub.favorite ? "fill-yellow-400 text-yellow-400" : ""
                               }`}
                             />
                           </button>
@@ -705,14 +705,14 @@ export default function RevisionDashboard() {
 
                       {/* Meta Pills */}
                       <div className="flex items-center gap-2 mt-3 flex-wrap">
-                        <span className="text-[11px] font-semibold text-[#233807] bg-[#233807]/5 border border-[#233807]/15 px-2.5 py-1 rounded-lg">
+                        <span className="text-[11px] font-semibold text-[#FFF8B9] bg-[#FFF8B9]/10 border border-[#FFF8B9]/20 px-2.5 py-1 rounded-lg">
                           {sub.language}
                         </span>
 
                         {sub.tags && sub.tags.slice(0, 2).map((t) => (
                           <span
                             key={t}
-                            className="text-[10px] font-medium text-[#233807]/80 bg-[#233807]/5 border border-[#233807]/10 px-2 py-0.5 rounded-md"
+                            className="text-[10px] font-medium text-[#FFF8B9]/90 bg-[#FFF8B9]/10 border border-[#FFF8B9]/15 px-2 py-0.5 rounded-md"
                           >
                             {t}
                           </span>
@@ -720,8 +720,8 @@ export default function RevisionDashboard() {
                       </div>
 
                       {/* Revision Status Selector */}
-                      <div className="mt-4 pt-3 border-t border-[#233807]/10 flex items-center justify-between text-xs">
-                        <span className="text-[#233807]/70 font-medium">Status</span>
+                      <div className="mt-4 pt-3 border-t border-[#FFF8B9]/15 flex items-center justify-between text-xs">
+                        <span className="text-[#FFF8B9]/80 font-medium">Status</span>
                         <select
                           value={sub.revisionStatus || "New"}
                           onChange={(e) => handleUpdateRevisionStatus(sub._id, e.target.value)}
@@ -737,8 +737,8 @@ export default function RevisionDashboard() {
                     </div>
 
                     {/* Bottom Actions Bar */}
-                    <div className="mt-5 pt-4 border-t border-[#233807]/10 flex items-center justify-between gap-2">
-                      <span className="text-[10px] text-[#233807]/60 flex items-center gap-1">
+                    <div className="mt-5 pt-4 border-t border-[#FFF8B9]/15 flex items-center justify-between gap-2">
+                      <span className="text-[10px] text-[#FFF8B9]/70 flex items-center gap-1">
                         <Clock className="h-3 w-3" />
                         {formatDate(sub.submittedAt)}
                       </span>
@@ -765,7 +765,7 @@ export default function RevisionDashboard() {
                             setActiveNotesModal(sub);
                             setNotesText(sub.notes || "");
                           }}
-                          className="p-1.5 rounded-xl bg-[#233807]/5 hover:bg-[#233807]/12 text-[#233807] border border-[#233807]/15 transition-all cursor-pointer"
+                          className="p-1.5 rounded-xl bg-[#FFF8B9]/10 hover:bg-[#FFF8B9]/20 text-[#FFF8B9] border border-[#FFF8B9]/20 transition-all cursor-pointer"
                           title="Notes"
                         >
                           <Edit3 className="h-3.5 w-3.5" />
@@ -773,7 +773,7 @@ export default function RevisionDashboard() {
 
                         <button
                           onClick={() => setDeleteConfirmId(sub._id)}
-                          className="p-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-600 border border-red-500/20 transition-all cursor-pointer"
+                          className="p-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 transition-all cursor-pointer"
                           title="Delete"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
@@ -801,18 +801,18 @@ export default function RevisionDashboard() {
               className={styles.modalCard}
               style={{ maxWidth: "48rem", maxHeight: "85vh", display: "flex", flexDirection: "column" }}
             >
-              <div className="flex items-center justify-between border-b border-[#233807]/10 pb-4 mb-4">
+              <div className="flex items-center justify-between border-b border-[#FFF8B9]/15 pb-4 mb-4">
                 <div>
-                  <h3 className="text-lg font-bold text-[#233807]">
+                  <h3 className="text-lg font-bold text-[#FFF8B9]">
                     #{activeSolutionModal.problemNumber} {activeSolutionModal.title}
                   </h3>
-                  <span className="text-xs text-[#233807]/70 font-semibold">
+                  <span className="text-xs text-[#FFF8B9]/70 font-semibold">
                     Language: {activeSolutionModal.language} | Submitted: {formatDate(activeSolutionModal.submittedAt)}
                   </span>
                 </div>
                 <button
                   onClick={() => setActiveSolutionModal(null)}
-                  className="p-2 rounded-xl bg-[#233807]/5 hover:bg-[#233807]/10 text-[#233807] transition-all cursor-pointer"
+                  className="p-2 rounded-xl bg-[#FFF8B9]/10 hover:bg-[#FFF8B9]/20 text-[#FFF8B9] transition-all cursor-pointer border border-[#FFF8B9]/20"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -821,7 +821,7 @@ export default function RevisionDashboard() {
               <div className={styles.codeReader}>
                 <button
                   onClick={() => handleCopyCode(activeSolutionModal.solution)}
-                  className="absolute top-4 right-4 px-3 py-1.5 rounded-lg bg-[#ffffff]/10 hover:bg-[#ffffff]/20 text-[#fdfdfd] text-xs font-sans flex items-center gap-1.5 cursor-pointer border border-[#ffffff]/20"
+                  className="absolute top-4 right-4 px-3 py-1.5 rounded-lg bg-[#FFF8B9]/20 hover:bg-[#FFF8B9]/30 text-[#FFF8B9] text-xs font-sans flex items-center gap-1.5 cursor-pointer border border-[#FFF8B9]/30"
                 >
                   {copiedCode ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
                   <span>{copiedCode ? "Copied" : "Copy"}</span>
@@ -844,13 +844,13 @@ export default function RevisionDashboard() {
               className={styles.modalCard}
               style={{ maxWidth: "32rem" }}
             >
-              <div className="flex items-center justify-between border-b border-[#233807]/10 pb-3 mb-3">
-                <h3 className="text-base font-bold text-[#233807]">
+              <div className="flex items-center justify-between border-b border-[#FFF8B9]/15 pb-3 mb-3">
+                <h3 className="text-base font-bold text-[#FFF8B9]">
                   Notes — #{activeNotesModal.problemNumber} {activeNotesModal.title}
                 </h3>
                 <button
                   onClick={() => setActiveNotesModal(null)}
-                  className="p-1.5 rounded-xl bg-[#233807]/5 hover:bg-[#233807]/10 text-[#233807]"
+                  className="p-1.5 rounded-xl bg-[#FFF8B9]/10 hover:bg-[#FFF8B9]/20 text-[#FFF8B9]"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -861,20 +861,20 @@ export default function RevisionDashboard() {
                 placeholder="Write your revision notes, time complexity, key observations, or mistakes..."
                 value={notesText}
                 onChange={(e) => setNotesText(e.target.value)}
-                className="w-full bg-[#ffffff] border border-[#233807]/20 rounded-2xl p-4 text-xs text-[#233807] focus:outline-none focus:border-[#233807] resize-none"
+                className="w-full bg-[#121e07] border border-[#FFF8B9]/25 rounded-2xl p-4 text-xs text-[#FFF8B9] placeholder-[#FFF8B9]/40 focus:outline-none focus:border-[#FFF8B9] resize-none"
               ></textarea>
 
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   onClick={() => setActiveNotesModal(null)}
-                  className="px-4 py-2 rounded-xl bg-[#233807]/5 hover:bg-[#233807]/10 text-[#233807] text-xs font-bold cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-[#FFF8B9]/10 hover:bg-[#FFF8B9]/20 text-[#FFF8B9] text-xs font-bold cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSaveNotes}
                   disabled={isSavingNotes}
-                  className="px-4 py-2 rounded-xl bg-[#233807] hover:bg-[#34540a] text-[#fdfdfd] text-xs font-bold cursor-pointer shadow-sm"
+                  className="px-4 py-2 rounded-xl bg-[#FFF8B9] hover:bg-[#ffffff] text-[#233807] text-xs font-extrabold cursor-pointer shadow-sm"
                 >
                   {isSavingNotes ? "Saving..." : "Save Notes"}
                 </button>
@@ -895,21 +895,21 @@ export default function RevisionDashboard() {
               className={styles.modalCard}
               style={{ maxWidth: "24rem", textAlign: "center" }}
             >
-              <div className="h-12 w-12 bg-red-500/10 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <div className="h-12 w-12 bg-rose-500/20 text-rose-300 rounded-2xl flex items-center justify-center mx-auto mb-3 border border-rose-500/30">
                 <Trash2 className="h-6 w-6" />
               </div>
-              <h4 className="text-base font-bold text-[#233807]">Delete Submission?</h4>
-              <p className="text-xs text-[#233807]/70 mb-4">This action will remove the submission from your CodeRevise library.</p>
+              <h4 className="text-base font-bold text-[#FFF8B9]">Delete Submission?</h4>
+              <p className="text-xs text-[#FFF8B9]/70 mb-4">This action will remove the submission from your CodeRevise library.</p>
               <div className="flex justify-center gap-3">
                 <button
                   onClick={() => setDeleteConfirmId(null)}
-                  className="px-4 py-2 rounded-xl bg-[#233807]/5 hover:bg-[#233807]/10 text-[#233807] text-xs font-bold cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-[#FFF8B9]/10 hover:bg-[#FFF8B9]/20 text-[#FFF8B9] text-xs font-bold cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => handleDeleteSubmission(deleteConfirmId)}
-                  className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold cursor-pointer shadow-sm"
+                  className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold cursor-pointer shadow-sm"
                 >
                   Delete
                 </button>

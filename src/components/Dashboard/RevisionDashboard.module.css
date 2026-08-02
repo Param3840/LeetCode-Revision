@@ -1,4 +1,4 @@
-/* Revision Dashboard CSS Module */
+/* Revision Dashboard CSS Module - #233807 Cards Theme */
 
 .container {
   min-height: 100vh;
@@ -14,10 +14,11 @@
   right: 1.25rem;
   z-index: 50;
   background-color: #233807;
-  color: #fdfdfd;
+  color: #FFF8B9;
+  border: 1px solid rgba(255, 248, 185, 0.3);
   padding: 0.75rem 1rem;
   border-radius: 0.75rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(12px);
   font-size: 0.875rem;
   display: flex;
@@ -29,11 +30,11 @@
   position: sticky;
   top: 0;
   z-index: 40;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 248, 185, 0.95);
   backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(35, 56, 7, 0.1);
+  border-bottom: 1px solid rgba(35, 56, 7, 0.15);
   padding: 1rem 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 4px rgba(35, 56, 7, 0.08);
 }
 
 .headerContent {
@@ -63,7 +64,7 @@
   width: 2.5rem;
   border-radius: 0.75rem;
   background-color: #233807;
-  color: #fdfdfd;
+  color: #FFF8B9;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -88,7 +89,7 @@
   padding: 0.125rem 0.625rem;
   border-radius: 9999px;
   background-color: #233807;
-  color: #fdfdfd;
+  color: #FFF8B9;
 }
 
 .searchWrapper {
@@ -109,36 +110,40 @@
   transform: translateY(-50%);
   height: 1rem;
   width: 1rem;
-  color: rgba(35, 56, 7, 0.5);
+  color: rgba(255, 248, 185, 0.7);
 }
 
 .searchInput {
   width: 100%;
-  background-color: #ffffff;
-  border: 1px solid rgba(35, 56, 7, 0.2);
-  border-radius: 0.75rem;
-  padding-left: 2.5rem;
+  background-color: #233807;
+  border: 1px solid rgba(255, 248, 185, 0.3);
+  border-radius: 1rem;
+  padding-left: 2.75rem;
   padding-right: 2.5rem;
-  padding-top: 0.625rem;
-  padding-bottom: 0.625rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
   font-size: 0.875rem;
-  color: #233807;
+  color: #FFF8B9;
   transition: all 0.2s ease;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 15px rgba(35, 56, 7, 0.15);
+}
+
+.searchInput::placeholder {
+  color: rgba(255, 248, 185, 0.5);
 }
 
 .searchInput:focus {
   outline: none;
-  border-color: #233807;
-  box-shadow: 0 0 0 1px #233807;
+  border-color: #FFF8B9;
+  box-shadow: 0 0 0 2px rgba(255, 248, 185, 0.3);
 }
 
 .searchClear {
   position: absolute;
-  right: 0.75rem;
+  right: 0.875rem;
   top: 50%;
   transform: translateY(-50%);
-  color: rgba(35, 56, 7, 0.6);
+  color: rgba(255, 248, 185, 0.7);
   cursor: pointer;
 }
 
@@ -152,25 +157,26 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background-color: #ffffff;
-  border: 1px solid rgba(35, 56, 7, 0.15);
+  background-color: #233807;
+  border: 1px solid rgba(255, 248, 185, 0.25);
+  color: #FFF8B9;
   padding: 0.375rem 0.875rem;
   border-radius: 0.75rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .logoutButton {
   padding: 0.625rem;
   border-radius: 0.75rem;
-  background-color: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  color: #b91c1c;
+  background-color: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .logoutButton:hover {
-  background-color: rgba(239, 68, 68, 0.2);
+  background-color: rgba(239, 68, 68, 0.25);
 }
 
 .workspace {
@@ -203,16 +209,18 @@
 }
 
 .statCard {
-  background-color: #ffffff;
-  border: 1px solid rgba(35, 56, 7, 0.12);
+  background-color: #233807;
+  border: 1px solid rgba(255, 248, 185, 0.2);
   border-radius: 1rem;
   padding: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 15px rgba(35, 56, 7, 0.12);
   transition: all 0.2s ease;
+  color: #FFF8B9;
 }
 
 .statCard:hover {
-  border-color: rgba(35, 56, 7, 0.3);
+  border-color: rgba(255, 248, 185, 0.4);
+  transform: translateY(-2px);
 }
 
 .statCardHeader {
@@ -220,26 +228,27 @@
   align-items: center;
   justify-content: space-between;
   font-size: 0.75rem;
-  font-weight: 600;
-  color: rgba(35, 56, 7, 0.7);
+  font-weight: 700;
+  color: rgba(255, 248, 185, 0.85);
 }
 
 .statNumber {
   font-size: 1.5rem;
   font-weight: 800;
-  color: #233807;
+  color: #fdfdfd;
   margin-top: 0.5rem;
 }
 
 .filterToolbar {
-  background-color: #ffffff;
-  border: 1px solid rgba(35, 56, 7, 0.12);
+  background-color: #233807;
+  border: 1px solid rgba(255, 248, 185, 0.2);
   border-radius: 1rem;
   padding: 1.25rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 15px rgba(35, 56, 7, 0.12);
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  color: #FFF8B9;
 }
 
 .filterHeader {
@@ -248,7 +257,7 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 1rem;
-  border-bottom: 1px solid rgba(35, 56, 7, 0.1);
+  border-bottom: 1px solid rgba(255, 248, 185, 0.15);
   padding-bottom: 1rem;
 }
 
@@ -274,20 +283,25 @@
   display: block;
   font-size: 11px;
   font-weight: 700;
-  color: rgba(35, 56, 7, 0.7);
+  color: rgba(255, 248, 185, 0.8);
   margin-bottom: 0.25rem;
 }
 
 .selectInput {
   width: 100%;
-  background-color: #ffffff;
-  border: 1px solid rgba(35, 56, 7, 0.2);
+  background-color: rgba(255, 248, 185, 0.1);
+  border: 1px solid rgba(255, 248, 185, 0.25);
   border-radius: 0.75rem;
   padding: 0.5rem 0.75rem;
   font-size: 0.75rem;
-  color: #233807;
+  color: #FFF8B9;
   cursor: pointer;
   outline: none;
+}
+
+.selectInput option {
+  background-color: #233807;
+  color: #FFF8B9;
 }
 
 .cardsGrid {
@@ -309,22 +323,24 @@
 }
 
 .problemCard {
-  background-color: #ffffff;
-  border: 1px solid rgba(35, 56, 7, 0.12);
+  background-color: #233807;
+  border: 1px solid rgba(255, 248, 185, 0.2);
   border-radius: 1rem;
   padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 15px rgba(35, 56, 7, 0.12);
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   position: relative;
   overflow: hidden;
+  color: #fdfdfd;
 }
 
 .problemCard:hover {
-  border-color: rgba(35, 56, 7, 0.4);
-  box-shadow: 0 10px 25px -5px rgba(35, 56, 7, 0.1);
+  border-color: rgba(255, 248, 185, 0.45);
+  box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
 }
 
 .problemNumberBadge {
@@ -332,49 +348,51 @@
   font-weight: 800;
   padding: 0.25rem 0.625rem;
   border-radius: 0.5rem;
-  background-color: rgba(35, 56, 7, 0.05);
-  border: 1px solid rgba(35, 56, 7, 0.15);
-  color: #233807;
+  background-color: rgba(255, 248, 185, 0.12);
+  border: 1px solid rgba(255, 248, 185, 0.25);
+  color: #FFF8B9;
 }
 
 .problemTitle {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #233807;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #FFF8B9;
   transition: color 0.2s ease;
   cursor: pointer;
+  margin-top: 0.5rem;
 }
 
 .problemTitle:hover {
-  color: #34540a;
+  color: #ffffff;
 }
 
 .btnReview {
   padding: 0.375rem 0.875rem;
   border-radius: 0.75rem;
-  background-color: #233807;
-  color: #fdfdfd;
+  background-color: #FFF8B9;
+  color: #233807;
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 800;
   display: flex;
   align-items: center;
   gap: 0.375rem;
   cursor: pointer;
   border: none;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
 }
 
 .btnReview:hover {
-  background-color: #34540a;
+  background-color: #ffffff;
+  transform: translateY(-1px);
 }
 
 .btnCode {
   padding: 0.375rem 0.75rem;
   border-radius: 0.75rem;
-  background-color: rgba(35, 56, 7, 0.05);
-  border: 1px solid rgba(35, 56, 7, 0.15);
-  color: #233807;
+  background-color: rgba(255, 248, 185, 0.12);
+  border: 1px solid rgba(255, 248, 185, 0.25);
+  color: #FFF8B9;
   font-size: 0.75rem;
   font-weight: 700;
   display: flex;
@@ -385,7 +403,7 @@
 }
 
 .btnCode:hover {
-  background-color: rgba(35, 56, 7, 0.12);
+  background-color: rgba(255, 248, 185, 0.22);
 }
 
 .modalOverlay {
@@ -396,22 +414,22 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  background-color: rgba(35, 56, 7, 0.3);
+  background-color: rgba(35, 56, 7, 0.4);
   backdrop-filter: blur(8px);
 }
 
 .modalCard {
-  background-color: #ffffff;
-  border: 1px solid rgba(35, 56, 7, 0.2);
+  background-color: #233807;
+  border: 1px solid rgba(255, 248, 185, 0.25);
   border-radius: 1.5rem;
   padding: 1.5rem;
   width: 100%;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  color: #233807;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  color: #FFF8B9;
 }
 
 .codeReader {
-  background-color: #182605;
+  background-color: #121e07;
   color: #fdfdfd;
   padding: 1.25rem;
   border-radius: 1rem;
@@ -420,4 +438,5 @@
   line-height: 1.6;
   overflow-x: auto;
   position: relative;
+  border: 1px solid rgba(255, 248, 185, 0.2);
 }
