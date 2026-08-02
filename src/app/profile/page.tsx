@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Terminal, Sparkles, FolderOpen, ArrowRight, ArrowLeft, RefreshCw, HelpCircle, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 
 const GoogleLogo = () => (
   <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -68,7 +67,6 @@ export default function ProfilePage() {
             </span>
           </div>
         </main>
-        <Footer />
       </div>
     );
   }
@@ -111,7 +109,6 @@ export default function ProfilePage() {
             </button>
           </div>
         </main>
-        <Footer />
       </div>
     );
   }
@@ -217,7 +214,6 @@ export default function ProfilePage() {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 }
