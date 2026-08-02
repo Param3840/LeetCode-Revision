@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { User as UserIcon, Code, LogOut } from "lucide-react";
+import { User as UserIcon, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 interface ProfileDropdownProps {
@@ -96,15 +96,6 @@ export default function ProfileDropdown({ isOpen, onClose }: ProfileDropdownProp
         >
           <UserIcon className="h-4 w-4 text-[#568203]" />
           <span>View Profile</span>
-        </Link>
-
-        <Link
-          href="/revision/dashboard"
-          onClick={onClose}
-          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-[#233807] hover:bg-[#FFF8B9]/30 rounded-lg transition-colors cursor-pointer"
-        >
-          <Code className="h-4 w-4 text-[#568203]" />
-          <span>My Revision</span>
         </Link>
       </div>
 
