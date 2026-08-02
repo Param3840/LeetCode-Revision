@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Terminal, Github, Sparkles, Menu, X, User as UserIcon, LogOut, Code, HelpCircle } from "lucide-react";
+import { Terminal, Github, Sparkles, Menu, X, User as UserIcon, LogOut, Code, HelpCircle, Home } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import ProfileDropdown from "./auth/ProfileDropdown";
 import LoginModal from "./auth/LoginModal";
@@ -268,14 +268,25 @@ export default function Navbar({ forceTheme, hideNavLinks }: NavbarProps = {}) {
                       <span>View Profile</span>
                     </Link>
 
-                    <Link
-                      href={hasConnectedRepo ? "/revision/dashboard" : "/"}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold hover:bg-[#FFF8B9]/30 rounded-lg transition-colors cursor-pointer"
-                    >
-                      <Code className="h-4 w-4 text-[#568203]" />
-                      <span>My Revision</span>
-                    </Link>
+                    {pathname === "/revision/dashboard" || pathname?.startsWith("/revision/dashboard") ? (
+                      <Link
+                        href="/"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold hover:bg-[#FFF8B9]/30 rounded-lg transition-colors cursor-pointer"
+                      >
+                        <Home className="h-4 w-4 text-[#568203]" />
+                        <span>Home</span>
+                      </Link>
+                    ) : (
+                      <Link
+                        href="/revision/dashboard"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold hover:bg-[#FFF8B9]/30 rounded-lg transition-colors cursor-pointer"
+                      >
+                        <Code className="h-4 w-4 text-[#568203]" />
+                        <span>My Revision</span>
+                      </Link>
+                    )}
 
                     <div className="h-px bg-[#e1daab]/40 my-1" />
 
