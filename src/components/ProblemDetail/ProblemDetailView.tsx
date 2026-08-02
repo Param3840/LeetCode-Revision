@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -9,18 +9,15 @@ import {
   Star,
   Code2,
   FileText,
-  Clock,
   BookOpen,
   Check,
   Copy,
   Download,
   HelpCircle,
-  Award,
   Layers,
   Sparkles,
   Building2,
   AlertCircle,
-  RefreshCw,
   ChevronRight,
   TrendingUp
 } from "lucide-react";
@@ -279,13 +276,13 @@ export default function ProblemDetailView() {
 
   const difficultyClass = (diff: string) => {
     const d = diff?.toLowerCase();
-    if (d === "easy") return "bg-emerald-500/10 text-emerald-400 border-emerald-500/30";
-    if (d === "medium") return "bg-amber-500/10 text-amber-400 border-amber-500/30";
-    return "bg-rose-500/10 text-rose-400 border-rose-500/30";
+    if (d === "easy") return "bg-emerald-500/10 text-emerald-800 border-emerald-500/30";
+    if (d === "medium") return "bg-amber-500/10 text-amber-800 border-amber-500/30";
+    return "bg-rose-500/10 text-rose-800 border-rose-500/30";
   };
 
   return (
-    <div className="min-h-screen bg-[#07090E] text-slate-100 font-sans pb-16">
+    <div className="min-h-screen bg-[#fdfdfd] text-[#233807] font-sans pb-16">
       
       {/* Toast Notification */}
       <AnimatePresence>
@@ -294,20 +291,20 @@ export default function ProblemDetailView() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-5 right-5 z-50 bg-slate-900/90 border border-emerald-500/40 text-emerald-300 px-4 py-3 rounded-xl shadow-2xl backdrop-blur-md text-sm flex items-center gap-2"
+            className="fixed top-5 right-5 z-50 bg-[#233807] text-[#fdfdfd] px-4 py-3 rounded-xl shadow-2xl backdrop-blur-md text-sm flex items-center gap-2"
           >
-            <Sparkles className="h-4 w-4 text-emerald-400" />
+            <Sparkles className="h-4 w-4 text-[#FFF8B9]" />
             <span>{toastMessage}</span>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Top Header Navigation */}
-      <header className="sticky top-0 z-40 bg-[#0B0F17]/90 backdrop-blur-xl border-b border-white/10 px-6 py-4">
+      <header className="sticky top-0 z-40 bg-[#ffffff]/90 backdrop-blur-xl border-b border-[#233807]/10 px-6 py-4 shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <button
             onClick={() => router.push("/dashboard")}
-            className="flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-emerald-400 bg-white/5 hover:bg-white/10 px-3.5 py-2 rounded-xl border border-white/10 transition-all cursor-pointer"
+            className="flex items-center gap-2 text-xs font-bold text-[#233807] bg-[#233807]/5 hover:bg-[#233807]/12 px-3.5 py-2 rounded-xl border border-[#233807]/15 transition-all cursor-pointer"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>Back to Dashboard</span>
@@ -319,7 +316,7 @@ export default function ProblemDetailView() {
                 href={submission.url}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-slate-200 transition-all"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#233807]/5 hover:bg-[#233807]/12 border border-[#233807]/15 text-xs font-bold text-[#233807] transition-all"
               >
                 <span>Open on LeetCode</span>
                 <ExternalLink className="h-3.5 w-3.5" />
@@ -329,12 +326,12 @@ export default function ProblemDetailView() {
             {submission?._id && (
               <button
                 onClick={handleToggleFavorite}
-                className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-yellow-400 transition-colors cursor-pointer"
+                className="p-2 rounded-xl bg-[#233807]/5 hover:bg-[#233807]/12 border border-[#233807]/15 text-[#233807] hover:text-yellow-600 transition-colors cursor-pointer"
                 title="Star Favorite"
               >
                 <Star
                   className={`h-4 w-4 ${
-                    submission.favorite ? "fill-yellow-400 text-yellow-400" : ""
+                    submission.favorite ? "fill-yellow-500 text-yellow-500" : ""
                   }`}
                 />
               </button>
@@ -349,20 +346,20 @@ export default function ProblemDetailView() {
         {/* Loading Skeleton */}
         {loading && (
           <div className="space-y-6 animate-pulse">
-            <div className="h-10 bg-white/10 rounded-xl w-1/3"></div>
-            <div className="h-40 bg-[#0D121F] rounded-2xl border border-white/10"></div>
+            <div className="h-10 bg-[#233807]/10 rounded-xl w-1/3"></div>
+            <div className="h-40 bg-[#ffffff] rounded-2xl border border-[#233807]/10"></div>
           </div>
         )}
 
         {/* Error Fallback */}
         {!loading && error && (
-          <div className="bg-[#0D121F] border border-red-500/30 rounded-3xl p-12 text-center max-w-md mx-auto space-y-4">
-            <AlertCircle className="h-12 w-12 text-red-400 mx-auto" />
-            <h3 className="text-lg font-bold text-slate-100">Problem Not Found</h3>
-            <p className="text-xs text-slate-400">{error}</p>
+          <div className="bg-[#ffffff] border border-red-500/30 rounded-3xl p-12 text-center max-w-md mx-auto space-y-4 shadow-sm text-[#233807]">
+            <AlertCircle className="h-12 w-12 text-red-600 mx-auto" />
+            <h3 className="text-lg font-bold text-[#233807]">Problem Not Found</h3>
+            <p className="text-xs text-[#233807]/70">{error}</p>
             <button
               onClick={() => router.push("/dashboard")}
-              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs"
+              className="px-5 py-2.5 rounded-xl bg-[#233807] hover:bg-[#34540a] text-[#fdfdfd] font-bold text-xs cursor-pointer shadow-sm"
             >
               Return to Dashboard
             </button>
@@ -372,12 +369,12 @@ export default function ProblemDetailView() {
         {!loading && (submission || problem) && (
           <>
             {/* Problem Overview Header Card */}
-            <div className="bg-[#0D121F]/90 border border-white/10 rounded-3xl p-8 shadow-2xl backdrop-blur-xl space-y-6">
+            <div className="bg-[#ffffff] border border-[#233807]/12 rounded-3xl p-8 shadow-sm space-y-6">
               
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-3">
-                    <span className="text-xs font-extrabold px-3 py-1 rounded-lg bg-white/10 text-slate-300 border border-white/10">
+                    <span className="text-xs font-extrabold px-3 py-1 rounded-lg bg-[#233807]/5 text-[#233807] border border-[#233807]/15">
                       #{submission?.problemNumber || problem?.problemNumber}
                     </span>
                     <span
@@ -389,19 +386,19 @@ export default function ProblemDetailView() {
                     </span>
                   </div>
 
-                  <h1 className="text-2xl md:text-3xl font-extrabold text-slate-100 tracking-tight">
+                  <h1 className="text-2xl md:text-3xl font-extrabold text-[#233807] tracking-tight">
                     {submission?.title || problem?.title}
                   </h1>
                 </div>
 
                 {/* Status Selector */}
                 {submission?._id && (
-                  <div className="flex items-center gap-2 bg-white/5 border border-white/10 p-2 rounded-2xl">
-                    <span className="text-xs text-slate-400 font-medium px-2">Revision Status:</span>
+                  <div className="flex items-center gap-2 bg-[#233807]/5 border border-[#233807]/15 p-2 rounded-2xl">
+                    <span className="text-xs text-[#233807]/70 font-semibold px-2">Revision Status:</span>
                     <select
                       value={submission.revisionStatus || "New"}
                       onChange={(e) => handleUpdateStatus(e.target.value as any)}
-                      className="bg-slate-900 border border-white/10 text-emerald-400 font-bold text-xs rounded-xl px-3 py-1.5 focus:outline-none cursor-pointer"
+                      className="bg-[#ffffff] border border-[#233807]/20 text-[#233807] font-bold text-xs rounded-xl px-3 py-1.5 focus:outline-none cursor-pointer"
                     >
                       <option value="New">New</option>
                       <option value="Learning">Learning</option>
@@ -413,12 +410,12 @@ export default function ProblemDetailView() {
               </div>
 
               {/* Tags & Company Pills */}
-              <div className="flex items-center gap-4 flex-wrap pt-2 border-t border-white/5">
+              <div className="flex items-center gap-4 flex-wrap pt-2 border-t border-[#233807]/10">
                 {/* Topic Tags */}
                 {(problem?.tags || submission?.tags)?.map((t) => (
                   <span
                     key={t}
-                    className="text-xs font-medium text-slate-300 bg-white/5 border border-white/10 px-3 py-1 rounded-xl"
+                    className="text-xs font-medium text-[#233807] bg-[#233807]/5 border border-[#233807]/12 px-3 py-1 rounded-xl"
                   >
                     {t}
                   </span>
@@ -426,12 +423,12 @@ export default function ProblemDetailView() {
 
                 {/* Companies */}
                 {problem?.companies && problem.companies.length > 0 && (
-                  <div className="flex items-center gap-2 border-l border-white/10 pl-4">
-                    <Building2 className="h-4 w-4 text-emerald-400" />
+                  <div className="flex items-center gap-2 border-l border-[#233807]/15 pl-4">
+                    <Building2 className="h-4 w-4 text-[#233807]" />
                     {problem.companies.map((c) => (
                       <span
                         key={c}
-                        className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-lg"
+                        className="text-[11px] font-bold text-[#233807] bg-[#233807]/8 border border-[#233807]/20 px-2.5 py-0.5 rounded-lg"
                       >
                         {c}
                       </span>
@@ -443,13 +440,13 @@ export default function ProblemDetailView() {
             </div>
 
             {/* Navigation Tabs Bar */}
-            <div className="flex items-center gap-2 border-b border-white/10 overflow-x-auto pb-2">
+            <div className="flex items-center gap-2 border-b border-[#233807]/12 overflow-x-auto pb-2">
               <button
                 onClick={() => setActiveTab("description")}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   activeTab === "description"
-                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-lg shadow-emerald-950/40"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                    ? "bg-[#233807] text-[#fdfdfd] shadow-md"
+                    : "text-[#233807]/70 hover:text-[#233807] hover:bg-[#233807]/5"
                 }`}
               >
                 <BookOpen className="h-4 w-4" />
@@ -460,8 +457,8 @@ export default function ProblemDetailView() {
                 onClick={() => setActiveTab("solution")}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   activeTab === "solution"
-                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-lg shadow-emerald-950/40"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                    ? "bg-[#233807] text-[#fdfdfd] shadow-md"
+                    : "text-[#233807]/70 hover:text-[#233807] hover:bg-[#233807]/5"
                 }`}
               >
                 <Code2 className="h-4 w-4" />
@@ -472,8 +469,8 @@ export default function ProblemDetailView() {
                 onClick={() => setActiveTab("notes")}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   activeTab === "notes"
-                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-lg shadow-emerald-950/40"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                    ? "bg-[#233807] text-[#fdfdfd] shadow-md"
+                    : "text-[#233807]/70 hover:text-[#233807] hover:bg-[#233807]/5"
                 }`}
               >
                 <FileText className="h-4 w-4" />
@@ -484,8 +481,8 @@ export default function ProblemDetailView() {
                 onClick={() => setActiveTab("revision")}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   activeTab === "revision"
-                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-lg shadow-emerald-950/40"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                    ? "bg-[#233807] text-[#fdfdfd] shadow-md"
+                    : "text-[#233807]/70 hover:text-[#233807] hover:bg-[#233807]/5"
                 }`}
               >
                 <TrendingUp className="h-4 w-4" />
@@ -497,8 +494,8 @@ export default function ProblemDetailView() {
                   onClick={() => setActiveTab("related")}
                   className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     activeTab === "related"
-                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-lg shadow-emerald-950/40"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                      ? "bg-[#233807] text-[#fdfdfd] shadow-md"
+                      : "text-[#233807]/70 hover:text-[#233807] hover:bg-[#233807]/5"
                   }`}
                 >
                   <Layers className="h-4 w-4" />
@@ -514,45 +511,45 @@ export default function ProblemDetailView() {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-[#0D121F]/90 border border-white/10 rounded-3xl p-8 shadow-2xl backdrop-blur-xl space-y-6"
+                className="bg-[#ffffff] border border-[#233807]/12 rounded-3xl p-8 shadow-sm space-y-6 text-[#233807]"
               >
                 {problem?.description ? (
                   <div
-                    className="prose prose-invert max-w-none text-slate-300 text-sm leading-relaxed"
+                    className="prose prose-[#233807] max-w-none text-[#233807] text-sm leading-relaxed"
                     dangerouslySetInnerHTML={{ __html: problem.description }}
                   />
                 ) : (
-                  <p className="text-xs text-slate-400 leading-relaxed">
+                  <p className="text-xs text-[#233807]/70 leading-relaxed">
                     Problem description is loading or not available locally. Refer to the LeetCode tab for full details.
                   </p>
                 )}
 
                 {/* Expandable Hints */}
                 {problem?.hints && problem.hints.length > 0 && (
-                  <div className="pt-6 border-t border-white/5 space-y-3">
-                    <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
-                      <HelpCircle className="h-4 w-4 text-emerald-400" />
+                  <div className="pt-6 border-t border-[#233807]/10 space-y-3">
+                    <h3 className="text-sm font-bold text-[#233807] flex items-center gap-2">
+                      <HelpCircle className="h-4 w-4 text-[#233807]" />
                       <span>Hints & Takeaways ({problem.hints.length})</span>
                     </h3>
 
                     {problem.hints.map((hint, idx) => (
                       <div
                         key={idx}
-                        className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden"
+                        className="bg-[#233807]/5 border border-[#233807]/12 rounded-2xl overflow-hidden"
                       >
                         <button
                           onClick={() => toggleHint(idx)}
-                          className="w-full px-5 py-3 text-left text-xs font-bold text-slate-200 flex items-center justify-between cursor-pointer hover:bg-white/5"
+                          className="w-full px-5 py-3 text-left text-xs font-bold text-[#233807] flex items-center justify-between cursor-pointer hover:bg-[#233807]/8"
                         >
                           <span>Hint #{idx + 1}</span>
                           <ChevronRight
                             className={`h-4 w-4 transition-transform ${
-                              expandedHints.includes(idx) ? "rotate-90 text-emerald-400" : "text-slate-500"
+                              expandedHints.includes(idx) ? "rotate-90 text-[#233807]" : "text-[#233807]/50"
                             }`}
                           />
                         </button>
                         {expandedHints.includes(idx) && (
-                          <div className="px-5 pb-4 text-xs text-slate-300 leading-relaxed border-t border-white/5 pt-3">
+                          <div className="px-5 pb-4 text-xs text-[#233807]/90 leading-relaxed border-t border-[#233807]/10 pt-3">
                             {hint}
                           </div>
                         )}
@@ -568,14 +565,14 @@ export default function ProblemDetailView() {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-[#0D121F]/90 border border-white/10 rounded-3xl overflow-hidden shadow-2xl"
+                className="bg-[#ffffff] border border-[#233807]/12 rounded-3xl overflow-hidden shadow-sm"
               >
-                <div className="p-4 bg-white/5 border-b border-white/10 flex items-center justify-between">
+                <div className="p-4 bg-[#233807]/5 border-b border-[#233807]/10 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="text-xs font-bold px-3 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    <span className="text-xs font-bold px-3 py-1 rounded-lg bg-[#233807] text-[#fdfdfd]">
                       {submission?.language || "Code"}
                     </span>
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-[#233807]/70 font-semibold">
                       Submitted: {formatDate(submission?.submittedAt || null)}
                     </span>
                   </div>
@@ -583,15 +580,15 @@ export default function ProblemDetailView() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={handleCopyCode}
-                      className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-slate-200 flex items-center gap-1.5 cursor-pointer"
+                      className="px-3 py-1.5 rounded-xl bg-[#ffffff] hover:bg-[#233807]/10 border border-[#233807]/20 text-xs font-bold text-[#233807] flex items-center gap-1.5 cursor-pointer"
                     >
-                      {copiedCode ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                      {copiedCode ? <Check className="h-3.5 w-3.5 text-emerald-700" /> : <Copy className="h-3.5 w-3.5" />}
                       <span>{copiedCode ? "Copied!" : "Copy"}</span>
                     </button>
 
                     <button
                       onClick={handleDownloadCode}
-                      className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                      className="px-3 py-1.5 rounded-xl bg-[#233807] hover:bg-[#34540a] text-[#fdfdfd] text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm"
                     >
                       <Download className="h-3.5 w-3.5" />
                       <span>Download</span>
@@ -599,7 +596,7 @@ export default function ProblemDetailView() {
                   </div>
                 </div>
 
-                <div className="p-6 bg-[#07090E] font-mono text-xs text-slate-200 leading-relaxed overflow-x-auto">
+                <div className="p-6 bg-[#182605] font-mono text-xs text-[#fdfdfd] leading-relaxed overflow-x-auto">
                   <pre className="whitespace-pre-wrap">{submission?.solution || "// No code available"}</pre>
                 </div>
               </motion.div>
@@ -610,18 +607,18 @@ export default function ProblemDetailView() {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-[#0D121F]/90 border border-white/10 rounded-3xl p-8 shadow-2xl backdrop-blur-xl space-y-6"
+                className="bg-[#ffffff] border border-[#233807]/12 rounded-3xl p-8 shadow-sm space-y-6 text-[#233807]"
               >
-                <div className="flex items-center justify-between border-b border-white/5 pb-4">
+                <div className="flex items-center justify-between border-b border-[#233807]/10 pb-4">
                   <div>
-                    <h3 className="text-base font-bold text-slate-100">Personal Revision Notes</h3>
-                    <p className="text-xs text-slate-400">Write key ideas, space & time complexity, or common edge cases for interview prep.</p>
+                    <h3 className="text-base font-bold text-[#233807]">Personal Revision Notes</h3>
+                    <p className="text-xs text-[#233807]/70">Write key ideas, space & time complexity, or common edge cases for interview prep.</p>
                   </div>
 
                   <button
                     onClick={handleSaveNotes}
                     disabled={isSavingNotes}
-                    className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-950/50 cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl bg-[#233807] hover:bg-[#34540a] text-[#fdfdfd] font-bold text-xs shadow-sm cursor-pointer"
                   >
                     {isSavingNotes ? "Saving..." : "Save Notes"}
                   </button>
@@ -636,7 +633,7 @@ export default function ProblemDetailView() {
 • Edge Cases: Empty array, single element, negative numbers."
                   value={notesText}
                   onChange={(e) => setNotesText(e.target.value)}
-                  className="w-full bg-slate-900 border border-white/10 rounded-2xl p-5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 resize-none font-sans leading-relaxed"
+                  className="w-full bg-[#ffffff] border border-[#233807]/20 rounded-2xl p-5 text-xs text-[#233807] placeholder-[#233807]/40 focus:outline-none focus:border-[#233807] resize-none font-sans leading-relaxed"
                 ></textarea>
               </motion.div>
             )}
@@ -646,9 +643,9 @@ export default function ProblemDetailView() {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-[#0D121F]/90 border border-white/10 rounded-3xl p-8 shadow-2xl backdrop-blur-xl space-y-8"
+                className="bg-[#ffffff] border border-[#233807]/12 rounded-3xl p-8 shadow-sm space-y-8 text-[#233807]"
               >
-                <h3 className="text-base font-bold text-slate-100">Revision History & Progress</h3>
+                <h3 className="text-base font-bold text-[#233807]">Revision History & Progress</h3>
 
                 {/* Progress Steps */}
                 <div className="grid grid-cols-4 gap-4">
@@ -660,11 +657,11 @@ export default function ProblemDetailView() {
                         onClick={() => handleUpdateStatus(st as any)}
                         className={`p-4 rounded-2xl border text-center transition-all cursor-pointer ${
                           isActive
-                            ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300 shadow-lg shadow-emerald-950/50 font-extrabold"
-                            : "bg-white/5 border-white/10 text-slate-400 hover:text-slate-200"
+                            ? "bg-[#233807] border-[#233807] text-[#fdfdfd] font-extrabold shadow-sm"
+                            : "bg-[#233807]/5 border-[#233807]/15 text-[#233807] hover:bg-[#233807]/10"
                         }`}
                       >
-                        <span className="text-[10px] block opacity-60">Step {idx + 1}</span>
+                        <span className="text-[10px] block opacity-70">Step {idx + 1}</span>
                         <span className="text-sm">{st}</span>
                       </button>
                     );
@@ -672,24 +669,24 @@ export default function ProblemDetailView() {
                 </div>
 
                 {/* Statistics Table */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-4 border-t border-white/5">
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                    <span className="text-xs text-slate-400 block">First Solved</span>
-                    <span className="text-sm font-bold text-slate-200 mt-1 block">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-4 border-t border-[#233807]/10">
+                  <div className="bg-[#233807]/5 border border-[#233807]/12 rounded-2xl p-4">
+                    <span className="text-xs text-[#233807]/70 font-semibold block">First Solved</span>
+                    <span className="text-sm font-bold text-[#233807] mt-1 block">
                       {formatDate(submission?.submittedAt || null)}
                     </span>
                   </div>
 
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                    <span className="text-xs text-slate-400 block">Total Reviews</span>
-                    <span className="text-xl font-extrabold text-emerald-400 mt-1 block">
+                  <div className="bg-[#233807]/5 border border-[#233807]/12 rounded-2xl p-4">
+                    <span className="text-xs text-[#233807]/70 font-semibold block">Total Reviews</span>
+                    <span className="text-xl font-extrabold text-[#233807] mt-1 block">
                       {submission?.reviewCount || 0} times
                     </span>
                   </div>
 
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                    <span className="text-xs text-slate-400 block">Last Reviewed</span>
-                    <span className="text-sm font-bold text-slate-200 mt-1 block">
+                  <div className="bg-[#233807]/5 border border-[#233807]/12 rounded-2xl p-4">
+                    <span className="text-xs text-[#233807]/70 font-semibold block">Last Reviewed</span>
+                    <span className="text-sm font-bold text-[#233807] mt-1 block">
                       {formatDate(submission?.lastReviewed || null)}
                     </span>
                   </div>
@@ -708,18 +705,18 @@ export default function ProblemDetailView() {
                   <div
                     key={rel.slug || rel.problemNumber}
                     onClick={() => router.push(`/problems/${rel.problemNumber || rel.slug}`)}
-                    className="bg-[#0D121F]/90 border border-white/10 hover:border-emerald-500/40 rounded-2xl p-6 shadow-xl backdrop-blur-xl transition-all cursor-pointer group space-y-3"
+                    className="bg-[#ffffff] border border-[#233807]/12 hover:border-[#233807]/40 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all cursor-pointer group space-y-3 text-[#233807]"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-white/5 text-slate-300">
+                      <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-[#233807]/5 text-[#233807]">
                         #{rel.problemNumber || "N/A"}
                       </span>
-                      <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                      <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#233807]/8 text-[#233807] border border-[#233807]/20">
                         {rel.difficulty}
                       </span>
                     </div>
 
-                    <h4 className="text-sm font-bold text-slate-100 group-hover:text-emerald-300 transition-colors">
+                    <h4 className="text-sm font-bold text-[#233807] group-hover:text-[#34540a] transition-colors">
                       {rel.title}
                     </h4>
                   </div>

@@ -2,11 +2,11 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #FFF8B9;
+  --color-background: #fdfdfd;
   --color-foreground: #233807;
   
   --color-card-bg: #ffffff;
-  --color-card-border: #e1daab;
+  --color-card-border: rgba(35, 56, 7, 0.12);
   
   --color-easy: #15803d;
   --color-medium: #b45309;
@@ -17,7 +17,7 @@
 }
 
 :root {
-  --background: #FFF8B9;
+  --background: #fdfdfd;
   --foreground: #233807;
   --font-sans: 'Manrope', 'Inter', system-ui, -apple-system, sans-serif;
   --font-display: 'Cormorant Garamond', Georgia, serif;
@@ -29,14 +29,14 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #FFF8B9;
+  background: #fdfdfd;
 }
 ::-webkit-scrollbar-thumb {
-  background: #568203;
+  background: #233807;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3e5e02;
+  background: #34540a;
 }
 
 body {
@@ -47,52 +47,42 @@ body {
 }
 
 /* Custom Glow & Utility Classes */
-.glow-border {
-  position: relative;
-}
-.glow-border::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(to bottom right, rgba(86, 130, 3, 0.2), transparent);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-}
-
-.glow-card {
+.theme-card {
+  background-color: #ffffff;
+  border: 1px solid rgba(35, 56, 7, 0.12);
+  box-shadow: 0 10px 30px -5px rgba(35, 56, 7, 0.05);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.glow-card:hover {
-  border-color: rgba(86, 130, 3, 0.35) !important;
-  box-shadow: 0 4px 20px rgba(86, 130, 3, 0.08);
+.theme-card:hover {
+  border-color: rgba(35, 56, 7, 0.3) !important;
+  box-shadow: 0 15px 35px -5px rgba(35, 56, 7, 0.1);
   transform: translateY(-2px);
 }
 
-.glow-button {
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
+.theme-button-primary {
+  background-color: #233807;
+  color: #fdfdfd;
+  transition: all 0.2s ease;
 }
-.glow-button::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, rgba(86, 130, 3, 0.2) 0%, transparent 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
+.theme-button-primary:hover {
+  background-color: #34540a;
+  box-shadow: 0 4px 15px rgba(35, 56, 7, 0.25);
 }
-.glow-button:hover::after {
-  opacity: 1;
+
+.theme-button-secondary {
+  background-color: rgba(35, 56, 7, 0.06);
+  color: #233807;
+  border: 1px solid rgba(35, 56, 7, 0.15);
+  transition: all 0.2s ease;
+}
+.theme-button-secondary:hover {
+  background-color: rgba(35, 56, 7, 0.12);
+  border-color: rgba(35, 56, 7, 0.3);
 }
 
 /* Selection */
 ::selection {
-  background-color: rgba(86, 130, 3, 0.2);
+  background-color: rgba(35, 56, 7, 0.15);
   color: #233807;
 }
 

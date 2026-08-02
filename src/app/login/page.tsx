@@ -105,7 +105,7 @@ function LoginContent() {
 
           <button
             onClick={handleGoogleClick}
-            className="w-full py-3 bg-[#568203] hover:bg-[#436602] text-white font-bold rounded-xl transition-colors glow-button shadow-md flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-3 bg-[#233807] hover:bg-[#34540a] text-[#fdfdfd] font-bold rounded-xl transition-colors shadow-md flex items-center justify-center gap-2 cursor-pointer"
           >
             <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
               <path d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-6.887 4.114-4.694 0-8.503-3.809-8.503-8.503s3.809-8.503 8.503-8.503c2.096 0 4.005.771 5.49 2.039l3.07-3.07C18.252 1.957 15.352 1 12.24 1 6.033 1 12.24s5.033 11.24 11.24 11.24c6.478 0 10.793-4.537 10.793-10.985 0-.746-.08-1.305-.224-1.995H12.24z"/>
@@ -117,7 +117,7 @@ function LoginContent() {
             <p className="text-xs text-foreground/50 mb-2">Already connected?</p>
             <button
               onClick={handleContinueClick}
-              className="text-[#568203] hover:text-[#436602] font-bold text-sm underline cursor-pointer"
+              className="text-[#233807] hover:text-[#34540a] font-bold text-sm underline cursor-pointer"
             >
               Continue
             </button>
