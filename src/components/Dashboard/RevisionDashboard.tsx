@@ -710,22 +710,6 @@ export default function RevisionDashboard() {
               </select>
             </div>
 
-            {/* Revision Status Filter */}
-            <div>
-              <label className={styles.filterLabel}>Revision Status</label>
-              <select
-                value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value)}
-                className={styles.selectInput}
-              >
-                <option value="all">All Statuses</option>
-                <option value="New">New</option>
-                <option value="Learning">Learning</option>
-                <option value="Revising">Revising</option>
-                <option value="Mastered">Mastered</option>
-              </select>
-            </div>
-
             {/* Sort Order */}
             <div>
               <label className={styles.filterLabel}>Sort By</label>
@@ -924,22 +908,6 @@ export default function RevisionDashboard() {
                         >
                           <RotateCcw className="h-3.5 w-3.5" />
                         </button>
-                      </div>
-
-                      {/* Revision Status Selector */}
-                      <div className="mt-3 pt-3 border-t border-[#FFF8B9]/15 flex items-center justify-between text-xs">
-                        <span className="text-[#FFF8B9]/80 font-medium">Status</span>
-                        <select
-                          value={sub.revisionStatus || "New"}
-                          onChange={(e) => handleUpdateRevisionStatus(sub._id, e.target.value)}
-                          className={styles.selectInput}
-                          style={{ width: "auto", padding: "0.25rem 0.625rem" }}
-                        >
-                          <option value="New">New</option>
-                          <option value="Learning">Learning</option>
-                          <option value="Revising">Revising</option>
-                          <option value="Mastered">Mastered</option>
-                        </select>
                       </div>
                     </div>
 
