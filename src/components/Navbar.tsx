@@ -268,25 +268,14 @@ export default function Navbar({ forceTheme, hideNavLinks }: NavbarProps = {}) {
                       <span>View Profile</span>
                     </Link>
 
-                    {pathname === "/revision/dashboard" || pathname?.startsWith("/revision/dashboard") ? (
-                      <Link
-                        href="/"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold hover:bg-[#FFF8B9]/30 rounded-lg transition-colors cursor-pointer"
-                      >
-                        <Home className="h-4 w-4 text-[#568203]" />
-                        <span>Home</span>
-                      </Link>
-                    ) : (
-                      <Link
-                        href="/revision/dashboard"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold hover:bg-[#FFF8B9]/30 rounded-lg transition-colors cursor-pointer"
-                      >
-                        <Code className="h-4 w-4 text-[#568203]" />
-                        <span>My Revision</span>
-                      </Link>
-                    )}
+                    <Link
+                      href="/revision/dashboard"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold hover:bg-[#FFF8B9]/30 rounded-lg transition-colors cursor-pointer"
+                    >
+                      <Code className="h-4 w-4 text-[#568203]" />
+                      <span>My Revision</span>
+                    </Link>
 
                     <div className="h-px bg-[#e1daab]/40 my-1" />
 

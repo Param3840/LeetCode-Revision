@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Terminal, Sparkles, FolderOpen, ArrowRight, ArrowLeft, RefreshCw, HelpCircle, LogOut } from "lucide-react";
+import { Terminal, Sparkles, FolderOpen, ArrowRight, RefreshCw, HelpCircle, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import styles from "./Profile.module.css";
@@ -202,15 +202,6 @@ export default function ProfilePage() {
                 </div>
               </div>
             </div>
-
-            {/* Back button */}
-            <button
-              onClick={() => router.push("/")}
-              className={styles.backHomeBtn}
-            >
-              <ArrowLeft className="h-4 w-4" />
-              <span>Back to Home</span>
-            </button>
 
           </div>
         </div>
