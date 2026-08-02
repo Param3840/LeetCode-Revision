@@ -1,0 +1,423 @@
+/* Revision Dashboard CSS Module */
+
+.container {
+  min-height: 100vh;
+  background-color: #fdfdfd;
+  color: #233807;
+  font-family: var(--font-sans), sans-serif;
+  padding-bottom: 4rem;
+}
+
+.toast {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 50;
+  background-color: #233807;
+  color: #fdfdfd;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(12px);
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(35, 56, 7, 0.1);
+  padding: 1rem 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.headerContent {
+  max-width: 80rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .headerContent {
+    flex-direction: row;
+  }
+}
+
+.logoGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logoIcon {
+  height: 2.5rem;
+  width: 2.5rem;
+  border-radius: 0.75rem;
+  background-color: #233807;
+  color: #fdfdfd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px -1px rgba(35, 56, 7, 0.15);
+}
+
+.logoText {
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: -0.025em;
+  color: #233807;
+}
+
+.logoAccent {
+  color: #34540a;
+}
+
+.badgeDashboard {
+  margin-left: 0.5rem;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 0.125rem 0.625rem;
+  border-radius: 9999px;
+  background-color: #233807;
+  color: #fdfdfd;
+}
+
+.searchWrapper {
+  position: relative;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .searchWrapper {
+    max-width: 28rem;
+  }
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 1rem;
+  width: 1rem;
+  color: rgba(35, 56, 7, 0.5);
+}
+
+.searchInput {
+  width: 100%;
+  background-color: #ffffff;
+  border: 1px solid rgba(35, 56, 7, 0.2);
+  border-radius: 0.75rem;
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+  padding-top: 0.625rem;
+  padding-bottom: 0.625rem;
+  font-size: 0.875rem;
+  color: #233807;
+  transition: all 0.2s ease;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #233807;
+  box-shadow: 0 0 0 1px #233807;
+}
+
+.searchClear {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(35, 56, 7, 0.6);
+  cursor: pointer;
+}
+
+.profileGroup {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.profileCard {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: #ffffff;
+  border: 1px solid rgba(35, 56, 7, 0.15);
+  padding: 0.375rem 0.875rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.logoutButton {
+  padding: 0.625rem;
+  border-radius: 0.75rem;
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #b91c1c;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logoutButton:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+}
+
+.workspace {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .statsGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .statsGrid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+.statCard {
+  background-color: #ffffff;
+  border: 1px solid rgba(35, 56, 7, 0.12);
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.statCard:hover {
+  border-color: rgba(35, 56, 7, 0.3);
+}
+
+.statCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(35, 56, 7, 0.7);
+}
+
+.statNumber {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #233807;
+  margin-top: 0.5rem;
+}
+
+.filterToolbar {
+  background-color: #ffffff;
+  border: 1px solid rgba(35, 56, 7, 0.12);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.filterHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(35, 56, 7, 0.1);
+  padding-bottom: 1rem;
+}
+
+.filterGrid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .filterGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .filterGrid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.filterLabel {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(35, 56, 7, 0.7);
+  margin-bottom: 0.25rem;
+}
+
+.selectInput {
+  width: 100%;
+  background-color: #ffffff;
+  border: 1px solid rgba(35, 56, 7, 0.2);
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  color: #233807;
+  cursor: pointer;
+  outline: none;
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .cardsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .cardsGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.problemCard {
+  background-color: #ffffff;
+  border: 1px solid rgba(35, 56, 7, 0.12);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.problemCard:hover {
+  border-color: rgba(35, 56, 7, 0.4);
+  box-shadow: 0 10px 25px -5px rgba(35, 56, 7, 0.1);
+}
+
+.problemNumberBadge {
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.5rem;
+  background-color: rgba(35, 56, 7, 0.05);
+  border: 1px solid rgba(35, 56, 7, 0.15);
+  color: #233807;
+}
+
+.problemTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #233807;
+  transition: color 0.2s ease;
+  cursor: pointer;
+}
+
+.problemTitle:hover {
+  color: #34540a;
+}
+
+.btnReview {
+  padding: 0.375rem 0.875rem;
+  border-radius: 0.75rem;
+  background-color: #233807;
+  color: #fdfdfd;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease;
+}
+
+.btnReview:hover {
+  background-color: #34540a;
+}
+
+.btnCode {
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.75rem;
+  background-color: rgba(35, 56, 7, 0.05);
+  border: 1px solid rgba(35, 56, 7, 0.15);
+  color: #233807;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btnCode:hover {
+  background-color: rgba(35, 56, 7, 0.12);
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: rgba(35, 56, 7, 0.3);
+  backdrop-filter: blur(8px);
+}
+
+.modalCard {
+  background-color: #ffffff;
+  border: 1px solid rgba(35, 56, 7, 0.2);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  width: 100%;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  color: #233807;
+}
+
+.codeReader {
+  background-color: #182605;
+  color: #fdfdfd;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  font-family: monospace;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  overflow-x: auto;
+  position: relative;
+}

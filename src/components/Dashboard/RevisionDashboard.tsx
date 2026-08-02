@@ -7,23 +7,20 @@ import {
   Search,
   Filter,
   Star,
-  CheckCircle2,
   BookOpen,
   Code2,
   LogOut,
-  ExternalLink,
   Trash2,
   Edit3,
   Layers,
   Award,
   Clock,
   Sparkles,
-  ChevronRight,
   X,
-  FileText,
   Copy,
   Check
 } from "lucide-react";
+import styles from "./RevisionDashboard.module.css";
 
 interface Submission {
   _id: string;
@@ -329,7 +326,6 @@ export default function RevisionDashboard() {
   const filteredSubmissions = useMemo(() => {
     return submissions
       .filter((sub) => {
-        // Search query
         if (searchQuery.trim() !== "") {
           const query = searchQuery.toLowerCase();
           const matchTitle = sub.title?.toLowerCase().includes(query);
@@ -343,35 +339,30 @@ export default function RevisionDashboard() {
           }
         }
 
-        // Difficulty filter
         if (selectedDifficulty !== "all") {
           if (sub.difficulty?.toLowerCase() !== selectedDifficulty.toLowerCase()) {
             return false;
           }
         }
 
-        // Language filter
         if (selectedLanguage !== "all") {
           if (sub.language?.toLowerCase() !== selectedLanguage.toLowerCase()) {
             return false;
           }
         }
 
-        // Topic Tag filter
         if (selectedTopic !== "all") {
           if (!sub.tags || !sub.tags.includes(selectedTopic)) {
             return false;
           }
         }
 
-        // Revision Status filter
         if (selectedStatus !== "all") {
           if ((sub.revisionStatus || "New") !== selectedStatus) {
             return false;
           }
         }
 
-        // Favorites filter
         if (showFavoritesOnly && !sub.favorite) {
           return false;
         }
@@ -405,7 +396,7 @@ export default function RevisionDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#fdfdfd] text-[#233807] font-sans pb-16">
+    <div className={styles.container}>
       
       {/* Toast Notification */}
       <AnimatePresence>
@@ -414,7 +405,7 @@ export default function RevisionDashboard() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-5 right-5 z-50 bg-[#233807] text-[#fdfdfd] px-4 py-3 rounded-xl shadow-2xl backdrop-blur-md text-sm flex items-center gap-2"
+            className={styles.toast}
           >
             <Sparkles className="h-4 w-4 text-[#FFF8B9]" />
             <span>{toastMessage}</span>
@@ -423,38 +414,38 @@ export default function RevisionDashboard() {
       </AnimatePresence>
 
       {/* Top Header Navigation */}
-      <header className="sticky top-0 z-40 bg-[#ffffff]/90 backdrop-blur-xl border-b border-[#233807]/10 px-6 py-4 shadow-sm">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <header className={styles.header}>
+        <div className={styles.headerContent}>
           
           {/* Logo */}
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-[#233807] p-0.5 shadow-md flex items-center justify-center text-[#fdfdfd]">
+          <div className={styles.logoGroup}>
+            <div className={styles.logoIcon}>
               <Code2 className="h-5 w-5" />
             </div>
             <div>
-              <span className="font-extrabold text-xl tracking-tight text-[#233807]">
-                Code<span className="text-[#34540a]">Revise</span>
+              <span className={styles.logoText}>
+                Code<span className={styles.logoAccent}>Revise</span>
               </span>
-              <span className="ml-2 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#233807] text-[#fdfdfd]">
+              <span className={styles.badgeDashboard}>
                 Dashboard
               </span>
             </div>
           </div>
 
           {/* Search Bar */}
-          <div className="relative w-full md:max-w-md">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#233807]/50" />
+          <div className={styles.searchWrapper}>
+            <Search className={styles.searchIcon} />
             <input
               type="text"
               placeholder="Search problem #, title, tag, or language..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#ffffff] border border-[#233807]/20 rounded-xl pl-10 pr-10 py-2.5 text-sm text-[#233807] placeholder-[#233807]/40 focus:outline-none focus:border-[#233807] focus:ring-1 focus:ring-[#233807] transition-all shadow-sm"
+              className={styles.searchInput}
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#233807]/60 hover:text-[#233807]"
+                className={styles.searchClear}
               >
                 <X className="h-4 w-4" />
               </button>
@@ -462,8 +453,8 @@ export default function RevisionDashboard() {
           </div>
 
           {/* Profile & Logout */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3 bg-[#ffffff] border border-[#233807]/15 px-3.5 py-1.5 rounded-xl shadow-sm">
+          <div className={styles.profileGroup}>
+            <div className={styles.profileCard}>
               {user?.picture ? (
                 <img
                   src={user.picture}
@@ -484,7 +475,7 @@ export default function RevisionDashboard() {
             <button
               onClick={handleLogout}
               title="Logout"
-              className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-700 hover:bg-red-500/20 transition-all cursor-pointer"
+              className={styles.logoutButton}
             >
               <LogOut className="h-4 w-4" />
             </button>
@@ -494,53 +485,53 @@ export default function RevisionDashboard() {
       </header>
 
       {/* Main Dashboard Workspace */}
-      <main className="max-w-7xl mx-auto px-6 pt-8 space-y-8">
+      <main className={styles.workspace}>
         
         {/* Statistics Cards Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className={styles.statsGrid}>
           
-          <div className="bg-[#ffffff] border border-[#233807]/12 rounded-2xl p-4 shadow-sm backdrop-blur-lg hover:border-[#233807]/30 transition-all">
-            <div className="flex items-center justify-between text-[#233807]/70 text-xs font-semibold">
+          <div className={styles.statCard}>
+            <div className={styles.statCardHeader}>
               <span>Total Problems</span>
               <Layers className="h-4 w-4 text-[#233807]" />
             </div>
-            <p className="text-2xl font-extrabold text-[#233807] mt-2">{stats.total}</p>
+            <p className={styles.statNumber}>{stats.total}</p>
           </div>
 
-          <div className="bg-[#ffffff] border border-emerald-500/20 rounded-2xl p-4 shadow-sm backdrop-blur-lg hover:border-emerald-500/40 transition-all">
-            <div className="flex items-center justify-between text-emerald-800 text-xs font-semibold">
+          <div className={styles.statCard}>
+            <div className={styles.statCardHeader}>
               <span>Easy</span>
               <span className="h-2.5 w-2.5 rounded-full bg-emerald-600"></span>
             </div>
             <p className="text-2xl font-extrabold text-emerald-700 mt-2">{stats.easy}</p>
           </div>
 
-          <div className="bg-[#ffffff] border border-amber-500/20 rounded-2xl p-4 shadow-sm backdrop-blur-lg hover:border-amber-500/40 transition-all">
-            <div className="flex items-center justify-between text-amber-800 text-xs font-semibold">
+          <div className={styles.statCard}>
+            <div className={styles.statCardHeader}>
               <span>Medium</span>
               <span className="h-2.5 w-2.5 rounded-full bg-amber-600"></span>
             </div>
             <p className="text-2xl font-extrabold text-amber-700 mt-2">{stats.medium}</p>
           </div>
 
-          <div className="bg-[#ffffff] border border-rose-500/20 rounded-2xl p-4 shadow-sm backdrop-blur-lg hover:border-rose-500/40 transition-all">
-            <div className="flex items-center justify-between text-rose-800 text-xs font-semibold">
+          <div className={styles.statCard}>
+            <div className={styles.statCardHeader}>
               <span>Hard</span>
               <span className="h-2.5 w-2.5 rounded-full bg-rose-600"></span>
             </div>
             <p className="text-2xl font-extrabold text-rose-700 mt-2">{stats.hard}</p>
           </div>
 
-          <div className="bg-[#ffffff] border border-yellow-500/20 rounded-2xl p-4 shadow-sm backdrop-blur-lg hover:border-yellow-500/40 transition-all">
-            <div className="flex items-center justify-between text-yellow-800 text-xs font-semibold">
+          <div className={styles.statCard}>
+            <div className={styles.statCardHeader}>
               <span>Starred</span>
               <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
             </div>
             <p className="text-2xl font-extrabold text-yellow-600 mt-2">{stats.favorites}</p>
           </div>
 
-          <div className="bg-[#ffffff] border border-purple-500/20 rounded-2xl p-4 shadow-sm backdrop-blur-lg hover:border-purple-500/40 transition-all">
-            <div className="flex items-center justify-between text-purple-800 text-xs font-semibold">
+          <div className={styles.statCard}>
+            <div className={styles.statCardHeader}>
               <span>Mastered</span>
               <Award className="h-4 w-4 text-purple-600" />
             </div>
@@ -550,9 +541,9 @@ export default function RevisionDashboard() {
         </div>
 
         {/* Filter Controls Toolbar */}
-        <div className="bg-[#ffffff] border border-[#233807]/12 rounded-2xl p-5 shadow-sm space-y-4">
+        <div className={styles.filterToolbar}>
           
-          <div className="flex items-center justify-between flex-wrap gap-4 border-b border-[#233807]/10 pb-4">
+          <div className={styles.filterHeader}>
             <div className="flex items-center gap-2 text-sm font-bold text-[#233807]">
               <Filter className="h-4 w-4 text-[#233807]" />
               <span>Filters & Customization</span>
@@ -572,15 +563,15 @@ export default function RevisionDashboard() {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <div className={styles.filterGrid}>
             
             {/* Difficulty Filter */}
             <div>
-              <label className="block text-[11px] font-bold text-[#233807]/70 mb-1">Difficulty</label>
+              <label className={styles.filterLabel}>Difficulty</label>
               <select
                 value={selectedDifficulty}
                 onChange={(e) => setSelectedDifficulty(e.target.value)}
-                className="w-full bg-[#ffffff] border border-[#233807]/20 rounded-xl px-3 py-2 text-xs text-[#233807] focus:outline-none focus:border-[#233807]"
+                className={styles.selectInput}
               >
                 <option value="all">All Difficulties</option>
                 <option value="easy">Easy</option>
@@ -591,11 +582,11 @@ export default function RevisionDashboard() {
 
             {/* Language Filter */}
             <div>
-              <label className="block text-[11px] font-bold text-[#233807]/70 mb-1">Language</label>
+              <label className={styles.filterLabel}>Language</label>
               <select
                 value={selectedLanguage}
                 onChange={(e) => setSelectedLanguage(e.target.value)}
-                className="w-full bg-[#ffffff] border border-[#233807]/20 rounded-xl px-3 py-2 text-xs text-[#233807] focus:outline-none focus:border-[#233807]"
+                className={styles.selectInput}
               >
                 <option value="all">All Languages</option>
                 {uniqueLanguages.map((lang) => (
@@ -608,11 +599,11 @@ export default function RevisionDashboard() {
 
             {/* Topic Tag Filter */}
             <div>
-              <label className="block text-[11px] font-bold text-[#233807]/70 mb-1">Topic Tag</label>
+              <label className={styles.filterLabel}>Topic Tag</label>
               <select
                 value={selectedTopic}
                 onChange={(e) => setSelectedTopic(e.target.value)}
-                className="w-full bg-[#ffffff] border border-[#233807]/20 rounded-xl px-3 py-2 text-xs text-[#233807] focus:outline-none focus:border-[#233807]"
+                className={styles.selectInput}
               >
                 <option value="all">All Topics</option>
                 {uniqueTopics.map((topic) => (
@@ -625,11 +616,11 @@ export default function RevisionDashboard() {
 
             {/* Revision Status Filter */}
             <div>
-              <label className="block text-[11px] font-bold text-[#233807]/70 mb-1">Revision Status</label>
+              <label className={styles.filterLabel}>Revision Status</label>
               <select
                 value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value)}
-                className="w-full bg-[#ffffff] border border-[#233807]/20 rounded-xl px-3 py-2 text-xs text-[#233807] focus:outline-none focus:border-[#233807]"
+                className={styles.selectInput}
               >
                 <option value="all">All Statuses</option>
                 <option value="New">New</option>
@@ -641,11 +632,11 @@ export default function RevisionDashboard() {
 
             {/* Sort Order */}
             <div>
-              <label className="block text-[11px] font-bold text-[#233807]/70 mb-1">Sort By</label>
+              <label className={styles.filterLabel}>Sort By</label>
               <select
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value as "newest" | "oldest")}
-                className="w-full bg-[#ffffff] border border-[#233807]/20 rounded-xl px-3 py-2 text-xs text-[#233807] focus:outline-none focus:border-[#233807]"
+                className={styles.selectInput}
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
@@ -658,7 +649,7 @@ export default function RevisionDashboard() {
 
         {/* Loading Skeleton */}
         {loading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className={styles.cardsGrid}>
             {[1, 2, 3, 4, 5, 6].map((idx) => (
               <div
                 key={idx}
@@ -701,7 +692,7 @@ export default function RevisionDashboard() {
 
         {/* Submissions Card Grid */}
         {!loading && !error && filteredSubmissions.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className={styles.cardsGrid}>
             <AnimatePresence>
               {filteredSubmissions.map((sub) => {
                 const diffLower = sub.difficulty?.toLowerCase() || "easy";
@@ -716,12 +707,12 @@ export default function RevisionDashboard() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.2 }}
-                    className="group bg-[#ffffff] border border-[#233807]/12 hover:border-[#233807]/40 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between relative overflow-hidden"
+                    className={styles.problemCard}
                   >
                     {/* Top Badge & Favorite Star */}
                     <div>
                       <div className="flex items-center justify-between gap-2 mb-3">
-                        <span className="text-xs font-extrabold px-2.5 py-1 rounded-lg bg-[#233807]/5 border border-[#233807]/15 text-[#233807]">
+                        <span className={styles.problemNumberBadge}>
                           #{sub.problemNumber || "N/A"}
                         </span>
 
@@ -754,7 +745,7 @@ export default function RevisionDashboard() {
                       {/* Title */}
                       <h3
                         onClick={() => router.push(`/problems/${sub.problemNumber || sub.slug}`)}
-                        className="text-base font-bold text-[#233807] group-hover:text-[#34540a] transition-colors line-clamp-1 cursor-pointer"
+                        className={styles.problemTitle}
                       >
                         {sub.title}
                       </h3>
@@ -781,7 +772,8 @@ export default function RevisionDashboard() {
                         <select
                           value={sub.revisionStatus || "New"}
                           onChange={(e) => handleUpdateRevisionStatus(sub._id, e.target.value)}
-                          className="bg-[#ffffff] border border-[#233807]/20 text-[#233807] text-xs rounded-lg px-2.5 py-1 focus:outline-none focus:border-[#233807] cursor-pointer"
+                          className={styles.selectInput}
+                          style={{ width: "auto", padding: "0.25rem 0.625rem" }}
                         >
                           <option value="New">New</option>
                           <option value="Learning">Learning</option>
@@ -801,7 +793,7 @@ export default function RevisionDashboard() {
                       <div className="flex items-center gap-1.5">
                         <button
                           onClick={() => router.push(`/problems/${sub.problemNumber || sub.slug}`)}
-                          className="px-3.5 py-1.5 rounded-xl bg-[#233807] hover:bg-[#34540a] text-[#fdfdfd] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+                          className={styles.btnReview}
                         >
                           <BookOpen className="h-3.5 w-3.5" />
                           <span>Review</span>
@@ -809,7 +801,7 @@ export default function RevisionDashboard() {
 
                         <button
                           onClick={() => setActiveSolutionModal(sub)}
-                          className="px-3 py-1.5 rounded-xl bg-[#233807]/5 hover:bg-[#233807]/12 text-[#233807] text-xs font-bold border border-[#233807]/15 transition-all flex items-center gap-1.5 cursor-pointer"
+                          className={styles.btnCode}
                         >
                           <Code2 className="h-3.5 w-3.5" />
                           <span>Code</span>
@@ -848,12 +840,13 @@ export default function RevisionDashboard() {
       {/* MODAL 1: Code Viewer Modal */}
       <AnimatePresence>
         {activeSolutionModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#233807]/30 backdrop-blur-md">
+          <div className={styles.modalOverlay}>
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#ffffff] border border-[#233807]/20 rounded-3xl p-6 w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl text-[#233807]"
+              className={styles.modalCard}
+              style={{ maxWidth: "48rem", maxHeight: "85vh", display: "flex", flexDirection: "column" }}
             >
               <div className="flex items-center justify-between border-b border-[#233807]/10 pb-4 mb-4">
                 <div>
@@ -872,7 +865,7 @@ export default function RevisionDashboard() {
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto bg-[#182605] text-[#fdfdfd] p-5 rounded-2xl font-mono text-xs leading-relaxed relative">
+              <div className={styles.codeReader}>
                 <button
                   onClick={() => handleCopyCode(activeSolutionModal.solution)}
                   className="absolute top-4 right-4 px-3 py-1.5 rounded-lg bg-[#ffffff]/10 hover:bg-[#ffffff]/20 text-[#fdfdfd] text-xs font-sans flex items-center gap-1.5 cursor-pointer border border-[#ffffff]/20"
@@ -890,14 +883,15 @@ export default function RevisionDashboard() {
       {/* MODAL 2: Study Notes Editor Modal */}
       <AnimatePresence>
         {activeNotesModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#233807]/30 backdrop-blur-md">
+          <div className={styles.modalOverlay}>
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#ffffff] border border-[#233807]/20 rounded-3xl p-6 w-full max-w-lg shadow-2xl text-[#233807] space-y-4"
+              className={styles.modalCard}
+              style={{ maxWidth: "32rem" }}
             >
-              <div className="flex items-center justify-between border-b border-[#233807]/10 pb-3">
+              <div className="flex items-center justify-between border-b border-[#233807]/10 pb-3 mb-3">
                 <h3 className="text-base font-bold text-[#233807]">
                   Notes — #{activeNotesModal.problemNumber} {activeNotesModal.title}
                 </h3>
@@ -940,19 +934,20 @@ export default function RevisionDashboard() {
       {/* MODAL 3: Delete Confirmation Modal */}
       <AnimatePresence>
         {deleteConfirmId && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#233807]/30 backdrop-blur-md">
+          <div className={styles.modalOverlay}>
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#ffffff] border border-red-500/20 rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl text-[#233807] space-y-4"
+              className={styles.modalCard}
+              style={{ maxWidth: "24rem", textAlign: "center" }}
             >
-              <div className="h-12 w-12 bg-red-500/10 text-red-600 rounded-2xl flex items-center justify-center mx-auto">
+              <div className="h-12 w-12 bg-red-500/10 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
                 <Trash2 className="h-6 w-6" />
               </div>
               <h4 className="text-base font-bold text-[#233807]">Delete Submission?</h4>
-              <p className="text-xs text-[#233807]/70">This action will remove the submission from your CodeRevise library.</p>
-              <div className="flex justify-center gap-3 pt-2">
+              <p className="text-xs text-[#233807]/70 mb-4">This action will remove the submission from your CodeRevise library.</p>
+              <div className="flex justify-center gap-3">
                 <button
                   onClick={() => setDeleteConfirmId(null)}
                   className="px-4 py-2 rounded-xl bg-[#233807]/5 hover:bg-[#233807]/10 text-[#233807] text-xs font-bold cursor-pointer"
