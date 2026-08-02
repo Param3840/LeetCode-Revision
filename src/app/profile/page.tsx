@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Terminal, Sparkles, FolderOpen, ArrowRight, ArrowLeft, RefreshCw, HelpCircle, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
+import styles from "./Profile.module.css";
 
 const GoogleLogo = () => (
   <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -57,9 +58,9 @@ export default function ProfilePage() {
   // 1. Loading State
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FFF8B9] flex flex-col">
+      <div className={styles.container}>
         <Navbar forceTheme="dark-bg" />
-        <main className="flex-1 flex flex-col justify-center items-center min-h-[50vh] p-6 pt-24">
+        <main className={styles.workspace}>
           <div className="flex flex-col items-center gap-3">
             <RefreshCw className="h-6 w-6 text-[#233807] animate-spin" />
             <span className="text-xs font-bold text-[#233807]/70 font-sans">
@@ -74,10 +75,10 @@ export default function ProfilePage() {
   // 2. Unauthenticated State
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#FFF8B9] flex flex-col">
+      <div className={styles.container}>
         <Navbar forceTheme="dark-bg" />
-        <main className="flex-1 flex flex-col justify-center items-center max-w-lg mx-auto w-full px-6 py-16 pt-28">
-          <div className="w-full bg-[#233807] border border-[#FFF8B9]/20 rounded-3xl p-8 shadow-xl flex flex-col items-center text-center">
+        <main className={styles.workspace} style={{ maxWidth: "32rem" }}>
+          <div className={styles.card} style={{ padding: "2rem", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
             <div className="h-12 w-12 text-[#FFF8B9] bg-[#FFF8B9]/10 p-2.5 rounded-2xl border border-[#FFF8B9]/20 mb-4 flex items-center justify-center">
               <HelpCircle className="h-6 w-6" />
             </div>
@@ -115,16 +116,16 @@ export default function ProfilePage() {
 
   // 3. Authenticated State
   return (
-    <div className="min-h-screen bg-[#FFF8B9] flex flex-col">
+    <div className={styles.container}>
       <Navbar forceTheme="dark-bg" />
-      <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-16 pt-28 flex flex-col justify-center">
-        <div className="w-full bg-[#233807] border border-[#FFF8B9]/20 rounded-3xl shadow-xl overflow-hidden">
+      <main className={styles.workspace}>
+        <div className={styles.card}>
           
           {/* Card Title & Action Header */}
-          <div className="px-8 py-5 border-b border-[#FFF8B9]/15 bg-[#FFF8B9]/10 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <Terminal className="h-4.5 w-4.5 text-[#FFF8B9]" />
-              <h1 className="text-sm font-extrabold text-[#FFF8B9] uppercase tracking-wider font-sans">
+          <div className={styles.cardHeader}>
+            <div className={styles.headerTitleGroup}>
+              <Terminal className={styles.headerIcon} />
+              <h1 className={styles.headerTitle}>
                 My Profile
               </h1>
             </div>
@@ -132,7 +133,7 @@ export default function ProfilePage() {
             {/* Logout Button */}
             <button
               onClick={handleLogout}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 text-xs font-bold transition-all cursor-pointer"
+              className={styles.logoutBtn}
               title="Logout from CodeRevise"
             >
               <LogOut className="h-3.5 w-3.5" />
@@ -140,52 +141,52 @@ export default function ProfilePage() {
             </button>
           </div>
 
-          <div className="p-8 flex flex-col items-center text-center">
+          <div className={styles.cardBody}>
             {/* User Avatar */}
             {user.photoURL && !imgError ? (
               <img
                 src={user.photoURL}
                 alt={user.displayName || "User"}
-                className="w-24 h-24 rounded-full border-2 border-[#FFF8B9]/30 mb-4 shadow-md object-cover"
+                className={styles.avatarImg}
                 referrerPolicy="no-referrer"
                 onError={() => setImgError(true)}
               />
             ) : (
-              <div className="w-24 h-24 rounded-full bg-[#FFF8B9]/15 text-[#FFF8B9] border-2 border-[#FFF8B9]/30 flex items-center justify-center font-bold text-2xl mb-4 shadow-md">
+              <div className={styles.avatarFallback}>
                 {getInitials(user.displayName)}
               </div>
             )}
 
             {/* Display Name & Email */}
-            <h2 className="text-2xl font-extrabold text-[#FFF8B9] mb-1 font-sans">
+            <h2 className={styles.userName}>
               {user.displayName || "Revision Student"}
             </h2>
-            <p className="text-xs text-[#FFF8B9]/70 font-sans mb-4">
+            <p className={styles.userEmail}>
               {user.email}
             </p>
 
             {/* Connection badge */}
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold bg-[#FFF8B9]/10 border border-[#FFF8B9]/20 text-[#FFF8B9]">
+            <span className={styles.googleBadge}>
               <Sparkles className="h-3 w-3 text-yellow-400" />
               <span>Connected with Google</span>
             </span>
 
             {/* Section Divider */}
-            <div className="w-full h-px bg-[#FFF8B9]/15 my-6" />
+            <div className={styles.divider} />
 
             {/* Workspace section */}
-            <div className="w-full text-left">
-              <h3 className="text-[10px] font-extrabold text-[#FFF8B9]/60 uppercase tracking-wider mb-2.5 flex items-center gap-1.5 font-sans">
+            <div className={styles.workspaceSection}>
+              <h3 className={styles.workspaceTitle}>
                 <FolderOpen className="h-3.5 w-3.5" />
                 <span>Revision Workspace</span>
               </h3>
 
-              <div className="bg-[#FFF8B9]/10 border border-[#FFF8B9]/20 rounded-2xl p-5 flex flex-col gap-3">
+              <div className={styles.workspaceCard}>
                 <div>
-                  <span className="text-[10px] font-bold text-[#FFF8B9]/60 block uppercase tracking-wide font-sans">
+                  <span className={styles.extensionLabel}>
                     Chrome Extension Status
                   </span>
-                  <span className="text-xs font-bold text-emerald-400 mt-1 block font-sans">
+                  <span className={styles.extensionStatus}>
                     Extension Connected & Ready to Sync
                   </span>
                 </div>
@@ -193,7 +194,7 @@ export default function ProfilePage() {
                 <div className="flex justify-end border-t border-[#FFF8B9]/15 pt-3 mt-1">
                   <button
                     onClick={() => router.push("/revision/dashboard")}
-                    className="flex items-center gap-2 text-xs font-extrabold text-[#233807] bg-[#FFF8B9] hover:bg-white transition-all cursor-pointer px-4 py-2.5 rounded-xl shadow-sm"
+                    className={styles.btnDashboard}
                   >
                     <span>Open Revision Dashboard</span>
                     <ArrowRight className="h-4 w-4" />
@@ -205,7 +206,7 @@ export default function ProfilePage() {
             {/* Back button */}
             <button
               onClick={() => router.push("/")}
-              className="flex items-center gap-1.5 text-xs font-extrabold text-[#FFF8B9]/70 hover:text-[#FFF8B9] mt-8 transition-colors cursor-pointer bg-transparent border-0 font-sans"
+              className={styles.backHomeBtn}
             >
               <ArrowLeft className="h-4 w-4" />
               <span>Back to Home</span>
