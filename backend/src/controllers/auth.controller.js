@@ -120,7 +120,7 @@ const handleGoogleCallback = async (req, res, next) => {
 
     if (!tokenResult.ok) {
       console.error('[CodeRevise][OAuth] Token exchange failed:', tokenResult.data);
-      return res.redirect('http://localhost:3000/login?error=token_exchange_failed');
+      return res.redirect(`${process.env.FRONTEND_URL}/login?error=token_exchange_failed`);
     }
 
     const { access_token } = tokenResult.data;
@@ -133,7 +133,7 @@ const handleGoogleCallback = async (req, res, next) => {
 
     if (!profileResult.ok) {
       console.error('[CodeRevise][OAuth] Failed to fetch user info:', profileResult.data);
-      return res.redirect('http://localhost:3000/login?error=profile_fetch_failed');
+      return res.redirect(`${process.env.FRONTEND_URL}/login?error=profile_fetch_failed`);
     }
 
     const { sub: googleId, name, email, picture } = profileResult.data;
@@ -168,7 +168,7 @@ const handleGoogleCallback = async (req, res, next) => {
     const token = generateToken(user._id);
 
     // 5. Redirect user to frontend with credentials as URL search parameters
-    const frontendUrl = 'http://localhost:3000/login';
+    const frontendUrl = `${process.env.FRONTEND_URL}/login`;
     const redirectParams = new URLSearchParams({
       token,
       id: user._id.toString(),
@@ -181,7 +181,7 @@ const handleGoogleCallback = async (req, res, next) => {
     return res.redirect(`${frontendUrl}?${redirectParams}`);
   } catch (error) {
     console.error('[CodeRevise][OAuth] Callback error:', error);
-    return res.redirect('http://localhost:3000/login?error=server_error');
+    return res.redirect(`${process.env.FRONTEND_URL}/login?error=server_error`);
   }
 };
 
