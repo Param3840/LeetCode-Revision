@@ -3,7 +3,20 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Terminal, Github, Sparkles, Menu, X, User as UserIcon, LogOut, Code, HelpCircle, Home, Flame } from "lucide-react";
+import {
+  Terminal,
+  Github,
+  Sparkles,
+  Menu,
+  X,
+  User as UserIcon,
+  LogOut,
+  Code,
+  HelpCircle,
+  Home,
+  Flame,
+  BookOpen
+} from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import ProfileDropdown from "./auth/ProfileDropdown";
 import LoginModal from "./auth/LoginModal";
