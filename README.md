@@ -255,6 +255,11 @@ Click
 Select the extracted extension folder.
 
 ---
+## 📦 Download Chrome Extension
+
+Download the latest Chrome Extension from the GitHub Releases page.
+
+➡️ **[Download CodeRevise Extension]([https://github.com/Param3840/LeetCode-Revision/releases/latest](https://github.com/Param3840/LeetCode-Revision/releases/tag/untagged-3570ab027b7da04bb5c2))**
 
 ## Step 3️⃣ Connect Extension
 
