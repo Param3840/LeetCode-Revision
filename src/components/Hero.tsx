@@ -116,11 +116,11 @@ export default function Hero() {
             {user ? (
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
                 <p className="text-xs font-bold text-[#FFF8B9] font-sans" style={{ opacity: 0.85 }}>
-                  Welcome back, {user.displayName}! Connect the extension to start syncing solutions.
+                  Welcome back, {user.displayName || (user as any).name || "Student"}! Connect the extension to start syncing solutions.
                 </p>
                 <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", justifyContent: "center" }}>
                   <button 
-                    onClick={() => router.push("/revision/dashboard")} 
+                    onClick={() => router.push("/dashboard")} 
                     className={styles.submitButton}
                     style={{ border: "0", cursor: "pointer" }}
                   >

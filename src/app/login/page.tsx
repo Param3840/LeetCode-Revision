@@ -19,8 +19,8 @@ function LoginContent() {
 
     if (token && id && name && email) {
       console.log("[CodeRevise] Captured token parameters in login callback URL.");
-      
-      const user = { id, name, email, picture };
+
+      const user = { id, name, displayName: name, email, picture, photoURL: picture };
 
       // Dispatch to the extension's content script
       window.postMessage(
@@ -33,17 +33,12 @@ function LoginContent() {
         "*"
       );
 
-      // Save to localStorage for website itself
+      // Save fresh user credentials to localStorage
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
 
-      // Show success
-      setSuccess(true);
-
-      // Redirect after 2 seconds
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 2000);
+      // Immediately navigate to Dashboard
+      window.location.href = "/dashboard";
     }
     
     // Check if error URL query is returned

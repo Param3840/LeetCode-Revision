@@ -9,7 +9,8 @@ const {
   updateRevisionStatus,
   updateNotes,
   markRevised,
-  resetRevision
+  resetRevision,
+  getHeatmapData
 } = require('../controllers/submission.controller');
 const { getProblemDetails } = require('../controllers/problem.controller');
 const { protect } = require('../middleware/auth.middleware');
@@ -19,6 +20,7 @@ router.use(protect);
 
 router.post('/', syncSubmission);
 router.get('/', getAllSubmissions);
+router.get('/heatmap', getHeatmapData);
 router.get('/:problemNumber/details', getProblemDetails);
 router.get('/:id', getSubmissionById);
 router.delete('/:id', deleteSubmission);

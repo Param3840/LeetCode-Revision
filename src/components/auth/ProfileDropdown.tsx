@@ -2,12 +2,14 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { User as UserIcon, LogOut } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { User as UserIcon, BookOpen, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 interface ProfileDropdownProps {
   isOpen: boolean;
   onClose: () => void;
+  mode?: "navbar" | "profile";
 }
 
 const getInitials = (name: string | null) => {
@@ -20,8 +22,9 @@ const getInitials = (name: string | null) => {
     .toUpperCase();
 };
 
-export default function ProfileDropdown({ isOpen, onClose }: ProfileDropdownProps) {
+export default function ProfileDropdown({ isOpen, onClose, mode }: ProfileDropdownProps) {
   const { user, logout } = useAuth();
+  const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [imgError, setImgError] = useState(false);
 
@@ -64,22 +67,22 @@ export default function ProfileDropdown({ isOpen, onClose }: ProfileDropdownProp
     >
       {/* User Info Section */}
       <div className="px-4 py-3 flex items-center gap-3 border-b border-[#e1daab]/40">
-        {user.photoURL && !imgError ? (
+        {(user.photoURL || (user as any).picture) && !imgError ? (
           <img
-            src={user.photoURL}
-            alt={user.displayName || "User Profile"}
+            src={user.photoURL || (user as any).picture}
+            alt={user.displayName || (user as any).name || "User Profile"}
             className="w-10 h-10 rounded-full object-cover border border-[#568203]/20 shrink-0"
             referrerPolicy="no-referrer"
             onError={() => setImgError(true)}
           />
         ) : (
           <div className="w-10 h-10 rounded-full bg-[#568203] text-[#FFF8B9] flex items-center justify-center font-bold text-sm shrink-0">
-            {getInitials(user.displayName)}
+            {getInitials(user.displayName || (user as any).name || user.email)}
           </div>
         )}
         <div className="min-w-0 flex-1">
           <h4 className="text-sm font-bold text-[#233807] truncate font-sans">
-            {user.displayName || "Revision Student"}
+            {user.displayName || (user as any).name || "Revision Student"}
           </h4>
           <p className="text-[10px] text-[#233807]/60 truncate font-sans mt-0.5">
             {user.email || ""}
@@ -89,14 +92,25 @@ export default function ProfileDropdown({ isOpen, onClose }: ProfileDropdownProp
 
       {/* Navigation Links */}
       <div className="px-1.5 py-1.5">
-        <Link
-          href="/profile"
-          onClick={onClose}
-          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-[#233807] hover:bg-[#FFF8B9]/30 rounded-lg transition-colors cursor-pointer"
-        >
-          <UserIcon className="h-4 w-4 text-[#568203]" />
-          <span>View Profile</span>
-        </Link>
+        {mode === "profile" || pathname === "/profile" ? (
+          <Link
+            href="/dashboard"
+            onClick={onClose}
+            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-[#233807] hover:bg-[#FFF8B9]/30 rounded-lg transition-colors cursor-pointer"
+          >
+            <BookOpen className="h-4 w-4 text-[#568203]" />
+            <span>Revision Dashboard</span>
+          </Link>
+        ) : (
+          <Link
+            href="/profile"
+            onClick={onClose}
+            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-[#233807] hover:bg-[#FFF8B9]/30 rounded-lg transition-colors cursor-pointer"
+          >
+            <UserIcon className="h-4 w-4 text-[#568203]" />
+            <span>View Profile</span>
+          </Link>
+        )}
       </div>
 
       {/* Divider */}

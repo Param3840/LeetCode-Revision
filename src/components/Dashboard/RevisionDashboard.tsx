@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -26,6 +26,7 @@ import {
   Trophy
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import { useToast } from "@/context/ToastContext";
 import styles from "./RevisionDashboard.module.css";
 
 interface Submission {
@@ -106,13 +107,8 @@ export default function RevisionDashboard() {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [resetRevisionConfirmId, setResetRevisionConfirmId] = useState<string | null>(null);
 
-  // Toast Notification
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
-  };
+  // Global Toast Notification Hook
+  const { showToast } = useToast();
 
   // 2. Load User Profile & Submissions on Mount
   useEffect(() => {
@@ -120,7 +116,8 @@ export default function RevisionDashboard() {
     const storedUser = localStorage.getItem("user");
 
     if (!token) {
-      router.replace("/login");
+      setSubmissions([]);
+      setUser(null);
       return;
     }
 
@@ -293,7 +290,7 @@ export default function RevisionDashboard() {
           : item
       )
     );
-    showToast(`✓ Revision #${newCount} recorded!`);
+    showToast("Revision Recorded", "Problem added to your revision history.");
 
     try {
       const res = await fetch(`${BACKEND_URL}/api/submissions/${submission._id}/revise`, {
@@ -310,6 +307,9 @@ export default function RevisionDashboard() {
           setStreak(json.streak);
         } else {
           fetchStreakStats(token);
+        }
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("codeReviseStreakUpdate"));
         }
       } else {
         fetchSubmissions(token); // Revert on failure
@@ -620,21 +620,6 @@ export default function RevisionDashboard() {
 
   return (
     <div className={styles.container}>
-      
-      {/* Toast Notification */}
-      <AnimatePresence>
-        {toastMessage && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className={styles.toast}
-          >
-            <Sparkles className="h-4 w-4 text-[#FFF8B9]" />
-            <span>{toastMessage}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Top Floating Capsule Navbar (Hero Styling) */}
       <Navbar forceTheme="dark-bg" />
@@ -703,35 +688,6 @@ export default function RevisionDashboard() {
               <span className="h-2.5 w-2.5 rounded-full bg-rose-400"></span>
             </div>
             <p className="text-2xl font-extrabold text-rose-400 mt-2">{stats.hard}</p>
-          </div>
-
-          <div className={styles.statCard}>
-            <div className={styles.statCardHeader}>
-              <span>Current Streak</span>
-              <Flame className="h-4 w-4 text-orange-400 fill-orange-400" />
-            </div>
-            <div className="flex items-baseline justify-between mt-2">
-              <p className="text-2xl font-extrabold text-orange-400">{streak.currentStreak || 0} <span className="text-xs font-bold text-orange-300">Days</span></p>
-              <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-[#FFF8B9]/10 border border-[#FFF8B9]/20 ${currentTier.color}`}>
-                {currentTier.name}
-              </span>
-            </div>
-          </div>
-
-          <div className={styles.statCard}>
-            <div className={styles.statCardHeader}>
-              <span>Longest Streak</span>
-              <Trophy className="h-4 w-4 text-yellow-400" />
-            </div>
-            <p className="text-2xl font-extrabold text-yellow-400 mt-2">{streak.longestStreak || 0} <span className="text-xs font-bold text-yellow-300">Days</span></p>
-          </div>
-
-          <div className={styles.statCard}>
-            <div className={styles.statCardHeader}>
-              <span>Starred</span>
-              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-            </div>
-            <p className="text-2xl font-extrabold text-yellow-400 mt-2">{stats.favorites}</p>
           </div>
 
         </div>

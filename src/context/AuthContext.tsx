@@ -24,20 +24,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [loginModalContextText, setLoginModalContextText] = useState("");
   
-  // Keep track of the success callback after user logs in (e.g. for resuming repo analysis)
+  // Keep track of the success callback after user logs in
   const successCallbackRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-      
-      // If user becomes logged in and there was a pending callback, run it!
-      if (currentUser && successCallbackRef.current) {
-        const cb = successCallbackRef.current;
-        successCallbackRef.current = null;
-        setTimeout(() => cb(), 0);
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token");
+      const storedUser = localStorage.getItem("user");
+      if (token && storedUser) {
+        try {
+          const parsed = JSON.parse(storedUser);
+          setUser(parsed as any);
+        } catch (e) {
+          console.error("Failed to parse user session");
+        }
       }
+    }
+
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+      }
+      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -55,13 +63,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      await firebaseLogout();
-      if (window.location.pathname.startsWith("/profile")) {
-        window.location.href = "/";
+      // 1. Clear all local & session storage
+      if (typeof window !== "undefined") {
+        localStorage.clear();
+        sessionStorage.clear();
       }
+
+      // 2. Sign out of Firebase auth
+      await firebaseLogout();
+
+      // 3. Reset local React state
+      setUser(null);
+      setIsLoginModalOpen(false);
     } catch (error) {
       console.error("AuthContext logout error:", error);
-      throw error;
+      if (typeof window !== "undefined") {
+        localStorage.clear();
+        sessionStorage.clear();
+      }
+    } finally {
+      // 4. Perform hard location redirect to Landing Page (/)
+      if (typeof window !== "undefined") {
+        window.location.href = "/";
+      }
     }
   };
 

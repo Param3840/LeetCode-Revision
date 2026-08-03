@@ -10,20 +10,22 @@
 
 .toast {
   position: fixed;
-  top: 1.25rem;
-  right: 1.25rem;
-  z-index: 50;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 99999;
   background-color: #233807;
   color: #FFF8B9;
-  border: 1px solid rgba(255, 248, 185, 0.3);
-  padding: 0.75rem 1rem;
-  border-radius: 0.75rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 248, 185, 0.35);
+  padding: 0.75rem 1.25rem;
+  border-radius: 9999px;
+  box-shadow: 0 20px 30px -5px rgba(35, 56, 7, 0.4), 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(16px);
   font-size: 0.875rem;
+  font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.625rem;
+  pointer-events: none;
 }
 
 .header {

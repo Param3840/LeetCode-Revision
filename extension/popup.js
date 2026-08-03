@@ -288,14 +288,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Connect Account button handler
   connectBtn.addEventListener("click", () => {
-    chrome.tabs.create({ url: LOGIN_URL });
+    chrome.storage.local.remove(["extensionDisconnectedByUser"], () => {
+      chrome.tabs.create({ url: LOGIN_URL });
+    });
   });
 
   // Logout button handler
   logoutBtn.addEventListener("click", () => {
-    chrome.storage.local.remove(["auth"], () => {
-      renderAuth(null);
-      console.log("[CodeRevise] Logged out successfully.");
+    chrome.storage.local.set({ extensionDisconnectedByUser: true }, () => {
+      chrome.storage.local.remove(["auth"], () => {
+        renderAuth(null);
+        console.log("[CodeRevise] Extension session destroyed and flagged as explicitly disconnected.");
+      });
     });
   });
 

@@ -1,94 +1,107 @@
-const UserRevisionStats = require('../models/UserRevisionStats');
+const Submission = require('../models/Submission');
 
-// Convert Date to YYYY-MM-DD string in UTC
-const toDayString = (d) => {
+// Helper to format Date into YYYY-MM-DD local calendar string
+const toLocalDayString = (d) => {
   if (!d) return null;
   const dateObj = new Date(d);
-  return dateObj.toISOString().split('T')[0];
+  if (isNaN(dateObj.getTime())) return null;
+  const year = dateObj.getFullYear();
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };
 
-// Calculate difference in calendar days between two dates
-const getCalendarDayDiff = (d1, d2) => {
-  if (!d1 || !d2) return Infinity;
-  const day1Str = toDayString(d1);
-  const day2Str = toDayString(d2);
-  if (!day1Str || !day2Str) return Infinity;
-  
-  const day1 = new Date(day1Str);
-  const day2 = new Date(day2Str);
-  const diffMs = day1.getTime() - day2.getTime();
-  return Math.round(diffMs / (1000 * 60 * 60 * 24));
-};
-
-// Update user streak when a problem revision is marked
+// Update user streak (kept for backward compatibility with markRevised controller)
 const updateUserStreak = async (userId, revisionDate = new Date()) => {
-  let stats = await UserRevisionStats.findOne({ userId });
-
-  if (!stats) {
-    stats = new UserRevisionStats({
-      userId,
-      currentStreak: 1,
-      longestStreak: 1,
-      lastRevisionDate: revisionDate,
-      totalRevisionDays: 1,
-      totalRevisions: 1
-    });
-    await stats.save();
-    return stats;
-  }
-
-  // Always increment total revisions count
-  stats.totalRevisions += 1;
-
-  const dayDiff = getCalendarDayDiff(revisionDate, stats.lastRevisionDate);
-
-  if (dayDiff === 0) {
-    // Same calendar day: do NOT double-increment streak or totalRevisionDays
-  } else if (dayDiff === 1) {
-    // Next consecutive calendar day: increment streak
-    stats.currentStreak += 1;
-    stats.totalRevisionDays += 1;
-    stats.lastRevisionDate = revisionDate;
-    if (stats.currentStreak > stats.longestStreak) {
-      stats.longestStreak = stats.currentStreak;
-    }
-  } else {
-    // Skipped 1 or more days (dayDiff > 1): reset current streak to 1
-    stats.currentStreak = 1;
-    stats.totalRevisionDays += 1;
-    stats.lastRevisionDate = revisionDate;
-    if (stats.currentStreak > stats.longestStreak) {
-      stats.longestStreak = stats.currentStreak;
-    }
-  }
-
-  await stats.save();
-  return stats;
+  return await getStreakStats(userId);
 };
 
-// Get streak statistics for a user (with inactivity reset check)
+// Get streak statistics for a user from Submission records (SINGLE SOURCE OF TRUTH)
 const getStreakStats = async (userId) => {
-  let stats = await UserRevisionStats.findOne({ userId });
+  const submissions = await Submission.find({ userId });
 
-  if (!stats) {
-    return {
-      currentStreak: 0,
-      longestStreak: 0,
-      lastRevisionDate: null,
-      totalRevisionDays: 0,
-      totalRevisions: 0
-    };
+  const activeDatesSet = new Set();
+  let totalRevisionsCount = 0;
+
+  submissions.forEach(sub => {
+    // 1. Process explicit revisionHistory array entries
+    if (Array.isArray(sub.revisionHistory) && sub.revisionHistory.length > 0) {
+      sub.revisionHistory.forEach(entry => {
+        if (entry && (entry.revisedAt || entry.createdAt)) {
+          const dateStr = toLocalDayString(entry.revisedAt || entry.createdAt);
+          if (dateStr) {
+            activeDatesSet.add(dateStr);
+            totalRevisionsCount += 1;
+          }
+        }
+      });
+    }
+
+    // 2. Process isRevised / revisionCount fallback
+    if (sub.isRevised || (sub.revisionCount && sub.revisionCount > 0)) {
+      const revisedDate = sub.lastRevisionDate || sub.updatedAt || sub.submittedAt;
+      if (revisedDate) {
+        const dateStr = toLocalDayString(revisedDate);
+        if (dateStr) {
+          activeDatesSet.add(dateStr);
+        }
+      }
+    }
+  });
+
+  const activeDaysCount = activeDatesSet.size;
+  const sortedActiveDates = Array.from(activeDatesSet).sort();
+
+  let longestStreak = 0;
+  let tempStreak = 0;
+  let prevTimestamp = null;
+
+  sortedActiveDates.forEach(dateStr => {
+    const currentTimestamp = new Date(dateStr).getTime();
+    if (prevTimestamp === null) {
+      tempStreak = 1;
+    } else {
+      const diffDays = Math.round((currentTimestamp - prevTimestamp) / (1000 * 60 * 60 * 24));
+      if (diffDays === 1) {
+        tempStreak += 1;
+      } else if (diffDays > 1) {
+        tempStreak = 1;
+      }
+    }
+    if (tempStreak > longestStreak) {
+      longestStreak = tempStreak;
+    }
+    prevTimestamp = currentTimestamp;
+  });
+
+  let currentStreak = 0;
+  const todayStr = toLocalDayString(new Date());
+  const yesterdayDate = new Date();
+  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+  const yesterdayStr = toLocalDayString(yesterdayDate);
+
+  const hasToday = activeDatesSet.has(todayStr);
+  const hasYesterday = activeDatesSet.has(yesterdayStr);
+
+  if (hasToday || hasYesterday) {
+    let checkDate = hasToday ? new Date() : yesterdayDate;
+    while (true) {
+      const checkStr = toLocalDayString(checkDate);
+      if (activeDatesSet.has(checkStr)) {
+        currentStreak += 1;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else {
+        break;
+      }
+    }
   }
 
-  // If user skipped yesterday (> 1 day since last revision), reset currentStreak to 0
-  const now = new Date();
-  const dayDiff = getCalendarDayDiff(now, stats.lastRevisionDate);
-  if (dayDiff > 1 && stats.currentStreak > 0) {
-    stats.currentStreak = 0;
-    await stats.save();
-  }
-
-  return stats;
+  return {
+    currentStreak,
+    longestStreak,
+    totalRevisionDays: activeDaysCount,
+    totalRevisions: totalRevisionsCount
+  };
 };
 
 module.exports = {

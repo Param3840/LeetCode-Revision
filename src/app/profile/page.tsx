@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { Terminal, Sparkles, FolderOpen, ArrowRight, RefreshCw, HelpCircle, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
+import RevisionHeatmap from "@/components/profile/RevisionHeatmap";
+import AchievementsSection from "@/components/profile/AchievementsSection";
 import styles from "./Profile.module.css";
 
 const GoogleLogo = () => (
@@ -27,31 +29,26 @@ const getInitials = (name: string | null) => {
 };
 
 export default function ProfilePage() {
-  const { user, loading, loginWithGoogle, logout } = useAuth();
+  const { user, loading, logout } = useAuth();
   const router = useRouter();
   const [imgError, setImgError] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = () => {
     setIsLoggingIn(true);
-    try {
-      await loginWithGoogle();
-    } catch (error) {
-      console.error("Profile page Google login error:", error);
-    } finally {
-      setIsLoggingIn(false);
-    }
+    window.location.href = "http://localhost:5000/api/auth/google";
   };
 
   const handleLogout = async () => {
     try {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
       await logout();
     } catch (error) {
       console.error("Logout error:", error);
-    } finally {
-      router.push("/login");
+      if (typeof window !== "undefined") {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = "/";
+      }
     }
   };
 
@@ -78,7 +75,7 @@ export default function ProfilePage() {
       <div className={styles.container}>
         <Navbar forceTheme="dark-bg" />
         <main className={styles.workspace} style={{ maxWidth: "32rem" }}>
-          <div className={styles.card} style={{ padding: "2rem", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+          <div className={styles.authCard}>
             <div className="h-12 w-12 text-[#FFF8B9] bg-[#FFF8B9]/10 p-2.5 rounded-2xl border border-[#FFF8B9]/20 mb-4 flex items-center justify-center">
               <HelpCircle className="h-6 w-6" />
             </div>
@@ -114,84 +111,79 @@ export default function ProfilePage() {
     );
   }
 
-  // 3. Authenticated State
+  // 3. Authenticated State - 2-Column SaaS Layout
   return (
     <div className={styles.container}>
       <Navbar forceTheme="dark-bg" />
       <main className={styles.workspace}>
-        <div className={styles.card}>
+        <div className={styles.layoutGrid}>
           
-          {/* Card Title & Action Header */}
-          <div className={styles.cardHeader}>
-            <div className={styles.headerTitleGroup}>
-              <Terminal className={styles.headerIcon} />
-              <h1 className={styles.headerTitle}>
-                My Profile
-              </h1>
+          {/* LEFT COLUMN: Profile Sidebar */}
+          <aside className={styles.profileSidebar}>
+            {/* Header: My Profile + Logout */}
+            <div className={styles.sidebarHeader}>
+              <div className={styles.headerTitleGroup}>
+                <Terminal className={styles.headerIcon} />
+                <h1 className={styles.headerTitle}>My Profile</h1>
+              </div>
+
+              <button
+                onClick={handleLogout}
+                className={styles.logoutBtn}
+                title="Logout from CodeRevise"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                <span>Logout</span>
+              </button>
             </div>
 
-            {/* Logout Button */}
-            <button
-              onClick={handleLogout}
-              className={styles.logoutBtn}
-              title="Logout from CodeRevise"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-              <span>Logout</span>
-            </button>
-          </div>
-
-          <div className={styles.cardBody}>
-            {/* User Avatar */}
-            {user.photoURL && !imgError ? (
-              <img
-                src={user.photoURL}
-                alt={user.displayName || "User"}
-                className={styles.avatarImg}
-                referrerPolicy="no-referrer"
-                onError={() => setImgError(true)}
-              />
-            ) : (
-              <div className={styles.avatarFallback}>
-                {getInitials(user.displayName)}
-              </div>
-            )}
-
-            {/* Display Name & Email */}
-            <h2 className={styles.userName}>
-              {user.displayName || "Revision Student"}
-            </h2>
-            <p className={styles.userEmail}>
-              {user.email}
-            </p>
-
-            {/* Connection badge */}
-            <span className={styles.googleBadge}>
-              <Sparkles className="h-3 w-3 text-yellow-400" />
-              <span>Connected with Google</span>
-            </span>
-
-            {/* Section Divider */}
-            <div className={styles.divider} />
-
-            {/* Workspace section */}
-            <div className={styles.workspaceSection}>
-              <h3 className={styles.workspaceTitle}>
-                <FolderOpen className="h-3.5 w-3.5" />
-                <span>Revision Workspace</span>
-              </h3>
-
-              <div className={styles.workspaceCard}>
-                <div>
-                  <span className={styles.extensionLabel}>
-                    Chrome Extension Status
-                  </span>
-                  <span className={styles.extensionStatus}>
-                    Extension Connected & Ready to Sync
-                  </span>
+            <div className={styles.sidebarBody}>
+              {/* User Avatar */}
+              {user.photoURL && !imgError ? (
+                <img
+                  src={user.photoURL}
+                  alt={user.displayName || "User"}
+                  className={styles.avatarImg}
+                  referrerPolicy="no-referrer"
+                  onError={() => setImgError(true)}
+                />
+              ) : (
+                <div className={styles.avatarFallback}>
+                  {getInitials(user.displayName)}
                 </div>
+              )}
 
-                <div className="flex justify-end border-t border-[#FFF8B9]/15 pt-3 mt-1">
+              {/* Display Name & Email */}
+              <h2 className={styles.userName}>
+                {user.displayName || "Revision Student"}
+              </h2>
+              <p className={styles.userEmail}>{user.email}</p>
+
+              {/* Connection Badge */}
+              <span className={styles.googleBadge}>
+                <Sparkles className="h-3 w-3 text-yellow-400" />
+                <span>Connected with Google</span>
+              </span>
+
+              <div className={styles.divider} />
+
+              {/* Workspace Section */}
+              <div className={styles.workspaceSection}>
+                <h3 className={styles.workspaceTitle}>
+                  <FolderOpen className="h-3.5 w-3.5" />
+                  <span>Revision Workspace</span>
+                </h3>
+
+                <div className={styles.workspaceCard}>
+                  <div>
+                    <span className={styles.extensionLabel}>
+                      Chrome Extension Status
+                    </span>
+                    <span className={styles.extensionStatus}>
+                      Extension Connected & Ready to Sync
+                    </span>
+                  </div>
+
                   <button
                     onClick={() => router.push("/revision/dashboard")}
                     className={styles.btnDashboard}
@@ -202,8 +194,17 @@ export default function ProfilePage() {
                 </div>
               </div>
             </div>
+          </aside>
 
-          </div>
+          {/* RIGHT COLUMN: Analytics Workspace */}
+          <section className={styles.analyticsWorkspace}>
+            {/* Primary Section: Revision Activity Heatmap */}
+            <RevisionHeatmap />
+
+            {/* Secondary Section: Achievements & Level System */}
+            <AchievementsSection />
+          </section>
+
         </div>
       </main>
     </div>

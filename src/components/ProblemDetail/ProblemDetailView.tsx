@@ -22,6 +22,7 @@ import {
   Clock
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import { useToast } from "@/context/ToastContext";
 import styles from "./ProblemDetailView.module.css";
 
 interface Submission {
@@ -85,19 +86,16 @@ export default function ProblemDetailView() {
   const [notesText, setNotesText] = useState("");
   const [isSavingNotes, setIsSavingNotes] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [expandedHints, setExpandedHints] = useState<number[]>([]);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
-  };
+  // Global Toast Hook
+  const { showToast } = useToast();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      router.replace("/login");
+      window.location.href = "/";
       return;
     }
 
@@ -187,7 +185,7 @@ export default function ProblemDetailView() {
       lastRevisionDate: now,
       revisionHistory: newHistory
     });
-    showToast(`✓ Revision #${newCount} recorded!`);
+    showToast("Revision Recorded", "Problem added to your revision history.");
 
     try {
       const res = await fetch(`${BACKEND_URL}/api/submissions/${submission._id}/revise`, {
@@ -326,21 +324,6 @@ export default function ProblemDetailView() {
 
   return (
     <div className={styles.container}>
-      
-      {/* Toast Notification */}
-      <AnimatePresence>
-        {toastMessage && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className={styles.toast}
-          >
-            <Sparkles className="h-4 w-4 text-[#FFF8B9]" />
-            <span>{toastMessage}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Top Floating Capsule Navbar (Hero Styling) */}
       <Navbar forceTheme="dark-bg" />

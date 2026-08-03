@@ -49,38 +49,10 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
   if (!isOpen) return null;
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = () => {
     setIsConnecting(true);
     setErrorMsg(null);
-    try {
-      await loginWithGoogle();
-      onClose();
-    } catch (err: any) {
-      console.error("Login popup error details:", err);
-      // Map Firebase errors to human friendly messages
-      switch (err.code) {
-        case "auth/popup-closed-by-user":
-          setErrorMsg("Google sign-in was cancelled.");
-          break;
-        case "auth/popup-blocked":
-          setErrorMsg("Your browser blocked the Google sign-in popup. Please allow popups and try again.");
-          break;
-        case "auth/cancelled-popup-request":
-          setErrorMsg("Sign-in request was cancelled. Please try again.");
-          break;
-        case "auth/network-request-failed":
-          setErrorMsg("Unable to connect. Check your internet connection and try again.");
-          break;
-        case "auth/account-exists-with-different-credential":
-          setErrorMsg("An account already exists with a different sign-in method.");
-          break;
-        default:
-          setErrorMsg("Unable to complete sign-in. Please try again.");
-          break;
-      }
-    } finally {
-      setIsConnecting(false);
-    }
+    window.location.href = "http://localhost:5000/api/auth/google";
   };
 
   return (

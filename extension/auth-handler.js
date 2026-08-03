@@ -1,32 +1,46 @@
-// CodeRevise Auth Handler Content Script - Phase 5B
-// Runs on http://localhost:3000/* to capture successful login tokens from the web app
+// CodeRevise Auth Handler Content Script
+// Transfers initial web authentication to Chrome Extension without overriding user-initiated extension logouts
 
 console.log("[CodeRevise] Auth Handler content script injected.");
 
-window.addEventListener("message", (event) => {
-  // Only accept messages from ourselves
-  if (event.source !== window) return;
+function syncWebSessionToExtension() {
+  try {
+    const token = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
 
-  if (event.data && event.data.source === "coderevise-web") {
-    if (event.data.type === "LOGIN_SUCCESS") {
-      const { token, user } = event.data;
-      console.log("[CodeRevise] Captured login token from web app:", user.email);
-
+    // Only transfer active sessions; do NOT clear chrome.storage.local on web logout
+    if (token && storedUser) {
+      const user = JSON.parse(storedUser);
       const authData = {
         token,
-        expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days matching backend expiry
+        expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000,
         user
       };
 
-      chrome.storage.local.set({ auth: authData }, () => {
-        if (chrome.runtime.lastError) {
-          console.error("[CodeRevise] Failed to save auth data:", chrome.runtime.lastError);
-        } else {
-          console.log("[CodeRevise] Auth data saved successfully.");
-          // Send response back to the web page to acknowledge success
-          window.postMessage({ source: "coderevise-extension", type: "SAVED_SUCCESS" }, "*");
+      chrome.storage.local.get(["auth", "extensionDisconnectedByUser"], (result) => {
+        // If user explicitly logged out from extension, do NOT auto-reconnect
+        if (result && result.extensionDisconnectedByUser) {
+          console.log("[CodeRevise] Auto-sync skipped: Extension was explicitly disconnected by user.");
+          return;
+        }
+
+        const currentAuth = result ? result.auth : null;
+        if (!currentAuth || currentAuth.token !== token || currentAuth.user?.email !== user.email) {
+          chrome.storage.local.set({ auth: authData }, () => {
+            console.log("[CodeRevise] Synchronized active session to Chrome Extension:", user.email);
+          });
         }
       });
     }
+  } catch (e) {
+    console.error("[CodeRevise] Error syncing web session to extension:", e);
   }
+}
+
+// 1. Synchronize immediately on page load
+syncWebSessionToExtension();
+
+// 2. Observe changes to localStorage across window storage events
+window.addEventListener("storage", () => {
+  syncWebSessionToExtension();
 });

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Terminal, Github, Sparkles, Menu, X, User as UserIcon, LogOut, Code, HelpCircle, Home } from "lucide-react";
+import { Terminal, Github, Sparkles, Menu, X, User as UserIcon, LogOut, Code, HelpCircle, Home, Flame } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import ProfileDropdown from "./auth/ProfileDropdown";
 import LoginModal from "./auth/LoginModal";
@@ -32,13 +32,56 @@ export default function Navbar({ forceTheme, hideNavLinks }: NavbarProps = {}) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const [currentStreak, setCurrentStreak] = useState<number | null>(null);
 
   const isLandingPage = pathname === "/" && !hideNavLinks;
 
-  // Reset image error state when user changes
+  // Reset image error state when user changes & fetch streak
   useEffect(() => {
     setImgError(false);
-  }, [user]);
+    if (!user) {
+      setCurrentStreak(null);
+      return;
+    }
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const fetchStreak = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/revision/streak", {
+          cache: "no-store",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            Pragma: "no-cache",
+          }
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.data) {
+            setCurrentStreak(json.data.currentStreak ?? 0);
+          }
+        }
+      } catch (e) {
+        console.error("Navbar fetch streak error:", e);
+      }
+    };
+
+    fetchStreak();
+
+    const handleRefresh = () => fetchStreak();
+    window.addEventListener("focus", handleRefresh);
+    window.addEventListener("pageshow", handleRefresh);
+    window.addEventListener("storage", handleRefresh);
+    window.addEventListener("codeReviseStreakUpdate", handleRefresh);
+
+    return () => {
+      window.removeEventListener("focus", handleRefresh);
+      window.removeEventListener("pageshow", handleRefresh);
+      window.removeEventListener("storage", handleRefresh);
+      window.removeEventListener("codeReviseStreakUpdate", handleRefresh);
+    };
+  }, [user, pathname]);
 
   useEffect(() => {
     if (forceTheme) {
@@ -158,75 +201,65 @@ export default function Navbar({ forceTheme, hideNavLinks }: NavbarProps = {}) {
         {/* Auth slot */}
         <div className="flex items-center gap-4 relative">
           {/* Desktop Auth Controls */}
-          <div className="hidden md:flex items-center">
+          <div className="hidden md:flex items-center gap-3">
             {loading ? (
               <div className="h-7 w-16 bg-current opacity-15 animate-pulse rounded-full" />
             ) : user ? (
-              <div className="relative">
-                <button
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center gap-2 text-xs font-bold text-current hover:opacity-85 transition-opacity cursor-pointer"
-                >
-                  {user.photoURL && !imgError ? (
-                    <img
-                      src={user.photoURL}
-                      alt={user.displayName || "Profile"}
-                      className="w-7 h-7 rounded-full object-cover border border-[#568203]/20"
-                      referrerPolicy="no-referrer"
-                      onError={() => setImgError(true)}
-                    />
-                  ) : (
-                    <div className="w-7 h-7 rounded-full bg-[#568203] text-[#FFF8B9] flex items-center justify-center font-bold text-[10px]">
-                      {getInitials(user.displayName)}
-                    </div>
-                  )}
-                  <span className="max-w-[90px] truncate">{user.displayName?.split(" ")[0]}</span>
-                  <span className="text-[9px] opacity-75">▼</span>
-                </button>
-                <ProfileDropdown isOpen={isDropdownOpen} onClose={() => setIsDropdownOpen(false)} />
-              </div>
+              <>
+                {/* Current Streak Badge */}
+                {currentStreak !== null && (
+                  <div
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#233807] border border-[#FFF8B9]/30 text-xs font-extrabold text-[#FFF8B9] shadow-sm cursor-default select-none"
+                    title={`Current Streak: ${currentStreak} Days`}
+                  >
+                    <Flame className="h-4 w-4 text-orange-400 fill-orange-400 animate-pulse" />
+                    <span>{currentStreak} <span className="text-[10px] text-[#FFF8B9]/80 font-bold">Days</span></span>
+                  </div>
+                )}
+
+                <div className="relative">
+                  <button
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="flex items-center gap-2 text-xs font-bold text-current hover:opacity-85 transition-opacity cursor-pointer"
+                  >
+                    {(user.photoURL || (user as any).picture) && !imgError ? (
+                      <img
+                        src={user.photoURL || (user as any).picture}
+                        alt={user.displayName || (user as any).name || "Profile"}
+                        className="w-7 h-7 rounded-full object-cover border border-[#568203]/20"
+                        referrerPolicy="no-referrer"
+                        onError={() => setImgError(true)}
+                      />
+                    ) : (
+                      <div className="w-7 h-7 rounded-full bg-[#568203] text-[#FFF8B9] flex items-center justify-center font-bold text-[10px]">
+                        {getInitials(user.displayName || (user as any).name || user.email)}
+                      </div>
+                    )}
+                    <span className="max-w-[90px] truncate">{(user.displayName || (user as any).name || "User")?.split(" ")[0]}</span>
+                    <span className="text-[9px] opacity-75">▼</span>
+                  </button>
+                  <ProfileDropdown isOpen={isDropdownOpen} onClose={() => setIsDropdownOpen(false)} />
+                </div>
+              </>
             ) : (
               <button
                 onClick={() => openLoginModal()}
-                className="text-xs font-bold text-current hover:opacity-80 transition-opacity cursor-pointer uppercase tracking-wider"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-[#FFF8B9] hover:bg-white text-[#233807] transition-all shadow-sm cursor-pointer"
               >
-                Login
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>LOGIN</span>
               </button>
             )}
           </div>
 
-          {/* Mobile Menu Toggle */}
-          <div className="flex md:hidden items-center">
-            {loading ? (
-              <div className="h-7 w-7 bg-current opacity-15 animate-pulse rounded-full" />
-            ) : (
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="text-current hover:opacity-85 transition-opacity cursor-pointer p-1"
-                aria-label="Toggle menu"
-              >
-                {isMobileMenuOpen ? (
-                  <X className="h-5 w-5" />
-                ) : user ? (
-                  user.photoURL && !imgError ? (
-                    <img
-                      src={user.photoURL}
-                      alt={user.displayName || "Profile"}
-                      className="w-7 h-7 rounded-full object-cover border border-[#568203]/20"
-                      referrerPolicy="no-referrer"
-                      onError={() => setImgError(true)}
-                    />
-                  ) : (
-                    <div className="w-7 h-7 rounded-full bg-[#568203] text-[#FFF8B9] flex items-center justify-center font-bold text-[10px]">
-                      {getInitials(user.displayName)}
-                    </div>
-                  )
-                ) : (
-                  <Menu className="h-5 w-5" />
-                )}
-              </button>
-            )}
-          </div>
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden p-2 rounded-xl text-current hover:bg-[#233807]/10 transition-colors cursor-pointer"
+            aria-label="Toggle menu"
+          >
+            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
 
           {/* Mobile Menu Overlay Dropdown */}
           {isMobileMenuOpen && (
@@ -238,21 +271,29 @@ export default function Navbar({ forceTheme, hideNavLinks }: NavbarProps = {}) {
                 <>
                   {/* Logged in User Profile Info */}
                   <div className="flex items-center gap-3 pb-3 border-b border-[#e1daab]/40">
-                    {user.photoURL && !imgError ? (
+                    {(user.photoURL || (user as any).picture) && !imgError ? (
                       <img
-                        src={user.photoURL}
-                        alt={user.displayName || "Profile"}
+                        src={user.photoURL || (user as any).picture}
+                        alt={user.displayName || (user as any).name || "Profile"}
                         className="w-10 h-10 rounded-full object-cover border border-[#568203]/20 shrink-0"
                         referrerPolicy="no-referrer"
                         onError={() => setImgError(true)}
                       />
                     ) : (
                       <div className="w-10 h-10 rounded-full bg-[#568203] text-[#FFF8B9] flex items-center justify-center font-bold text-sm shrink-0">
-                        {getInitials(user.displayName)}
+                        {getInitials(user.displayName || (user as any).name || user.email)}
                       </div>
                     )}
                     <div className="min-w-0 flex-1">
-                      <h4 className="text-sm font-bold truncate font-sans">{user.displayName || "Revision Student"}</h4>
+                      <div className="flex items-center justify-between gap-1">
+                        <h4 className="text-sm font-bold truncate font-sans">{user.displayName || (user as any).name || "Revision Student"}</h4>
+                        {currentStreak !== null && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#233807] text-[10px] font-extrabold text-[#FFF8B9] shrink-0">
+                            <Flame className="h-3 w-3 text-orange-400 fill-orange-400" />
+                            <span>{currentStreak}d</span>
+                          </span>
+                        )}
+                      </div>
                       <p className="text-[10px] text-[#233807]/60 truncate font-sans mt-0.5">{user.email}</p>
                     </div>
                   </div>
@@ -260,12 +301,21 @@ export default function Navbar({ forceTheme, hideNavLinks }: NavbarProps = {}) {
                   {/* Navigation & actions */}
                   <div className="flex flex-col gap-2">
                     <Link
-                      href="/profile"
+                      href={pathname === "/profile" ? "/dashboard" : "/profile"}
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold hover:bg-[#FFF8B9]/30 rounded-lg transition-colors cursor-pointer"
                     >
-                      <UserIcon className="h-4 w-4 text-[#568203]" />
-                      <span>View Profile</span>
+                      {pathname === "/profile" ? (
+                        <>
+                          <BookOpen className="h-4 w-4 text-[#568203]" />
+                          <span>Revision Dashboard</span>
+                        </>
+                      ) : (
+                        <>
+                          <UserIcon className="h-4 w-4 text-[#568203]" />
+                          <span>View Profile</span>
+                        </>
+                      )}
                     </Link>
 
                     <div className="h-px bg-[#e1daab]/40 my-1" />

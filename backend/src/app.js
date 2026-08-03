@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/auth.routes');
 const submissionRoutes = require('./routes/submission.routes');
 const streakRoutes = require('./routes/streak.routes');
+const achievementRoutes = require('./routes/achievement.routes');
 const errorHandler = require('./middleware/error.middleware');
 
 const app = express();
@@ -28,6 +29,7 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/submissions', submissionRoutes);
 app.use('/api/revision', streakRoutes);
+app.use('/api/achievements', achievementRoutes);
 
 // Centralized Error Handler
 app.use(errorHandler);

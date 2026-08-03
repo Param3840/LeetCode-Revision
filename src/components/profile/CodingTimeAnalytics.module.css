@@ -1,0 +1,151 @@
+.container {
+  background: rgba(26, 41, 5, 0.45);
+  border: 1px solid rgba(255, 248, 185, 0.15);
+  backdrop-filter: blur(16px);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.headerTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: #FFF8B9;
+  font-family: var(--font-sans, system-ui, sans-serif);
+  margin-bottom: 1.25rem;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.875rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .statsGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.statCard {
+  background: rgba(255, 248, 185, 0.04);
+  border: 1px solid rgba(255, 248, 185, 0.12);
+  border-radius: 0.875rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+}
+
+.statCard:hover {
+  background: rgba(255, 248, 185, 0.08);
+  border-color: rgba(255, 248, 185, 0.25);
+  transform: translateY(-2px);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.cardIcon {
+  height: 1.125rem;
+  width: 1.125rem;
+}
+
+.cardValue {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #FFF8B9;
+  font-family: var(--font-sans, system-ui, sans-serif);
+  line-height: 1.2;
+}
+
+.cardLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 248, 185, 0.65);
+  margin-top: 0.35rem;
+  font-family: var(--font-sans, system-ui, sans-serif);
+}
+
+/* Compact Activity Bar Chart */
+.chartContainer {
+  background: rgba(255, 248, 185, 0.03);
+  border: 1px solid rgba(255, 248, 185, 0.1);
+  border-radius: 0.875rem;
+  padding: 1.25rem;
+}
+
+.chartHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.chartTitle {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: rgba(255, 248, 185, 0.9);
+  font-family: var(--font-sans, system-ui, sans-serif);
+}
+
+.barGroup {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.5rem;
+  height: 100px;
+  padding-top: 0.5rem;
+}
+
+.barCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.barTrack {
+  width: 100%;
+  max-width: 24px;
+  background: rgba(255, 248, 185, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 80px;
+}
+
+.barFill {
+  width: 100%;
+  background: linear-gradient(180deg, #d9c44e 0%, #8ba848 100%);
+  border-radius: 4px;
+  transition: height 0.4s ease;
+}
+
+.barLabel {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: rgba(255, 248, 185, 0.6);
+  font-family: var(--font-sans, system-ui, sans-serif);
+}
+
+.barValue {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: #FFF8B9;
+}
