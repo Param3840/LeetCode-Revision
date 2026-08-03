@@ -22,6 +22,7 @@ import ProfileDropdown from "./auth/ProfileDropdown";
 import LoginModal from "./auth/LoginModal";
 import { getCurrentRepoUrl } from "@/lib/storage";
 import styles from "./Navbar.module.css";
+import { API_URL } from "@/lib/api";
 
 const getInitials = (name: string | null) => {
   if (!name) return "?";
@@ -61,7 +62,7 @@ export default function Navbar({ forceTheme, hideNavLinks }: NavbarProps = {}) {
 
     const fetchStreak = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/revision/streak", {
+        const res = await fetch(`${API_URL}/api/revision/streak`, {
           cache: "no-store",
           headers: {
             Authorization: `Bearer ${token}`,

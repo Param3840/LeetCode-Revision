@@ -8,6 +8,7 @@ import Navbar from "@/components/Navbar";
 import RevisionHeatmap from "@/components/profile/RevisionHeatmap";
 import AchievementsSection from "@/components/profile/AchievementsSection";
 import styles from "./Profile.module.css";
+import { API_URL } from "@/lib/api";
 
 const GoogleLogo = () => (
   <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -36,7 +37,7 @@ export default function ProfilePage() {
 
   const handleGoogleLogin = () => {
     setIsLoggingIn(true);
-    window.location.href = "http://localhost:5000/api/auth/google";
+    window.location.href = `${API_URL}/api/auth/google`;
   };
 
   const handleLogout = async () => {

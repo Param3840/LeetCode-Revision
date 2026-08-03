@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { X, AlertCircle, Terminal } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { API_URL } from "@/lib/api";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -52,7 +53,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const handleGoogleLogin = () => {
     setIsConnecting(true);
     setErrorMsg(null);
-    window.location.href = "http://localhost:5000/api/auth/google";
+    window.location.href = `${API_URL}/api/auth/google`;
   };
 
   return (

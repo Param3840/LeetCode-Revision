@@ -8,8 +8,9 @@ import {
   Layers, FileText, GitBranch, Share2, Cpu, Lock, Star
 } from "lucide-react";
 import styles from "./AchievementsSection.module.css";
+import { API_URL } from "@/lib/api";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+const BACKEND_URL = API_URL;
 
 interface Achievement {
   id: string;

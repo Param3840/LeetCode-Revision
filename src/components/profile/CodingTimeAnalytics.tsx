@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from "react";
 import { Clock, Calendar, BarChart2, Zap, Timer, Trophy, Tag, Sparkles } from "lucide-react";
 import styles from "./CodingTimeAnalytics.module.css";
+import { API_URL } from "@/lib/api";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+const BACKEND_URL = API_URL;
 
 interface AnalyticsData {
   todaySeconds: number;

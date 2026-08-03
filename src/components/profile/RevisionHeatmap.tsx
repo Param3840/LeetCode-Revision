@@ -4,8 +4,9 @@ import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Flame, Trophy, Calendar, Zap, Star, Activity } from "lucide-react";
 import styles from "./RevisionHeatmap.module.css";
+import { API_URL } from "@/lib/api";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+const BACKEND_URL = API_URL;
 
 interface HeatmapDay {
   date: string;

@@ -28,6 +28,7 @@ import {
 import Navbar from "@/components/Navbar";
 import { useToast } from "@/context/ToastContext";
 import styles from "./RevisionDashboard.module.css";
+import { API_URL } from "@/lib/api";
 
 interface Submission {
   _id: string;
@@ -66,7 +67,7 @@ interface User {
   picture?: string;
 }
 
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = API_URL;
 
 export default function RevisionDashboard() {
   const router = useRouter();

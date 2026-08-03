@@ -24,6 +24,7 @@ import {
 import Navbar from "@/components/Navbar";
 import { useToast } from "@/context/ToastContext";
 import styles from "./ProblemDetailView.module.css";
+import { API_URL } from "@/lib/api";
 
 interface Submission {
   _id: string | null;
@@ -66,7 +67,7 @@ interface ProblemMetadata {
   lastFetched: string;
 }
 
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = API_URL;
 
 export default function ProblemDetailView() {
   const router = useRouter();

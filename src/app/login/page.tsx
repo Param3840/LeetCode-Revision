@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { API_URL } from "@/lib/api";
 
 function LoginContent() {
   const router = useRouter();
@@ -64,7 +65,7 @@ function LoginContent() {
 
   const handleGoogleClick = () => {
     setError(null);
-    window.location.href = "http://localhost:5000/api/auth/google";
+    window.location.href = `${API_URL}/api/auth/google`;
   };
 
   const handleContinueClick = () => {
