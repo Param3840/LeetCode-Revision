@@ -234,32 +234,27 @@ This creates your personal CodeRevise workspace.
 
 ## Step 2️⃣ Install Chrome Extension
 
-Download the latest CodeRevise Extension.
+Download the latest **CodeRevise Chrome Extension** from the GitHub Release below:
 
-Extract the ZIP.
+### 📦 Download Extension
 
-Open Chrome
+➡️ **[Download CodeRevise Extension](https://github.com/Param3840/LeetCode-Revision/releases/download/untagged-3570ab027b7da04bb5c2/extension.rar)**
 
-```
+After downloading:
+
+1. Extract the downloaded **extension.rar** file.
+2. Open **Google Chrome**.
+3. Visit:
+
+```text
 chrome://extensions
 ```
 
-Enable
+4. Enable **Developer Mode**.
+5. Click **Load unpacked**.
+6. Select the extracted **CodeRevise Extension** folder.
 
-✅ Developer Mode
-
-Click
-
-**Load unpacked**
-
-Select the extracted extension folder.
-
----
-## 📦 Download Chrome Extension
-
-Download the latest Chrome Extension from the GitHub Releases page.
-
-➡️ **[Download CodeRevise Extension]([https://github.com/Param3840/LeetCode-Revision/releases/latest](https://github.com/Param3840/LeetCode-Revision/releases/tag/untagged-3570ab027b7da04bb5c2))**
+✅ Your Chrome Extension is now installed successfully.
 
 ## Step 3️⃣ Connect Extension
 
