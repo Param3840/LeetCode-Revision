@@ -1,8 +1,8 @@
 // CodeRevise Extension Popup Script - Phase 5B (Account Connection)
 
-const CODEREVISE_URL = "http://localhost:3000";
-const LOGIN_URL = "http://localhost:3000/login";
-const BACKEND_URL = "http://localhost:5000";
+const CODEREVISE_URL = "https://leet-code-revision.vercel.app";
+const LOGIN_URL = "https://leet-code-revision.vercel.app/login";
+const BACKEND_URL = "https://leetcode-revision-xnpg.onrender.com";
 
 function getProblemSlug(urlStr) {
   try {

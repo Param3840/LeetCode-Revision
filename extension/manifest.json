@@ -8,7 +8,9 @@
     "activeTab"
   ],
   "host_permissions": [
-    "https://leetcode.com/*"
+    "https://leetcode.com/*",
+    "https://leetcode-revision-xnpg.onrender.com/*",
+    "https://leet-code-revision.vercel.app/*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -35,7 +37,7 @@
     },
     {
       "matches": [
-        "http://localhost:3000/*"
+        "https://leet-code-revision.vercel.app/*"
       ],
       "js": [
         "auth-handler.js"
